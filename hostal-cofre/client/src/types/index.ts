@@ -116,6 +116,8 @@ export interface Shift {
   totalOrders: number
   cashReceived: number
   digitalTotal: number
+  salesByType?: Record<string, number>
+  ordersByType?: Record<string, number>
   notes?: string
   status: 'open' | 'closed'
   openedAt: string

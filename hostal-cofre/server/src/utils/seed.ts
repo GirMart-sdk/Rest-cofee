@@ -125,6 +125,48 @@ async function main() {
         category: Category.postre,
         image: '/images/postres3.webp',
       },
+      {
+        name: 'Café con Leche',
+        description: 'Café con leche artesanal con espuma cremosa',
+        price: 4,
+        category: Category.bebida,
+        image: '/images/bebida1.svg',
+      },
+      {
+        name: 'Espresso',
+        description: 'Tiro de espresso intenso de origen colombiano',
+        price: 3,
+        category: Category.bebida,
+        image: '/images/bebida2.svg',
+      },
+      {
+        name: 'Chocolate Caliente',
+        description: 'Chocolate de taza artesanal con crema batida',
+        price: 5,
+        category: Category.bebida,
+        image: '/images/bebida3.svg',
+      },
+      {
+        name: 'Limonada Natural',
+        description: 'Limonada fresca con hierbabuena',
+        price: 6,
+        category: Category.bebida,
+        image: '/images/bebida4.svg',
+      },
+      {
+        name: 'Jugo de Mango',
+        description: 'Jugo de mango fresco preparado al día',
+        price: 6,
+        category: Category.bebida,
+        image: '/images/bebida5.svg',
+      },
+      {
+        name: 'Refresco de Cola',
+        description: 'Refresco de cola bien frío',
+        price: 3,
+        category: Category.bebida,
+        image: '/images/bebida6.svg',
+      },
     ],
   })
 

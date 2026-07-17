@@ -28,7 +28,21 @@ export class ShiftService {
         const digitalTotal = orders
           .filter((o) => o.paymentMethod !== 'cash')
           .reduce((sum, o) => sum + o.total, 0)
-        return { ...shift, totalSales, totalOrders, cashReceived, digitalTotal }
+        const salesByType: Record<string, number> = {}
+        const ordersByType: Record<string, number> = {}
+        for (const order of orders) {
+          salesByType[order.orderType] = (salesByType[order.orderType] || 0) + order.total
+          ordersByType[order.orderType] = (ordersByType[order.orderType] || 0) + 1
+        }
+        return {
+          ...shift,
+          totalSales,
+          totalOrders,
+          cashReceived,
+          digitalTotal,
+          salesByType,
+          ordersByType,
+        }
       }),
     )
 

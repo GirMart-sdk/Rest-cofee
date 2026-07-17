@@ -178,6 +178,19 @@ export default function AdminShifts() {
                         <div className="text-xs text-gray-500">Pedidos</div>
                       </div>
                     </div>
+                    <div className="bg-white rounded-lg p-2 mb-2">
+                      <div className="text-xs font-semibold text-gray-600 mb-1">
+                        Ventas por canal
+                      </div>
+                      {(['domicilio', 'tienda', 'mesa'] as const).map((type) => (
+                        <div key={type} className="flex justify-between text-xs py-0.5">
+                          <span className="text-gray-500">{ORDER_TYPE_LABELS[type]}</span>
+                          <span className="font-semibold">
+                            {formatCOP(shift.salesByType?.[type] || 0)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>Efectivo: {formatCOP(shift.cashReceived)}</span>
                       <span>Digital: {formatCOP(shift.digitalTotal)}</span>

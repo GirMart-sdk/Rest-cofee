@@ -30,6 +30,7 @@ const openShift = {
   totalOrders: 8,
   cashReceived: 150000,
   digitalTotal: 20000,
+  salesByType: { domicilio: 10000, tienda: 20000, mesa: 20000 },
   status: 'open',
   openedAt: '2026-08-16T08:00:00.000Z',
 }
@@ -73,6 +74,8 @@ describe('AdminShifts', () => {
     expect(screen.getByText('Tarde')).toBeInTheDocument()
     expect(screen.getByText('$50.000')).toBeInTheDocument()
     expect(screen.getByText('$80.000')).toBeInTheDocument()
+    expect(screen.getByText('Ventas por canal')).toBeInTheDocument()
+    expect(screen.getByText('Tienda/POS')).toBeInTheDocument()
   })
 
   it('shows the empty states when there are no shifts', async () => {
@@ -203,7 +206,7 @@ describe('AdminShifts', () => {
     expect(screen.getAllByText('Efectivo').length).toBeGreaterThan(0)
     expect(screen.getByText('Nequi')).toBeInTheDocument()
     expect(screen.getAllByText('$40.000').length).toBeGreaterThanOrEqual(2)
-    expect(screen.getByText('Domicilio')).toBeInTheDocument()
+    expect(screen.getAllByText('Domicilio').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Mesa').length).toBeGreaterThan(0)
     expect(apiMock.api.get).toHaveBeenCalledWith('/shifts/s2/summary')
   })
