@@ -8,79 +8,42 @@
 
 ---
 
-> **Resumen**: suite end-to-end de Hostal Cofee con Playwright. Cubre home, menú,
-> autenticación y carrito. Requiere el servidor corriendo en `http://localhost:3001`.
-> Incluye el script `npm run test:e2e:docs` que genera capturas full-page en
-> `docs/screenshots/` para la documentación.
+## ¿Qué son?
 
-Suite de pruebas end-to-end para Hostal Cofee, ubicada en la raíz del
-repositorio (`D:\Rest-COFEE\e2e`).
+Las pruebas **E2E (de extremo a extremo)** verifican los flujos principales de Hostal Cofee
+tal y como los usaría una persona real, navegando por la aplicación en un navegador real.
 
-## Requisitos previos
+Cubren los flujos más importantes del sistema:
 
-1. Instalar dependencias y el navegador (una sola vez):
+- **Inicio** (home).
+- **Menú** digital.
+- **Inicio de sesión** (autenticación).
+- **Carrito** de compras.
 
-   ```bash
-   npm install -D @playwright/test
-   npx playwright install chromium
-   ```
+También incluyen una opción para **generar capturas de pantalla** de las páginas principales,
+que se usan para la documentación del proyecto.
 
-2. Levantar el servidor de desarrollo. Los tests **no** arrancan el servidor
-   automáticamente: asumen que ya está corriendo en `http://localhost:3001`.
+## Requisitos
 
-   En desarrollo, el backend Express monta el middleware de Vite, por lo que
-   ese único puerto sirve tanto la SPA como la API `/api`. Desde la raíz:
+- Tener el sistema en marcha en **modo desarrollo** (las pruebas no lo inician solas).
+- Instalar por única vez el navegador de pruebas y las dependencias de la suite.
 
-   ```bash
-   npm run dev        # backend con Vite embebido (Express + Prisma, puerto 3001)
-   npm run start:all  # alternativa: levanta backend y frontend en ventanas separadas
-   ```
+## Cómo se ejecutan
 
-   > Nota: `npm run start:all` lanza el frontend de Vite en el puerto 5173,
-   > pero para los tests E2E se usa exclusivamente `http://localhost:3001`.
+Desde la raíz del proyecto, con el sistema corriendo, se ejecuta un único comando para correr
+toda la suite. Los resultados se guardan en carpetas de **reportes** del proyecto.
 
-## Cómo ejecutar los tests
-
-Con el servidor corriendo en `:3001`:
-
-```bash
-npm run test:e2e              # toda la suite (home, menu, auth, cart)
-npx playwright test e2e/home.spec.ts   # un solo archivo
-```
-
-Los resultados y capturas de fallos se guardan en `test-results/` y el reporte
-HTML en `playwright-report/` (ambos ignorados por git).
-
-## Capturas de pantalla para documentación
-
-Las capturas se generan solo bajo demanda con:
-
-```bash
-npm run test:e2e:docs
-```
-
-Genera imágenes full-page en `docs/screenshots/`:
-
-| Ruta        | Archivo de salida               |
-| ----------- | ------------------------------- |
-| `/`         | `docs/screenshots/home.png`     |
-| `/menu`     | `docs/screenshots/menu.png`     |
-| `/login`    | `docs/screenshots/login.png`    |
-| `/carrito`  | `docs/screenshots/carrito.png`  |
-| `/reservas` | `docs/screenshots/reservas.png` |
-| `/mesa?t=3` | `docs/screenshots/mesa.png`     |
-
-La página `/carrito` se captura con un plato agregado si el menú tiene
-platillos; si el menú está vacío, se captura el estado vacío.
+Las **capturas de pantalla para la documentación** se generan solo cuando se pide
+explícitamente, mediante su propio comando.
 
 ## Notas
 
-- Las pruebas no crean datos en la API: se basan en contenido estable
-  existente (textos en español de los componentes) y no requieren limpiar nada.
-- Si el menú está vacío (sin seed), `cart.spec.ts` y la captura de `/carrito`
-  se omiten de forma controlada mediante `test.skip`.
-- El login usa un email inventado para forzar siempre el camino de error
-  (toast "Credenciales incorrectas"), estable aunque la API falle.
+- Las pruebas **no crean ni modifican datos** de la aplicación: se basan en contenido estable
+  de la interfaz.
+- Si el menú está vacío (sin datos iniciales), las pruebas del carrito se omiten de forma
+  controlada y no se marcan como fallidas.
+- La prueba de inicio de sesión usa un correo ficticio para verificar siempre el flujo de
+  error esperado, de forma estable.
 
 ---
 

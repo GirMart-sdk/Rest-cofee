@@ -1,363 +1,84 @@
 # TRD — Documento de Requisitos Técnicos
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee--v2-brightgreen.svg)](README.md)
-![Versión Documento](https://img.shields.io/badge/Versión-2.0-blue.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
-
-![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
-![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
-![Autenticación](https://img.shields.io/badge/Auth-JWT%20%2B%20httpOnly-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-446%20Pasando-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2099%25-brightgreen.svg)
-[![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
 ---
 
 **Producto:** Hostal Cofee v2
-**Versión:** 2.0
-**Fecha:** Agosto 2026
 
 ---
 
-## 0. Resumen Ejecutivo
+## 1. Propósito
 
-> **Lo más importante en 30 segundos:**
->
-> - **Arquitectura**: Monolito por capas (Routes → Services → Prisma) — React 18 + Vite en el frontend, Express 4 + TypeScript ESM en el backend, PostgreSQL 14 como base de datos.
-> - **Autenticación**: JWT HS256 (15 min) + refresh tokens rotados (7 días) entregados en cookie httpOnly, lockout anti brute force y política de contraseñas fuerte.
-> - **Seguridad**: 6 capas — secrets, auth hardening, validación Zod + sanitización XSS, headers Helmet/CSP, sesiones revocables y tests automatizados.
-> - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
-> - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
-> - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
-> - **Testing**: 188 tests backend + 232 frontend + 43 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
+Este documento resume, en lenguaje general y sin entrar en detalles de implementación,
+**qué es Hostal Cofee** y los requisitos que cumple como sistema. Su objetivo es servir de
+guía informativa para entender el producto, su alcance y sus principales características.
 
 ---
 
-## 1. Arquitectura General
+## 2. El producto
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                      Cliente (Browser)                   │
-│  React 18 + Vite 6 + TailwindCSS 3 + React Router 7    │
-│  Puerto: 5173                                           │
-└──────────────────────┬──────────────────────────────────┘
-                       │ HTTP (proxy /api → :3001)
-                       ▼
-┌─────────────────────────────────────────────────────────┐
-│                    API Server (Express)                   │
-│  Express 4.19 + TypeScript ESM + Prisma 5.18            │
-│  Puerto: 3001                                           │
-│                                                         │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
-│  │  Auth    │ │  Orders  │ │  Menu    │ │  Shifts  │  │
-│  │ Routes   │ │ Routes   │ │ Routes   │ │ Routes   │  │
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘  │
-│       │            │            │             │         │
-│  ┌────▼────────────▼────────────▼─────────────▼─────┐  │
-│  │              Services Layer                       │  │
-│  └────────────────────┬──────────────────────────────┘  │
-│                       │                                  │
-│  ┌────────────────────▼──────────────────────────────┐  │
-│  │              Prisma ORM (Query Engine)             │  │
-│  └────────────────────┬──────────────────────────────┘  │
-└───────────────────────┼─────────────────────────────────┘
-                        │ TCP (puerto 5432)
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                  PostgreSQL Database                     │
-│  10 modelos · 10 enums · 15+ índices                    │
-│  Puerto: 5432                                           │
-└─────────────────────────────────────────────────────────┘
-```
+Hostal Cofee es un sistema web completo para la operación de un restaurante: **menú digital,
+pedidos, reservas, gestión de mesas, turnos, reportes y pagos**, todo en una sola plataforma.
 
-**Tipo de arquitectura:** Monolito con separación por capas (Routes → Services → Prisma)
+Está pensado para dos tipos de usuarios:
+
+- **Clientes**, que piden desde su mesa, para llevar o a domicilio.
+- **Personal administrativo**, que gestiona el día a día del negocio.
 
 ---
 
-## 2. Stack Tecnológico
+## 3. Funcionalidades principales
 
-### 2.1 Backend
-
-| Componente    | Tecnología         | Versión | Propósito                     |
-| ------------- | ------------------ | ------- | ----------------------------- |
-| Runtime       | Node.js            | 18+     | Ejecución JavaScript          |
-| Framework     | Express            | ^4.19.2 | HTTP server y routing         |
-| Lenguaje      | TypeScript         | ^5.5.4  | Type safety (ESM modules)     |
-| ORM           | Prisma             | ^5.18.0 | Database access y migraciones |
-| Validación    | Zod                | ^3.23.8 | Request validation            |
-| Auth          | jsonwebtoken       | ^9.0.2  | JWT tokens (HS256)            |
-| Hashing       | bcryptjs           | ^2.4.3  | Password hashing (12 rounds)  |
-| Seguridad     | Helmet             | ^7.1.0  | Security headers (CSP, HSTS)  |
-| CORS          | cors               | ^2.8.5  | Cross-origin requests         |
-| Rate Limiting | express-rate-limit | ^7.3.1  | Brute force protection        |
-| HTTP Client   | node-fetch         | ^3.3.2  | Wompi API calls               |
-| Dev Runner    | tsx                | ^4.16.2 | TypeScript execution          |
-| Test Runner   | Vitest             | ^2.0.5  | Unit/integration tests        |
-| HTTP Testing  | Supertest          | ^6.3.4  | API testing                   |
-| Linting       | ESLint             | ^8.57.0 | Code quality                  |
-| Formatting    | Prettier           | ^3.3.3  | Code style                    |
-
-### 2.2 Frontend
-
-| Componente  | Tecnología       | Versión | Propósito              |
-| ----------- | ---------------- | ------- | ---------------------- |
-| Framework   | React            | ^18.3.1 | UI framework           |
-| Build Tool  | Vite             | ^5.3.5  | Dev server + bundler   |
-| Routing     | React Router DOM | ^6.26.0 | Client-side routing    |
-| CSS         | TailwindCSS      | ^3.4.7  | Utility-first styling  |
-| HTTP Client | Axios            | ^1.7.4  | API communication      |
-| Animations  | Framer Motion    | ^11.3.0 | UI transitions         |
-| Toast       | react-hot-toast  | ^2.4.1  | Notifications          |
-| Icons       | react-icons      | ^5.3.0  | Icon library (Feather) |
-| QR Code     | qrcode.react     | ^4.2.0  | Table QR generation    |
-
-### 2.3 Base de Datos
-
-| Componente | Tecnología | Versión | Propósito          |
-| ---------- | ---------- | ------- | ------------------ |
-| Motor      | PostgreSQL | 14+     | Primary database   |
-| ORM        | Prisma     | ^5.18.0 | Schema + queries   |
-| Puerto     | localhost  | 5432    | Default PostgreSQL |
+- Menú digital con filtros y pedidos en línea.
+- Carrito de compras con opciones de entrega: en el lugar, para llevar o a domicilio.
+- Reservas de mesas y código QR por mesa para pedir desde la mesa.
+- Pagos en línea (Wompi) y métodos alternativos (efectivo, Nequi, Daviplata).
+- Notificaciones a los clientes por WhatsApp.
+- Panel administrativo: pedidos en tiempo real, menú, mesas, turnos, reportes,
+  auditoría y pagos.
+- Cuentas de usuario con inicio de sesión y autenticación en dos pasos (2FA).
 
 ---
 
-## 3. Seguridad
+## 4. Cómo está construido (resumen)
 
-### 3.1 Autenticación y Autorización
+- **Aplicación en el navegador** (frontend) con interfaz moderna y adaptable a móviles.
+- **Servidor de aplicación** (backend) que expone los servicios de la plataforma.
+- **Base de datos relacional** que almacena toda la información del sistema.
+- **Servicios externos** para pagos en línea y notificaciones por WhatsApp.
 
-| Mecanismo           | Detalle                                                                           |
-| ------------------- | --------------------------------------------------------------------------------- |
-| Access Token        | JWT HS256, expira en 15 minutos                                                   |
-| Refresh Token       | UUID v4, hasheado (SHA-256) en DB, expira en 7 días, entregado en cookie httpOnly |
-| Rotación de refresh | El token old se revoca al usarlo (one-time use)                                   |
-| Invalidación total  | Cambio de contraseña revoca TODOS los refresh tokens del usuario                  |
-| Roles               | `admin` y `client`, validados en middleware `requireAdmin`                        |
-| Algoritmo whitelist | Solo HS256 aceptado (previene algorithm switching attacks)                        |
-
-### 3.2 Protección de Endpoints
-
-| Mecanismo                | Detalle                                                         |
-| ------------------------ | --------------------------------------------------------------- |
-| Rate limiting global     | 100 req/15min (producción), 1000 req/15min (desarrollo)         |
-| Rate limiting auth       | 10 req/15min en /register y /login (deshabilitado en test)      |
-| Account lockout          | 5 intentos fallidos → bloqueo 15 min, retorna 429 con countdown |
-| Password policy          | 8+ chars, mayúscula, minúscula, dígito, carácter especial       |
-| Timing attack prevention | bcrypt dummy compare cuando usuario no existe                   |
-
-### 3.3 Protección de Datos
-
-| Mecanismo        | Detalle                                                                          |
-| ---------------- | -------------------------------------------------------------------------------- |
-| XSS Sanitization | Middleware que limpia HTML tags, event handlers, javascript: URIs del body/query |
-| Helmet CSP       | Sin frames, same-origin strict, no MIME sniffing                                 |
-| Body limit       | 10KB máximo para requests JSON                                                   |
-| Password masking | Nunca se retorna `password` en respuestas API                                    |
-
-### 3.4 Validación
-
-| Mecanismo          | Detalle                                               |
-| ------------------ | ----------------------------------------------------- |
-| Request validation | Zod schemas en middleware `validate()`                |
-| Parsed values      | Valores parseados reemplazan req.body/query/params    |
-| Error format       | 400 con mensaje de validación (sin exponer internals) |
+Las principales tecnologías son: React y Vite en el frontend, Express con TypeScript en el
+backend y PostgreSQL como base de datos.
 
 ---
 
-## 4. Infraestructura
+## 5. Requisitos no funcionales
 
-### 4.1 Ambientes
-
-| Ambiente    | Frontend                               | Backend                                 | DB                    | Notes                  |
-| ----------- | -------------------------------------- | --------------------------------------- | --------------------- | ---------------------- |
-| Development | Vite dev (`hostal-cofre/client` :5173) | tsx watch (`hostal-cofre/server` :3001) | PostgreSQL (:5432)    | Proxy /api → :3001     |
-| Production  | Vite build (static)                    | Node.js (`hostal-cofre/server` :3001)   | PostgreSQL            | Same DB                |
-| Test        | Vitest                                 | createApp() in-process                  | PostgreSQL (misma DB) | DB cleanup entre tests |
-
-### 4.2 Puerto y Proxy
-
-```
-Frontend:  http://localhost:5173
-Backend:   http://localhost:3001
-Database:  localhost:5432
-Proxy:     Vite redirige /api/* → http://localhost:3001
-```
-
-### 4.3 Variables de Entorno
-
-**Backend (.env):**
-
-```
-DATABASE_URL          # PostgreSQL connection string
-LOG_LEVEL             # Nivel de log: info | debug | warn | error
-JWT_SECRET            # Mínimo 32 caracteres
-JWT_EXPIRES_IN        # Default: 15m
-JWT_REFRESH_EXPIRES_IN # Default: 7d
-CORS_ORIGIN           # Default: http://localhost:5173
-WOMPI_MODE            # sandbox | production
-WOMPI_PUBLIC_KEY      # Wompi public key
-WOMPI_PRIVATE_KEY     # Wompi private key
-WOMPI_BASE_URL        # Opcional; default según WOMPI_MODE
-WHATSAPP_PHONE        # Número de WhatsApp del restaurante (wa.me)
-WHATSAPP_API_TOKEN    # Token WhatsApp Business API (opcional)
-WHATSAPP_PHONE_NUMBER_ID # ID del número en Meta (opcional)
-WHATSAPP_BUSINESS_ACCOUNT_ID # ID de cuenta de negocio (opcional)
-LOCKOUT_MAX_ATTEMPTS  # Intentos fallidos antes de bloquear (5)
-LOCKOUT_WINDOW_MS     # Ventana de intentos (900000)
-LOCKOUT_DURATION_MS   # Duración del bloqueo (900000)
-ADMIN_EMAIL           # Email del admin seed
-ADMIN_PASSWORD        # Password del admin seed
-CLIENT_EMAIL          # Email del cliente seed
-CLIENT_PASSWORD       # Password del cliente seed
-```
-
-**Frontend (.env):**
-
-```
-VITE_WHATSAPP_PHONE   # Número de WhatsApp para deep links
-```
+- **Seguridad:** protección de la información, acceso por roles, sesiones seguras y
+  buenas prácticas de seguridad en general.
+- **Fiabilidad:** operación continua para el servicio diario del restaurante.
+- **Mantenibilidad:** código organizado y documentado, con pruebas automatizadas.
+- **Usabilidad:** interfaz sencilla y clara tanto para clientes como para el personal.
 
 ---
 
-## 5. Dependencias Externas
+## 6. Usuarios y roles
 
-### 5.1 Wompi (Pasarela de Pagos)
-
-- **Tipo:** API REST (sandbox y producción)
-- **Base URL sandbox:** `https://sandbox.wompi.co/v1` (default con `WOMPI_MODE=sandbox`)
-- **Base URL producción:** `https://production.wompi.co/v1` (automática con `WOMPI_MODE=production`)
-- **Uso actual:** Backend proxy para crear transacciones y consultar estado
-- **Endpoints consumidos:** POST `/transactions`, GET `/transactions/:id`
-
-### 5.2 WhatsApp (Notificaciones)
-
-- **Tipo:** Deep links `wa.me` + WhatsApp Business API (opcional)
-- **Deep links:** Links client-side con mensaje pre-llenado (`WHATSAPP_PHONE`)
-- **Business API:** Envío server-side automático cuando se configuran
-  `WHATSAPP_API_TOKEN` y `WHATSAPP_PHONE_NUMBER_ID`; si la API falla se hace
-  fallback automático al deep link.
-
-### 5.3 Observabilidad
-
-- Logs estructurados JSON (`utils/logger.ts`) con `LOG_LEVEL`
-- Request ID (UUID) en cada petición
-- Request logging (método, ruta, status, duración)
-- `GET /api/metrics` (admin): contadores de requests, status codes y latencia
+| Rol         | Qué puede hacer                                                     |
+| ----------- | ------------------------------------------------------------------- |
+| **Cliente** | Ver el menú, armar pedidos, reservar mesas y realizar pagos         |
+| **Admin**   | Gestionar menú, pedidos, mesas, turnos, reportes, auditoría y pagos |
 
 ---
 
-## 6. Testing
+## 7. Ambiente de despliegue
 
-### 6.1 Framework
-
-| Herramienta | Versión | Propósito       |
-| ----------- | ------- | --------------- |
-| Vitest      | ^2.0.5  | Test runner     |
-| Supertest   | ^6.3.4  | HTTP assertions |
-
-### 6.2 Configuración
-
-```typescript
-// vitest.config.ts (resumen)
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: "node",
-    fileParallelism: false, // Ejecución secuencial
-    include: ["tests/**/*.test.ts", "src/**/*.test.ts"],
-    exclude: ["tests/security.test.ts"], // Suite de seguridad corre aparte
-    globalSetup: ["./tests/global-setup.ts"],
-  },
-});
-```
-
-### 6.3 Cobertura Actual
-
-**Backend (Vitest + Supertest) — 188 tests:**
-
-| Suite                | Tests   | Estado           |
-| -------------------- | ------- | ---------------- |
-| auth.test.ts         | 25      | Todos pasando    |
-| orders.test.ts       | 20      | Todos pasando    |
-| reservations.test.ts | 16      | Todos pasando    |
-| menu.test.ts         | 11      | Todos pasando    |
-| middleware.test.ts   | 23      | Todos pasando    |
-| payments.test.ts     | 13      | Todos pasando    |
-| reports.test.ts      | 6       | Todos pasando    |
-| services.test.ts     | 13      | Todos pasando    |
-| shifts.test.ts       | 14      | Todos pasando    |
-| tables.test.ts       | 19      | Todos pasando    |
-| validation.test.ts   | 12      | Todos pasando    |
-| whatsapp.test.ts     | 8       | Todos pasando    |
-| audit.test.ts        | 5       | Todos pasando    |
-| events.test.ts       | 3       | Todos pasando    |
-| **Total backend**    | **188** | **100% pasando** |
-
-**Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **99%** cliente
-(thresholds server: 80/65/80/80 · client: 95/90/90/95).
-
-**Frontend (Vitest + Testing Library) — 232 tests:**
-Routing (9), Layout (13), Menú (4), Reservas (10), Carrito (28), Auth (25),
-Admin (81), Mesa (9), UI design system (17), Hooks (6), Services (30).
-
-**Seguridad (suite aparte, `npm run test:security`) — 43 tests:** secrets,
-auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.
-
-**E2E (Playwright):** home, menú, auth, carrito + capturas para documentación
-(`npm run test:e2e:docs`).
-
-### 6.4 Patrón de Tests
-
-```typescript
-// Helpers compartidos (tests/helpers.ts)
-- createApp()        → App Express de prueba
-- seedTestData()     → Crea admin, cliente, 2 mesas, 2 items menú
-- cleanupTestData()  → Limpia datos de prueba
-- adminToken()       → JWT de admin para tests
-- clientToken()      → JWT de cliente para tests
-- ensureUser()       → findOrCreate idempotente
-- ensureTable()      → findOrCreate idempotente
-```
-
----
-
-## 7. Code Quality
-
-### 7.1 Linting y Formatting
-
-| Herramienta | Configuración             | Archivos        |
-| ----------- | ------------------------- | --------------- |
-| ESLint      | reglas React + TypeScript | `*.ts`, `*.tsx` |
-| Prettier    | Configuración estándar    | `src/**`        |
-
-### 7.2 TypeScript
-
-- **Strict mode:** Activado en ambos proyectos
-- **Target:** ES2020
-- **Module resolution:** Bundler
-- **Path aliases:** `@/` → `./src/`
-
-### 7.3 Code Style
-
-- ESM modules (`import/export`) en todo el backend
-- Funciones de servicio como clases estáticas (Patrón Service)
-- Zod schemas para validación de entrada
-- catchAsync wrapper para handlers async (Express 4)
-- Error handler global con soporte para errores custom (statusCode)
-
----
-
-## 8. Stack de Despliegue
-
-| Componente       | Implementado                                             |
-| ---------------- | -------------------------------------------------------- |
-| Hosting frontend | Servido por el mismo proceso Node (Vite build, estático) |
-| Hosting backend  | Windows bare-metal: servicio NSSM (`node dist/index.js`) |
-| Reverse proxy    | Caddy (HTTPS automático)                                 |
-| Database         | PostgreSQL local                                         |
-| Dominio          | DNS + Let's Encrypt (Caddy)                              |
-
-Ver [deploy/README.md](deploy/README.md) para la guía completa de despliegue.
+El sistema se despliega en servidores propios (entorno Windows) y se accede por internet
+mediante un dominio con conexión segura (HTTPS). La guía completa de despliegue está en
+[`deploy/README.md`](deploy/README.md).
 
 ---
 
