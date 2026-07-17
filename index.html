@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostal Cofee - Restaurante Premium</title>
+    <meta
+      name="description"
+      content="Hostal Cofee - Los mejores platillos frescos, pizzas, pastas y postres. Reserva tu mesa ahora."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Arima+Madurai:wght@700&family=Mulish:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/estilos.css" />
+  </head>
+  <body>
+    <header class="encabezado" id="inicio">
+      <nav class="contenedor-navegacion">
+        <div class="contenido-navegacion contenedor">
+          <div class="logo">
+            <h2>
+              <span class="azul">Hostal</span> <span class="verde">Cofre</span>
+            </h2>
+          </div>
+          <nav class="navegacion ocultar">
+            <a href="#inicio" class="nav-link">Inicio</a>
+            <a href="#nosotros" class="nav-link">Nosotros</a>
+            <a href="#menu" class="nav-link">Menú</a>
+            <a href="#chef" class="nav-link">Chef</a>
+            <a href="#contacto" class="nav-link">Contacto</a>
+          </nav>
+          <div class="Hamburguesa"><span></span><span></span><span></span></div>
+        </div>
+      </nav>
+      <div class="contenido-header">
+        <div class="contenedor-encabezado">
+          <div class="texto-encabezado">
+            <h2>God our guide</h2>
+            <a href="#menu" class="btn bordes">Nuestro Menú</a>
+          </div>
+          <video autoplay loop muted playsinline>
+            <source src="assets/bg_video.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </header>
+
+    <section id="nosotros" class="contenedor-nosotros contenedor">
+      <div class="texto-nosotros">
+        <p class="bienvenida">¡Bienvenido a!</p>
+        <h1>Hostal Cofee</h1>
+        <p>
+          Experiencia gastronómica única con ingredientes frescos y recetas
+          tradicionales. Nuestro equipo apasionado crea platillos inolvidables.
+        </p>
+        <a href="#contacto" class="btn btn-rojo">Reservar</a>
+      </div>
+      <div class="imagenes-nosotros">
+        <div class="imagen1">
+          <img
+            data-src="assets/img/nosotros1.webp"
+            alt="Ambiente Hostal Cofee"
+            class="lazy"
+          />
+        </div>
+        <div class="imagenes2">
+          <img
+            data-src="assets/img/nosotros2.webp"
+            alt="Amigos disfrutando"
+            class="lazy"
+          />
+          <img
+            data-src="assets/img/nosotros3.webp"
+            alt="Pasta casera"
+            class="lazy"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section id="menu" class="menu-contenedor">
+      <h2 class="texto-platillos text-center">Menú Destacado</h2>
+      <div class="botones-platillos">
+        <button class="todos btn btn-verde active">Todos</button>
+        <button class="ensaladas btn btn-verde">Ensaladas</button>
+        <button class="pasta btn btn-verde">Pasta</button>
+        <button class="pizza btn btn-verde">Pizza</button>
+        <button class="postres btn btn-verde">Postres</button>
+      </div>
+      <div class="platillos">
+        <!-- Ensaladas -->
+        <div class="platillo" data-platillo="ensalada">
+          <img
+            data-src="assets/img/ensalada.webp"
+            alt="Ensalada Quinoa"
+            class="lazy"
+          />
+          <h2>Ensalada Quinoa</h2>
+          <p>Quinoa, cerezas, tomate cherry, aceitunas, aderezo especial</p>
+          <div class="precio">
+            <p>$12</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="ensalada">
+          <img
+            data-src="assets/img/ensalada2.webp"
+            alt="Ensalada Mediterránea"
+            class="lazy"
+          />
+          <h2>Ensalada Mediterránea</h2>
+          <p>Lechuga, feta, tomate, pepino, oliva griega</p>
+          <div class="precio">
+            <p>$14</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="ensalada">
+          <img
+            data-src="assets/img/ensalada3.webp"
+            alt="Ensalada César"
+            class="lazy"
+          />
+          <h2>Ensalada César</h2>
+          <p>Romana, crutones, parmesano, aderezo Caesar</p>
+          <div class="precio">
+            <p>$15</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <!-- Pastas -->
+        <div class="platillo" data-platillo="pasta">
+          <img data-src="assets/img/pasta1.webp" alt="Carbonara" class="lazy" />
+          <h2>Pasta Carbonara</h2>
+          <p>Espagueti, pancetta, huevo, pecorino, pimienta</p>
+          <div class="precio">
+            <p>$18</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="pasta">
+          <img data-src="assets/img/pasta2.webp" alt="Boloñesa" class="lazy" />
+          <h2>Pasta Boloñesa</h2>
+          <p>Fettuccine, carne, tomate, zanahoria, hierbas</p>
+          <div class="precio">
+            <p>$16</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="pasta">
+          <img data-src="assets/img/pasta3.webp" alt="Pesto" class="lazy" />
+          <h2>Pasta Pesto</h2>
+          <p>Linguine, pesto genovés, piñones, parmesano</p>
+          <div class="precio">
+            <p>$17</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <!-- Pizzas -->
+        <div class="platillo" data-platillo="pizza">
+          <img
+            data-src="assets/img/pizza1.webp"
+            alt="Margherita"
+            class="lazy"
+          />
+          <h2>Pizza Margherita</h2>
+          <p>Tomate, mozzarella fresca, albahaca</p>
+          <div class="precio">
+            <p>$20</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="pizza">
+          <img data-src="assets/img/pizza2.webp" alt="Pepperoni" class="lazy" />
+          <h2>Pizza Pepperoni</h2>
+          <p>Pepperoni picante, mozzarella, salsa especial</p>
+          <div class="precio">
+            <p>$22</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="pizza">
+          <img
+            data-src="assets/img/pizza3.webp"
+            alt="Vegetariana"
+            class="lazy"
+          />
+          <h2>Pizza Vegetariana</h2>
+          <p>Verduras grilladas, queso vegano, BBQ</p>
+          <div class="precio">
+            <p>$19</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <!-- Postres -->
+        <div class="platillo" data-platillo="postre">
+          <img
+            data-src="assets/img/postres1.webp"
+            alt="Tiramisú"
+            class="lazy"
+          />
+          <h2>Tiramisú Italiano</h2>
+          <p>Mascarpone, café, galletas savoiardi</p>
+          <div class="precio">
+            <p>$8</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="postre">
+          <img
+            data-src="assets/img/postres2.webp"
+            alt="Cheesecake"
+            class="lazy"
+          />
+          <h2>Cheesecake NY</h2>
+          <p>Queso crema, galleta, salsa frutos rojos</p>
+          <div class="precio">
+            <p>$9</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+        <div class="platillo" data-platillo="postre">
+          <img data-src="assets/img/postres3.webp" alt="Flan" class="lazy" />
+          <h2>Flan Napolitano</h2>
+          <p>Clásico flan con caramelo artesanal</p>
+          <div class="precio">
+            <p>$7</p>
+            <button class="btn-comprar">🛒 Añadir</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="chef" class="section-chef contenedor">
+      <h2 class="texto-platillos text-center">Nuestro Chef</h2>
+      <div class="chef-grid">
+        <div class="chef-card">
+          <img
+            data-src="assets/img/chef.webp"
+            alt="Chef María González"
+            class="lazy"
+          />
+          <div class="chef-text">
+            <h3>María González</h3>
+            <p>25 años creando experiencias gastronómicas inolvidables</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto" class="section-contacto contenedor">
+      <h2 class="texto-platillos text-center">Reserva tu Mesa</h2>
+      <div class="contact-wrapper">
+        <form class="contact-form" id="reserva-form" novalidate>
+          <div class="form-group">
+            <input
+              type="text"
+              id="nombre"
+              placeholder="Nombre completo *"
+              required
+              minlength="3"
+            />
+            <span class="error-msg" id="nombre-error"></span>
+          </div>
+          <div class="form-group">
+            <input type="tel" id="telefono" placeholder="Teléfono" />
+            <span class="error-msg" id="telefono-error"></span>
+          </div>
+          <div class="form-group">
+            <input type="email" id="email" placeholder="Email" />
+            <span class="error-msg" id="email-error"></span>
+          </div>
+          <div class="form-group">
+            <input type="date" id="fecha" required />
+            <span class="error-msg" id="fecha-error"></span>
+          </div>
+          <div class="form-group">
+            <input type="time" id="hora" required />
+            <span class="error-msg" id="hora-error"></span>
+          </div>
+          <div class="form-group">
+            <textarea
+              id="notas"
+              placeholder="Número de personas y notas especiales *"
+              required
+              minlength="5"
+            ></textarea>
+            <span class="error-msg" id="notas-error"></span>
+          </div>
+          <div id="form-mensaje" class="mensaje"></div>
+          <button type="submit" class="btn btn-verde">Confirmar Reserva</button>
+        </form>
+        <div class="contact-info">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.78!2d-74.081689!3d4.609710!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f89f4c6b4b4b3%3A0x8e3f89f4c6b4b4b3!2sBogot%C3%A1%2C%20Colombia!5e0!3m2!1ses!2sco!4v1699999999999"
+            width="100%"
+            height="300"
+            loading="lazy"
+          ></iframe>
+          <p>
+            <strong>📍 Ubicación:</strong> Av. Principal 123, Bogotá<br />
+            <strong>📞 Tel:</strong> (601) 234-5678<br />
+            <strong>🕒 Horario:</strong> Lun-Dom 12pm-11pm
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer id="footer" class="footer">
+      <div class="contenedor">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Hostal Cofee</h3>
+            <p>Donde el sabor se encuentra con la tradición</p>
+          </div>
+          <div class="footer-section">
+            <h4>Enlaces</h4>
+            <ul>
+              <li><a href="#nosotros">Nosotros</a></li>
+              <li><a href="#menu">Menú</a></li>
+              <li><a href="#chef">Chef</a></li>
+              <li><a href="#contacto">Reserva</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Síguenos</h4>
+            <div class="social">
+              <a href="#" aria-label="Facebook">📘</a>
+              <a href="#" aria-label="Instagram">📷</a>
+              <a href="#" aria-label="WhatsApp">💬</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 Hostal Cofee. Todos los derechos reservados |
+            Desarrollado con ❤️
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/App.js"></script>
+    <script src="js/cart.js"></script>
+  </body>
+</html>

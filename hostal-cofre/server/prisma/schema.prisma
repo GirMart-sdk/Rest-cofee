@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String         @id @default(cuid())
+  name        String
+  email       String         @unique
+  password    String
+  role        Role           @default(client)
+  orders      Order[]
+  reservations Reservation[]
+  refreshTokens RefreshToken[]
+  loginAttempts LoginAttempt[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ip, createdAt])
+}
+
+enum Role {
+  admin
+  client
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  category    Category
+  image       String?
+  available   Boolean  @default(true)
+  orderItems  OrderItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Category {
+  ensalada
+  pasta
+  pizza
+  postre
+  bebida
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id])
+  customerName   String
+  customerPhone  String
+  customerEmail  String?
+  total          Float
+  status         OrderStatus   @default(pending)
+  paymentMethod  PaymentMethod
+  paymentStatus  PaymentStatus @default(pending)
+  paymentId      String?
+  items          OrderItem[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum OrderStatus {
+  pending
+  preparing
+  ready
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  cash
+  wompi
+  nequi
+  daviplata
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  price      Float
+}
+
+model Table {
+  id       String  @id @default(cuid())
+  number   Int     @unique
+  capacity Int
+  zone     Zone
+  reservations Reservation[]
+}
+
+enum Zone {
+  interior
+  exterior
+  privado
+}
+
+model Reservation {
+  id        String            @id @default(cuid())
+  userId    String?
+  user      User?             @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  email     String?
+  date      DateTime
+  time      String
+  guests    Int
+  tableId   String?
+  table     Table?            @relation(fields: [tableId], references: [id])
+  notes     String?
+  status    ReservationStatus @default(pending)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+}

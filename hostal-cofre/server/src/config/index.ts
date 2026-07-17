@@ -1,0 +1,42 @@
+import 'dotenv/config'
+
+const JWT_MIN_LENGTH = 32
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET || ''
+
+  if (!secret || secret === 'fallback-secret') {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('[FATAL] JWT_SECRET must be set in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"')
+    }
+    console.warn('[SECURITY] Using default JWT_SECRET — NOT secure for production!')
+  }
+
+  if (secret.length < JWT_MIN_LENGTH) {
+    throw new Error(`[FATAL] JWT_SECRET must be at least ${JWT_MIN_LENGTH} characters. Current length: ${secret.length}`)
+  }
+
+  return secret
+}
+
+export const config = {
+  port: parseInt(process.env.PORT || '3001'),
+  nodeEnv: process.env.NODE_ENV || 'development',
+  jwtSecret: getJwtSecret(),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '15m',
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  wompi: {
+    publicKey: process.env.WOMPI_PUBLIC_KEY || '',
+    privateKey: process.env.WOMPI_PRIVATE_KEY || '',
+    baseUrl: process.env.WOMPI_BASE_URL || 'https://api-sandbox.wompi.su/v1',
+  },
+  whatsappPhone: process.env.WHATSAPP_PHONE || '573001234567',
+  adminPassword: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
+  clientPassword: process.env.CLIENT_PASSWORD || 'ChangeMe!2026',
+  lockout: {
+    maxAttempts: parseInt(process.env.LOCKOUT_MAX_ATTEMPTS || '5'),
+    windowMs: parseInt(process.env.LOCKOUT_WINDOW_MS || '900000'), // 15 min
+    lockoutMs: parseInt(process.env.LOCKOUT_DURATION_MS || '900000'), // 15 min
+  },
+}
