@@ -4,7 +4,10 @@ node_modules/
 # Environment files
 .env
 .env.local
+.env.development
+.env.production
 .env.*.local
+hostal-cofre/server/.env
 
 # Build output
 dist/
@@ -31,3 +34,10 @@ hostal-cofre/server/prisma/migrations/
 # Coverage
 coverage/
 .nyc_output/
+
+# Secrets / certificates
+*.key
+*.pem
+*.cert
+*.crt
+secrets/
