@@ -37,6 +37,9 @@ model LoginAttempt {
   ip        String
   success   Boolean
   createdAt DateTime @default(now())
+  
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email, createdAt])
   @@index([ip, createdAt])
