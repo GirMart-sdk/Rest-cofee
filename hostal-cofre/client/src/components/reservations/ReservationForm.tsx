@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Table } from '../../types'
 import { api, whatsappService } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
-import { FiCalendar, FiClock, FiUsers, FiCheck } from 'react-icons/fi'
+import { FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
 const TIMES = ['12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00']

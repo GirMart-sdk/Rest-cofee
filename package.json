@@ -1,18 +1,35 @@
 {
-  "dependencies": {
-    "express-async-errors": "^3.1.1",
-    "express-rate-limit": "^8.5.2",
-    "helmet": "^8.3.0",
-    "zod": "^4.4.3"
+  "name": "rest-cofee",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hostal Cofee - Restaurant Management System",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm run dev --prefix hostal-cofre/server",
+    "dev:client": "npm run dev --prefix hostal-cofre/client",
+    "build": "npm run build --prefix hostal-cofre/server && npm run build --prefix hostal-cofre/client",
+    "lint": "npm run lint --prefix hostal-cofre/server && npm run lint --prefix hostal-cofre/client",
+    "lint:fix": "npm run lint:fix --prefix hostal-cofre/server && npm run lint:fix --prefix hostal-cofre/client",
+    "format": "npm run format --prefix hostal-cofre/server && npm run format --prefix hostal-cofre/client",
+    "test": "npm run test --prefix hostal-cofre/server",
+    "test:security": "npm run test:security --prefix hostal-cofre/server",
+    "docker:up": "docker compose --file hostal-cofre/docker-compose.yml up -d",
+    "docker:down": "docker compose --file hostal-cofre/docker-compose.yml down",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.1.1",
-    "@types/supertest": "^7.2.1",
-    "supertest": "^7.2.2",
-    "vitest": "^4.1.10"
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.8",
+    "prettier": "^3.9.5"
+  },
+  "lint-staged": {
+    "hostal-cofre/server/**/*.{ts,js}": "npm run lint:fix --prefix hostal-cofre/server",
+    "hostal-cofre/client/**/*.{ts,tsx,js,jsx}": "npm run lint:fix --prefix hostal-cofre/client"
   }
 }

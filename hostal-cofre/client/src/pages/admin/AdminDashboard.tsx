@@ -22,7 +22,7 @@ export default function AdminDashboard() {
           reservations: reservations.filter((r: any) => r.status !== 'cancelled').length,
           revenue,
         })
-      } catch {}
+      } catch { /* stats remain default */ }
     }
     fetchStats()
   }, [])

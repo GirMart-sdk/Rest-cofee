@@ -21,7 +21,7 @@ const authLimiter = rateLimit({
 
 const router = Router()
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};:'"\\|,.<>/?]).{8,}$/
 
 function generateAccessToken(user: { id: string; email: string; role: string }): string {
   return jwt.sign({ id: user.id, email: user.email, role: user.role }, config.jwtSecret, {

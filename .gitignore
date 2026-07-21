@@ -7,7 +7,6 @@ node_modules/
 .env.development
 .env.production
 .env.*.local
-hostal-cofre/server/.env
 
 # Build output
 dist/
@@ -16,8 +15,6 @@ build/
 # Logs
 *.log
 npm-debug.log*
-hostal-cofre/server/stdout.log
-hostal-cofre/server/stderr.log
 
 # OS files
 .DS_Store
@@ -25,11 +22,7 @@ Thumbs.db
 desktop.ini
 
 # IDE
-.vscode/settings.json
 .idea/
-
-# Prisma
-hostal-cofre/server/prisma/migrations/
 
 # Coverage
 coverage/
@@ -41,3 +34,12 @@ coverage/
 *.cert
 *.crt
 secrets/
+
+# Docker
+docker-compose.override.yml
+
+# Prisma
+hostal-cofre/server/prisma/migrations/
+
+# Client build
+hostal-cofre/client/dist/
