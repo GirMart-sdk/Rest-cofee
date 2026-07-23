@@ -141,7 +141,7 @@ async function testTokenRefresh() {
 
   await test('Login returns accessToken + refreshToken', async () => {
     const { status, data } = await api('POST', '/api/auth/login', {
-      email: 'admin@hostalcofee.com', password: 'ChangeMe!2026',
+      email: process.env.ADMIN_EMAIL || 'admin@hostalcofee.com', password: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
     })
     assert(status === 200, `Expected 200, got: ${status}`)
     assert(!!data?.data?.accessToken, 'Missing accessToken')
@@ -170,7 +170,7 @@ async function testTokenRefresh() {
 
   await test('Logout revokes refresh token', async () => {
     const loginRes = await api('POST', '/api/auth/login', {
-      email: 'admin@hostalcofee.com', password: 'ChangeMe!2026',
+      email: process.env.ADMIN_EMAIL || 'admin@hostalcofee.com', password: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
     })
     const rt = loginRes.data?.data?.refreshToken
     const { status } = await api('POST', '/api/auth/logout', { refreshToken: rt })

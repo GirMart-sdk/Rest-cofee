@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
-import { CartItem, MenuItem } from '../types'
+import { CartItem, MenuItem, OrderType, DeliveryZoneType } from '../types'
 import toast from 'react-hot-toast'
 
 interface CartContextType {
@@ -10,15 +10,46 @@ interface CartContextType {
   clearCart: () => void
   total: number
   itemCount: number
+  orderType: OrderType
+  setOrderType: (type: OrderType) => void
+  deliveryZone: DeliveryZoneType | null
+  setDeliveryZone: (zone: DeliveryZoneType | null) => void
+  deliveryFee: number
+  grandTotal: number
 }
 
 const CartContext = createContext<CartContextType | null>(null)
+
+const DELIVERY_FEES: Record<DeliveryZoneType, number> = {
+  centro: 3000,
+  periurbano: 5000,
+  lejano: 8000,
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('hostal-cofee-cart')
     return saved ? JSON.parse(saved) : []
   })
+
+  const [orderType, setOrderType] = useState<OrderType>(() => {
+    const saved = localStorage.getItem('hostal-cofee-orderType')
+    return (saved as OrderType) || 'tienda'
+  })
+
+  const [deliveryZone, setDeliveryZoneState] = useState<DeliveryZoneType | null>(() => {
+    const saved = localStorage.getItem('hostal-cofee-deliveryZone')
+    return (saved as DeliveryZoneType) || null
+  })
+
+  const setDeliveryZone = useCallback((zone: DeliveryZoneType | null) => {
+    setDeliveryZoneState(zone)
+    if (zone) {
+      localStorage.setItem('hostal-cofee-deliveryZone', zone)
+    } else {
+      localStorage.removeItem('hostal-cofee-deliveryZone')
+    }
+  }, [])
 
   const saveCart = useCallback((newItems: CartItem[]) => {
     setItems(newItems)
@@ -66,13 +97,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => {
     saveCart([])
+    localStorage.removeItem('hostal-cofee-orderType')
+    localStorage.removeItem('hostal-cofee-deliveryZone')
+    setOrderType('tienda')
+    setDeliveryZoneState(null)
   }, [saveCart])
 
-  const total = items.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0)
+  const subtotal = items.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0)
   const itemCount = items.reduce((sum, ci) => sum + ci.quantity, 0)
+  const deliveryFeeValue = orderType === 'domicilio' && deliveryZone ? DELIVERY_FEES[deliveryZone] : 0
+  const grandTotal = parseFloat((subtotal + deliveryFeeValue).toFixed(2))
+
+  const handleSetOrderType = useCallback((type: OrderType) => {
+    setOrderType(type)
+    localStorage.setItem('hostal-cofee-orderType', type)
+  }, [])
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, total, itemCount }}>
+    <CartContext.Provider value={{
+      items, addItem, removeItem, updateQuantity, clearCart,
+      total: subtotal, itemCount,
+      orderType, setOrderType: handleSetOrderType,
+      deliveryZone, setDeliveryZone,
+      deliveryFee: deliveryFeeValue, grandTotal,
+    }}>
       {children}
     </CartContext.Provider>
   )

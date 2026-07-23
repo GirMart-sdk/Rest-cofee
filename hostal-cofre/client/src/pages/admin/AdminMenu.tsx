@@ -74,8 +74,7 @@ export default function AdminMenu() {
   }
 
   return (
-    <section className="section-padding pt-28 bg-gray-50 min-h-screen">
-      <div className="container-main">
+    <div className="container-main">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-display">Gestionar Menú</h1>
           <div className="flex gap-2">
@@ -147,7 +146,6 @@ export default function AdminMenu() {
             <p className="mt-2">Agrega el primer platillo con el botón "Nuevo Platillo"</p>
           </div>
         )}
-      </div>
-    </section>
+    </div>
   )
 }

@@ -39,3 +39,174 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
 }
+
+/* ========================================
+   POS - Punto de Venta
+   ======================================== */
+
+.pos-item {
+  @apply cursor-pointer select-none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.pos-item:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Grid responsive para POS en tabletas */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .pos-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ========================================
+   Recibo / Receipt - Impresión
+   ======================================== */
+
+.receipt {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #000;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.receipt h2 {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.receipt .border-dashed {
+  border-style: dashed;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  #receipt,
+  #receipt * {
+    visibility: visible !important;
+  }
+
+  #receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 16px;
+    background: white;
+    box-shadow: none;
+    border: none;
+  }
+
+  .receipt-container button {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   Mesa - Vista del cliente
+   ======================================== */
+
+.mesa-page {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   Animaciones globales
+   ======================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* ========================================
+   Scrollbar personalizado
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ========================================
+   Admin Dashboard - Tarjetas de stats
+   ======================================== */
+
+.stat-card {
+  @apply bg-white rounded-2xl p-5 shadow-md transition-all duration-300;
+}
+
+.stat-card:hover {
+  @apply shadow-lg -translate-y-0.5;
+}
+
+/* ========================================
+   Botones de estado de pedido
+   ======================================== */
+
+.status-btn {
+  @apply px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200;
+}
+
+.status-btn:active {
+  transform: scale(0.97);
+}
+
+/* ========================================
+   Modales
+   ======================================== */
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4;
+}
+
+.modal-content {
+  @apply bg-white rounded-2xl p-6 max-w-md w-full;
+}
+
+/* ========================================
+   Admin Layout
+   ======================================== */
+
+@media (min-width: 1024px) {
+  .admin-content {
+    margin-left: 16rem;
+  }
+}

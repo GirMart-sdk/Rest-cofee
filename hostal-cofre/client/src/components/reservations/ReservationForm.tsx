@@ -51,7 +51,8 @@ export default function ReservationForm() {
 
       const table = tables.find(t => t.id === selectedTable)
       const msg = `Nombre: ${form.name}\nTel: ${form.phone}\nFecha: ${form.date}\nHora: ${form.time}\nPersonas: ${form.guests}\nMesa: #${table?.number} (${table?.zone})\nNotas: ${form.notes || 'Ninguna'}`
-      whatsappService.sendReservation('573001234567', msg)
+      const whatsappPhone = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
+      whatsappService.sendReservation(whatsappPhone, msg)
 
       toast.success('¡Reserva creada y enviada por WhatsApp!')
       setStep('form')

@@ -1,21 +1,29 @@
 import { PrismaClient, Role, Category, Zone } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { config } from '../config/index.js'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Seeding database...')
 
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe!2026'
-  const clientPassword = process.env.CLIENT_PASSWORD || 'ChangeMe!2026'
+  if (!config.adminPassword || !config.clientPassword) {
+    console.error('❌ ADMIN_PASSWORD and CLIENT_PASSWORD must be set in .env')
+    process.exit(1)
+  }
+
+  const adminPassword = config.adminPassword
+  const clientPassword = config.clientPassword
+  const adminEmail = config.adminEmail
+  const clientEmail = config.clientEmail
 
   const adminHash = await bcrypt.hash(adminPassword, 12)
   const clientHash = await bcrypt.hash(clientPassword, 12)
 
   await prisma.user.createMany({
     data: [
-      { name: 'Admin', email: 'admin@hostalcofee.com', password: adminHash, role: Role.admin },
-      { name: 'Cliente Demo', email: 'cliente@mail.com', password: clientHash, role: Role.client },
+      { name: 'Admin', email: adminEmail, password: adminHash, role: Role.admin },
+      { name: 'Cliente Demo', email: clientEmail, password: clientHash, role: Role.client },
     ],
   })
 
@@ -49,8 +57,8 @@ async function main() {
   })
 
   console.log('✅ Seed completed!')
-  console.log('📧 Admin: admin@hostalcofee.com')
-  console.log('📧 Cliente: cliente@mail.com')
+  console.log(`📧 Admin: ${adminEmail}`)
+  console.log(`📧 Cliente: ${clientEmail}`)
 }
 
 main()

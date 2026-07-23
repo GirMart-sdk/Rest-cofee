@@ -32,8 +32,10 @@ export const config = {
     baseUrl: process.env.WOMPI_BASE_URL || 'https://api-sandbox.wompi.su/v1',
   },
   whatsappPhone: process.env.WHATSAPP_PHONE || '573001234567',
-  adminPassword: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
-  clientPassword: process.env.CLIENT_PASSWORD || 'ChangeMe!2026',
+  adminEmail: process.env.ADMIN_EMAIL || '',
+  adminPassword: process.env.ADMIN_PASSWORD || '',
+  clientEmail: process.env.CLIENT_EMAIL || '',
+  clientPassword: process.env.CLIENT_PASSWORD || '',
   lockout: {
     maxAttempts: parseInt(process.env.LOCKOUT_MAX_ATTEMPTS || '5'),
     windowMs: parseInt(process.env.LOCKOUT_WINDOW_MS || '900000'), // 15 min

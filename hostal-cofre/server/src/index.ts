@@ -9,6 +9,9 @@ import menuRoutes from './routes/menu.js'
 import orderRoutes from './routes/orders.js'
 import reservationRoutes from './routes/reservations.js'
 import paymentRoutes from './routes/payments.js'
+import shiftRoutes from './routes/shifts.js'
+import tableRoutes from './routes/tables.js'
+import reportRoutes from './routes/reports.js'
 import { errorHandler } from './middleware/errors.js'
 import { sanitize } from './middleware/sanitize.js'
 import { requestId } from './middleware/requestId.js'
@@ -17,7 +20,7 @@ const app = express()
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: config.nodeEnv === 'production' ? 100 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
 })
@@ -62,6 +65,9 @@ app.use('/api/menu', menuRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/reservations', reservationRoutes)
 app.use('/api/payments', paymentRoutes)
+app.use('/api/shifts', shiftRoutes)
+app.use('/api/tables', tableRoutes)
+app.use('/api/reports', reportRoutes)
 
 app.use(errorHandler)
 

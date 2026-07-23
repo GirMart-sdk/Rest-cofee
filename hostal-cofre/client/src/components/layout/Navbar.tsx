@@ -55,7 +55,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               {isAdmin && (
                 <Link to="/admin" className="text-white/80 hover:text-gold transition-colors text-sm font-semibold">
-                  Admin
+                  Panel Admin
                 </Link>
               )}
               <button onClick={logout} className="text-white/60 hover:text-white transition-colors">
@@ -84,7 +84,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="bg-black/95 backdrop-blur-md border-t border-white/10 px-4 py-6 flex flex-col gap-4">
           {links.map(l => (
             <Link key={l.to} to={l.to}

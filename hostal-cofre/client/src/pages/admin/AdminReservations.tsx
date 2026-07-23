@@ -49,8 +49,7 @@ export default function AdminReservations() {
   }
 
   return (
-    <section className="section-padding pt-28 bg-gray-50 min-h-screen">
-      <div className="container-main">
+    <div className="container-main">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-display">Gestionar Reservas</h1>
           <button onClick={fetchReservations} className="btn-outline flex items-center gap-2"><FiRefreshCw /> Actualizar</button>
@@ -124,7 +123,6 @@ export default function AdminReservations() {
             <p className="text-xl">No hay reservas {filter !== 'all' ? `con estado "${STATUS_LABELS[filter]}"` : ''}</p>
           </div>
         )}
-      </div>
-    </section>
+    </div>
   )
 }

@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id          String         @id @default(cuid())
-  name        String
-  email       String         @unique
-  password    String
-  role        Role           @default(client)
-  orders      Order[]
-  reservations Reservation[]
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(client)
+  orders        Order[]
+  reservations  Reservation[]
+  shifts        Shift[]
   refreshTokens RefreshToken[]
   loginAttempts LoginAttempt[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model RefreshToken {
@@ -72,26 +73,40 @@ enum Category {
 }
 
 model Order {
-  id             String        @id @default(cuid())
+  id             String         @id @default(cuid())
   userId         String?
-  user           User?         @relation(fields: [userId], references: [id])
+  user           User?          @relation(fields: [userId], references: [id])
   customerName   String
   customerPhone  String
   customerEmail  String?
   total          Float
-  status         OrderStatus   @default(pending)
+  status         OrderStatus    @default(pending)
   paymentMethod  PaymentMethod
-  paymentStatus  PaymentStatus @default(pending)
+  paymentStatus  PaymentStatus  @default(pending)
   paymentId      String?
   items          OrderItem[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  
+  orderType      OrderType      @default(tienda)
+  tableId        String?
+  table          Table?         @relation(fields: [tableId], references: [id])
+  address        String?
+  deliveryZone   DeliveryZone?
+  deliveryFee    Float          @default(0)
+  deliveryNotes  String?
+  receiptNumber  String?
+  
+  shiftId        String?
+  shift          Shift?         @relation(fields: [shiftId], references: [id])
+  
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 enum OrderStatus {
   pending
   preparing
   ready
+  out_for_delivery
   delivered
   cancelled
 }
@@ -109,6 +124,18 @@ enum PaymentStatus {
   failed
 }
 
+enum OrderType {
+  domicilio
+  tienda
+  mesa
+}
+
+enum DeliveryZone {
+  centro
+  periurbano
+  lejano
+}
+
 model OrderItem {
   id         String   @id @default(cuid())
   orderId    String
@@ -120,11 +147,12 @@ model OrderItem {
 }
 
 model Table {
-  id       String  @id @default(cuid())
-  number   Int     @unique
-  capacity Int
-  zone     Zone
+  id           String        @id @default(cuid())
+  number       Int           @unique
+  capacity     Int
+  zone         Zone
   reservations Reservation[]
+  orders       Order[]
 }
 
 enum Zone {
@@ -155,4 +183,50 @@ enum ReservationStatus {
   pending
   confirmed
   cancelled
+}
+
+model Shift {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  cashierName  String
+  shiftPeriod  ShiftPeriod
+  openingCash  Float
+  closingCash  Float?
+  totalSales   Float     @default(0)
+  totalOrders  Int       @default(0)
+  cashReceived Float     @default(0)
+  digitalTotal Float     @default(0)
+  notes        String?
+  status       ShiftStatus @default(open)
+  openedAt     DateTime  @default(now())
+  closedAt     DateTime?
+  orders       Order[]
+}
+
+enum ShiftPeriod {
+  manana
+  medio_dia
+  tarde
+  noche
+}
+
+enum ShiftStatus {
+  open
+  closed
+}
+
+model DailyReport {
+  id             String   @id @default(cuid())
+  date           DateTime @unique
+  totalSales     Float    @default(0)
+  totalOrders    Int      @default(0)
+  cashSales      Float    @default(0)
+  digitalSales   Float    @default(0)
+  deliveryOrders Int      @default(0)
+  dineInOrders   Int      @default(0)
+  posOrders      Int      @default(0)
+  averageTicket  Float    @default(0)
+  topItems       Json?
+  createdAt      DateTime @default(now())
 }

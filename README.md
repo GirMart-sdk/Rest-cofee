@@ -89,6 +89,21 @@ npm run dev
 - Gestión de reservas (confirmar/cancelar)
 - Panel de pagos (Wompi, Nequi, Daviplata)
 
+## Documentación del Proyecto
+
+| Documento | Descripción |
+|-----------|-------------|
+| [LICENSE](LICENSE) | Licencia GNU AGPL v3.0 |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Guía para contribuidores |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Código de conducta |
+| [CHANGELOG.md](CHANGELOG.md) | Historial de cambios |
+| [SECURITY.md](SECURITY.md) | Política de reporte de vulnerabilidades |
+| [PRIVACY.md](PRIVACY.md) | Política de privacidad |
+| [TERMS.md](TERMS.md) | Términos de uso |
+| [SECURITY-REPORT.md](SECURITY-REPORT.md) | Informe de blindaje de seguridad |
+
+---
+
 ## Estructura
 
 ```

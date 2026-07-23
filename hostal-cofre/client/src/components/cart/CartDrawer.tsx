@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 import { api, whatsappService } from '../../services/api'
-import { FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiMessageCircle } from 'react-icons/fi'
+import { FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiMessageCircle, FiTruck, FiHome, FiGrid } from 'react-icons/fi'
 import toast from 'react-hot-toast'
+import DeliveryForm from './DeliveryForm'
 
-type CheckoutStep = 'cart' | 'details' | 'payment'
+type CheckoutStep = 'cart' | 'type' | 'delivery' | 'details' | 'payment'
 
 export default function CartDrawer() {
-  const { items, removeItem, updateQuantity, total, clearCart, itemCount } = useCart()
+  const { items, removeItem, updateQuantity, total, clearCart, itemCount, orderType, setOrderType, deliveryZone, deliveryFee, grandTotal } = useCart()
   const { user } = useAuth()
   const [step, setStep] = useState<CheckoutStep>('cart')
   const [customerName, setCustomerName] = useState(user?.name || '')
@@ -40,22 +41,27 @@ export default function CartDrawer() {
       const orderItems = items.map(i => ({
         menuItemId: i.menuItem.id,
         quantity: i.quantity,
-        price: i.menuItem.price,
       }))
 
       await api.post('/orders', {
         customerName,
         customerPhone,
-        customerEmail,
+        ...(customerEmail ? { customerEmail } : {}),
         items: orderItems,
         paymentMethod,
+        orderType,
+        deliveryZone: orderType === 'domicilio' ? deliveryZone : undefined,
       })
 
-      const orderLines = items.map(i => `${i.quantity}x ${i.menuItem.name} - $${(i.menuItem.price * i.quantity).toFixed(0)}`)
-      const summary = orderLines.join('\n') + `\n\n*Total: $${total.toFixed(2)}*\nMétodo de pago: ${paymentMethod.toUpperCase()}\nCliente: ${customerName}\nTel: ${customerPhone}`
-      whatsappService.sendOrder('573001234567', summary)
+      if (orderType !== 'mesa') {
+        const orderLines = items.map(i => `${i.quantity}x ${i.menuItem.name} - $${(i.menuItem.price * i.quantity).toFixed(0)}`)
+        const typeLabel = orderType === 'domicilio' ? 'Domicilio' : 'Tienda'
+        const summary = orderLines.join('\n') + `\n\nTipo: ${typeLabel}` + (orderType === 'domicilio' ? `\nEnvío: $${deliveryFee}` : '') + `\n\n*Total: $${(orderType === 'domicilio' ? grandTotal : total).toFixed(2)}*\nMétodo de pago: ${paymentMethod.toUpperCase()}\nCliente: ${customerName}\nTel: ${customerPhone}`
+        const whatsappPhone = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
+        whatsappService.sendOrder(whatsappPhone, summary)
+      }
 
-      toast.success('Pedido registrado y enviado por WhatsApp')
+      toast.success(orderType === 'mesa' ? 'Pedido registrado en mesa' : 'Pedido registrado y enviado por WhatsApp')
       clearCart()
       setStep('cart')
     } catch {
@@ -110,27 +116,74 @@ export default function CartDrawer() {
 
           <div className="bg-gray-50 rounded-2xl p-6 mb-8">
             <div className="flex justify-between text-xl font-bold">
-              <span>Total</span>
+              <span>Subtotal</span>
               <span className="text-primary">${total.toFixed(2)}</span>
             </div>
           </div>
 
-          <button onClick={() => setStep('details')} className="btn-primary w-full text-lg">
+          <button onClick={() => setStep('type')} className="btn-primary w-full text-lg">
             Continuar al Checkout
           </button>
         </motion.div>
       )}
 
-      {step === 'details' && (
+      {step === 'type' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <h2 className="text-3xl font-display mb-8">Datos del Pedido</h2>
-          <div className="space-y-4 mb-8">
-            <input type="text" placeholder="Nombre completo *" value={customerName} onChange={e => setCustomerName(e.target.value)} className="input-field" />
-            <input type="tel" placeholder="Teléfono *" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} className="input-field" />
-            <input type="email" placeholder="Email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} className="input-field" />
+          <h2 className="text-3xl font-display mb-8">¿Cómo quieres tu pedido?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[
+              { key: 'domicilio' as const, label: 'Domicilio', icon: FiTruck, desc: 'Te lo llevamos a tu dirección', color: 'bg-orange-500' },
+              { key: 'tienda' as const, label: 'Recoger en tienda', icon: FiHome, desc: 'Pasas a buscar tu pedido', color: 'bg-blue-500' },
+              { key: 'mesa' as const, label: 'Para la mesa', icon: FiGrid, desc: 'Comer en el restaurante', color: 'bg-green-500' },
+            ].map(type => (
+              <button
+                key={type.key}
+                onClick={() => setOrderType(type.key)}
+                className={`p-6 rounded-xl border-2 text-center transition-all ${
+                  orderType === type.key
+                    ? 'border-primary bg-primary/5 shadow-lg scale-105'
+                    : 'border-gray-200 hover:border-primary/50'
+                }`}
+              >
+                <div className={`${type.color} w-14 h-14 rounded-xl flex items-center justify-center text-white mx-auto mb-3`}>
+                  <type.icon size={24} />
+                </div>
+                <div className="font-bold text-lg">{type.label}</div>
+                <div className="text-sm text-gray-500 mt-1">{type.desc}</div>
+              </button>
+            ))}
           </div>
           <div className="flex gap-4">
             <button onClick={() => setStep('cart')} className="btn-outline flex-1">Volver</button>
+            <button onClick={() => setStep(orderType === 'domicilio' ? 'delivery' : 'details')} className="btn-primary flex-1">Siguiente</button>
+          </div>
+        </motion.div>
+      )}
+
+      {step === 'delivery' && (
+        <DeliveryForm
+          onBack={() => setStep('type')}
+          onNext={() => setStep('details')}
+        />
+      )}
+
+      {step === 'details' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <h2 className="text-3xl font-display mb-8">
+            {orderType === 'mesa' ? 'Datos Rápidos' : 'Datos del Pedido'}
+          </h2>
+          {orderType === 'mesa' && (
+            <p className="text-gray-500 text-sm mb-4 -mt-6">Solo nombre y teléfono para agilizar tu pedido en mesa</p>
+          )}
+          <div className="space-y-4 mb-8">
+            <input type="text" placeholder="Nombre completo *" value={customerName} onChange={e => setCustomerName(e.target.value)} className="input-field" />
+            <input type="tel" placeholder="Teléfono *" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} className="input-field" />
+            {orderType !== 'mesa' && (
+              <input type="email" placeholder="Email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} className="input-field" />
+            )}
+          </div>
+          <div className="flex gap-4">
+            <button onClick={() => setStep(orderType === 'domicilio' ? 'delivery' : 'type')} className="btn-outline flex-1">Volver</button>
             <button
               onClick={() => { if (customerName && customerPhone) setStep('payment'); else toast.error('Nombre y teléfono son requeridos') }}
               className="btn-primary flex-1"
@@ -166,10 +219,20 @@ export default function CartDrawer() {
             ))}
           </div>
 
-          <div className="bg-gray-50 rounded-2xl p-6 mb-8">
-            <div className="flex justify-between text-xl font-bold">
+          <div className="bg-gray-50 rounded-2xl p-6 mb-8 space-y-2">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Subtotal</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+            {orderType === 'domicilio' && deliveryFee > 0 && (
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Envío ({deliveryZone})</span>
+                <span>${deliveryFee.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="border-t pt-2 flex justify-between text-xl font-bold">
               <span>Total a pagar</span>
-              <span className="text-primary">${total.toFixed(2)}</span>
+              <span className="text-primary">${(orderType === 'domicilio' ? grandTotal : total).toFixed(2)}</span>
             </div>
           </div>
 
