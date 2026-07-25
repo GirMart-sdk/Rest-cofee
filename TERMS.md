@@ -1,5 +1,12 @@
 # Términos de Uso
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+
+---
+
 **Última actualización**: 16 de julio de 2026
 
 ## 1. Aceptación de Términos

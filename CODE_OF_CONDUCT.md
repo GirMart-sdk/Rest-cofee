@@ -1,5 +1,12 @@
 # CÓDIGO DE CONDUCTA — NORMATIVA OBLIGATORIA
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+
+---
+
 **Versión**: 2.0
 **Última actualización**: 23 de julio de 2026
 **Alcance**: Total — Aplica a TODO el proyecto y sus colaboradores
@@ -38,45 +45,45 @@ Todo colaborador **DEBE**:
 
 **CATEGORÍA A: PROHIBICIONES ABSOLUTAS (Sanción inmediata)**
 
-| # | Prohibición | Severidad |
-|---|-------------|-----------|
-| A1 | Cualquier forma de acoso (sexual, verbal, físico, psicológico) | **BAN PERMANENTE** |
-| A2 | Discriminación por raza, género, orientación, religión, discapacidad, edad, nacionalidad o cualquier otra característica | **BAN PERMANENTE** |
-| A3 | Amenazas de violencia o incitación al odio | **BAN PERMANENTE** |
-| A4 | Publicación de información privada sin consentimiento (doxxing) | **BAN PERMANENTE** |
-| A5 | Suplantación de identidad o supuesta autoridad | **BAN PERMANENTE** |
-| A6 | Distribución de malware, virus o código dañino | **BAN PERMANENTE** |
-| A7 | Explotación de vulnerabilidades sin reporte responsable | **BAN PERMANENTE** |
-| A8 | Fraude, estafa o engaño deliberado | **BAN PERMANENTE** |
-| A9 | Spying, stalking o vigilancia no autorizada | **BAN PERMANENTE** |
-| A10 | Cualquier actividad ilegal según la legislación aplicable | **BAN PERMANENTE** |
+| #   | Prohibición                                                                                                              | Severidad          |
+| --- | ------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| A1  | Cualquier forma de acoso (sexual, verbal, físico, psicológico)                                                           | **BAN PERMANENTE** |
+| A2  | Discriminación por raza, género, orientación, religión, discapacidad, edad, nacionalidad o cualquier otra característica | **BAN PERMANENTE** |
+| A3  | Amenazas de violencia o incitación al odio                                                                               | **BAN PERMANENTE** |
+| A4  | Publicación de información privada sin consentimiento (doxxing)                                                          | **BAN PERMANENTE** |
+| A5  | Suplantación de identidad o supuesta autoridad                                                                           | **BAN PERMANENTE** |
+| A6  | Distribución de malware, virus o código dañino                                                                           | **BAN PERMANENTE** |
+| A7  | Explotación de vulnerabilidades sin reporte responsable                                                                  | **BAN PERMANENTE** |
+| A8  | Fraude, estafa o engaño deliberado                                                                                       | **BAN PERMANENTE** |
+| A9  | Spying, stalking o vigilancia no autorizada                                                                              | **BAN PERMANENTE** |
+| A10 | Cualquier actividad ilegal según la legislación aplicable                                                                | **BAN PERMANENTE** |
 
 **CATEGORÍA B: PROHIBICIONES GRAVES (Sanción progresiva)**
 
-| # | Prohibición | 1ra Vez | 2da Vez | 3ra Vez |
-|---|-------------|---------|---------|---------|
-| B1 | Lenguaje ofensivo, vulgar o insultante | Advertencia + Corrección | Suspensión 30 días | Ban permanente |
-| B2 | Ataques personales en lugar de críticas al código | Advertencia + Corrección | Suspensión 30 días | Ban permanente |
-| B3 | Trolling, provocación deliberada o gaslighting | Advertencia + Corrección | Suspensión 30 días | Ban permanente |
-| B4 | Spam, autopromoción no solicitada o publicidad | Eliminación + Advertencia | Suspensión 15 días | Ban permanente |
-| B5 | Compartir credenciales o tokens de acceso | Advertencia + Rotación obligatoria | Suspensión 60 días | Ban permanente |
-| B6 | Ignorar repetidamente feedback de revisión | Advertencia formal | Suspensión 15 días | Ban permanente |
-| B7 | Cerrar Issues sin resolver o sin justificación | Reapertura + Advertencia | Suspensión 7 días | Ban permanente |
-| B8 | Commits con código malicioso intencional | Revert + Advertencia | Suspensión 30 días | Ban permanente |
-| B9 | Evasión de ban o restricción | Extensión del ban | Ban permanente | — |
-| B10 | Compartir material con derechos de autor sin licencia | Eliminación + Advertencia | Suspensión 30 días | Ban permanente |
+| #   | Prohibición                                           | 1ra Vez                            | 2da Vez            | 3ra Vez        |
+| --- | ----------------------------------------------------- | ---------------------------------- | ------------------ | -------------- |
+| B1  | Lenguaje ofensivo, vulgar o insultante                | Advertencia + Corrección           | Suspensión 30 días | Ban permanente |
+| B2  | Ataques personales en lugar de críticas al código     | Advertencia + Corrección           | Suspensión 30 días | Ban permanente |
+| B3  | Trolling, provocación deliberada o gaslighting        | Advertencia + Corrección           | Suspensión 30 días | Ban permanente |
+| B4  | Spam, autopromoción no solicitada o publicidad        | Eliminación + Advertencia          | Suspensión 15 días | Ban permanente |
+| B5  | Compartir credenciales o tokens de acceso             | Advertencia + Rotación obligatoria | Suspensión 60 días | Ban permanente |
+| B6  | Ignorar repetidamente feedback de revisión            | Advertencia formal                 | Suspensión 15 días | Ban permanente |
+| B7  | Cerrar Issues sin resolver o sin justificación        | Reapertura + Advertencia           | Suspensión 7 días  | Ban permanente |
+| B8  | Commits con código malicioso intencional              | Revert + Advertencia               | Suspensión 30 días | Ban permanente |
+| B9  | Evasión de ban o restricción                          | Extensión del ban                  | Ban permanente     | —              |
+| B10 | Compartir material con derechos de autor sin licencia | Eliminación + Advertencia          | Suspensión 30 días | Ban permanente |
 
 **CATEGORÍA C: INFRACCIONES MENORES (Corrección obligatoria)**
 
-| # | Infracción | Consecuencia |
-|---|------------|--------------|
-| C1 | Commits con mensajes no descriptivos | Reescribir historial o nuevo commit |
-| C2 | Código que no pasa lint o format | Corregir antes de merge |
-| C3 | Documentación incompleta o desactualizada | Completar en 48 horas |
-| C4 | Tests faltantes para cambios | Agregar tests antes de merge |
-| C5 | Branch no sincronizada con master | Sincronizar antes de PR |
-| C6 | PR que excede límite de líneas | Dividir en múltiples PRs |
-| C7 | Uso incorrecto de etiquetas o templates | Corregir inmediatamente |
+| #   | Infracción                                | Consecuencia                        |
+| --- | ----------------------------------------- | ----------------------------------- |
+| C1  | Commits con mensajes no descriptivos      | Reescribir historial o nuevo commit |
+| C2  | Código que no pasa lint o format          | Corregir antes de merge             |
+| C3  | Documentación incompleta o desactualizada | Completar en 48 horas               |
+| C4  | Tests faltantes para cambios              | Agregar tests antes de merge        |
+| C5  | Branch no sincronizada con master         | Sincronizar antes de PR             |
+| C6  | PR que excede límite de líneas            | Dividir en múltiples PRs            |
+| C7  | Uso incorrecto de etiquetas o templates   | Corregir inmediatamente             |
 
 ---
 
@@ -117,14 +124,14 @@ Los mantenedores **NO DEBEN**:
 
 Este código se aplica en **TODOS** los espacios del proyecto:
 
-| Espacio | Aplica |
-|---------|--------|
-| Repositorio GitHub | ✅ Issues, PRs, Discussions, Wiki |
-| Código fuente | ✅ Commits, comentarios, documentación |
-| Redes sociales oficiales | ✅ Twitter, Discord, Slack |
-| Eventos del proyecto | ✅ Meetups, conferencias, streams |
-| Comunicaciones directas | ✅ Email, mensajería con mantenedores |
-| Plataformas externas | ✅ Stack Overflow, foros cuando se menciona el proyecto |
+| Espacio                  | Aplica                                                  |
+| ------------------------ | ------------------------------------------------------- |
+| Repositorio GitHub       | ✅ Issues, PRs, Discussions, Wiki                       |
+| Código fuente            | ✅ Commits, comentarios, documentación                  |
+| Redes sociales oficiales | ✅ Twitter, Discord, Slack                              |
+| Eventos del proyecto     | ✅ Meetups, conferencias, streams                       |
+| Comunicaciones directas  | ✅ Email, mensajería con mantenedores                   |
+| Plataformas externas     | ✅ Stack Overflow, foros cuando se menciona el proyecto |
 
 **El código aplica SIEMPRE que alguien represente al proyecto o interactúe con la comunidad.**
 
@@ -152,11 +159,11 @@ Este código se aplica en **TODOS** los espacios del proyecto:
 
 ### 5.3 Tiempos de Respuesta
 
-| Fase | Tiempo Máximo |
-|------|---------------|
-| Acuse de recibo | 24 horas |
-| Investigación inicial | 48 horas |
-| Resolución | 7 días hábiles |
+| Fase                      | Tiempo Máximo                  |
+| ------------------------- | ------------------------------ |
+| Acuse de recibo           | 24 horas                       |
+| Investigación inicial     | 48 horas                       |
+| Resolución                | 7 días hábiles                 |
 | Notificación de resultado | 48 horas después de resolución |
 
 ---
@@ -165,13 +172,13 @@ Este código se aplica en **TODOS** los espacios del proyecto:
 
 ### 6.1 Niveles de Sanción
 
-| Nivel | Descripción | Duración | Requisitos para Levantar |
-|-------|-------------|----------|--------------------------|
-| **N1** | Advertencia verbal | — | Compromiso escrito de cumplimiento |
-| **N2** | Advertencia escrita | — | Disculpa + plan de corrección |
-| **N3** | Suspensión temporal | 7-30 días | Evaluación psicológica (si aplica) + compromiso |
-| **N4** | Suspensión extendida | 30-90 días | Reentrenamiento + evaluación |
-| **N5** | Ban permanente | Indefinido | Solo Lift por decisión unánime de mantenedores |
+| Nivel  | Descripción          | Duración   | Requisitos para Levantar                        |
+| ------ | -------------------- | ---------- | ----------------------------------------------- |
+| **N1** | Advertencia verbal   | —          | Compromiso escrito de cumplimiento              |
+| **N2** | Advertencia escrita  | —          | Disculpa + plan de corrección                   |
+| **N3** | Suspensión temporal  | 7-30 días  | Evaluación psicológica (si aplica) + compromiso |
+| **N4** | Suspensión extendida | 30-90 días | Reentrenamiento + evaluación                    |
+| **N5** | Ban permanente       | Indefinido | Solo Lift por decisión unánime de mantenedores  |
 
 ### 6.2 Factores Agravantes
 
@@ -328,10 +335,10 @@ La **ÚNICA** excepción es la crítica constructiva al código y las decisiones
 
 ## 13. CONTACTO
 
-| Propósito | Email |
-|-----------|-------|
-| Reportar incidente | `conduct@hostalcofee.com` |
-| Apelar sanción | `conduct-appeals@hostalcofee.com` |
+| Propósito           | Email                               |
+| ------------------- | ----------------------------------- |
+| Reportar incidente  | `conduct@hostalcofee.com`           |
+| Apelar sanción      | `conduct-appeals@hostalcofee.com`   |
 | Preguntas generales | `conduct-questions@hostalcofee.com` |
 
 ---

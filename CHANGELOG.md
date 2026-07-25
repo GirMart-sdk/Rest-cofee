@@ -1,5 +1,12 @@
 # Changelog
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Versión](https://img.shields.io/badge/Versión-1.0.0-blue.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Keep a Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-e05735.svg)
+
+---
+
 Todos los cambios notables en **Hostal Cofee** se documentarán en este archivo.
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/1.1.0/),

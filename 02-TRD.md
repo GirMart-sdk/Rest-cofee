@@ -1,5 +1,12 @@
 # TRD — Documento de Requisitos Técnicos
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Versión Documento](https://img.shields.io/badge/Versión-2.0-blue.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+
+---
+
 **Producto:** Hostal Cofee v2
 **Versión:** 2.0
 **Fecha:** Julio 2026

@@ -1,5 +1,12 @@
 # POLÍTICA DE SEGURIDAD — NORMATIVA OBLIGATORIA
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+
+---
+
 **Versión**: 2.0
 **Última actualización**: 23 de julio de 2026
 **Clasificación**: DOCUMENTO OFICIAL Y CONFIDENCIAL
@@ -22,10 +29,10 @@
 
 ## 2. VERSIONES SOPORTADAS
 
-| Versión | Estado | Soporte |
-|---------|--------|---------|
-| 1.0.x | Activa | ✅ Actualizaciones de seguridad |
-| < 1.0 | Obsoleta | ❌ Sin soporte — Actualizar inmediatamente |
+| Versión | Estado   | Soporte                                    |
+| ------- | -------- | ------------------------------------------ |
+| 1.0.x   | Activa   | ✅ Actualizaciones de seguridad            |
+| < 1.0   | Obsoleta | ❌ Sin soporte — Actualizar inmediatamente |
 
 **OBLIGATORIO**: Todas las implementaciones deben usar la versión más reciente.
 
@@ -44,15 +51,15 @@ Asunto: [SECURITY] [SEVERIDAD] Descripción breve
 
 ### 3.2 PROHIBICIONES ABSOLUTAS
 
-| # | Prohibición | Consecuencia |
-|---|-------------|--------------|
-| 1 | Reportar en Issues públicas | **BAN PERMANENTE** |
-| 2 | Reportar en Pull Requests | **BAN PERMANENTE** |
-| 3 | Reportar en redes sociales | **BAN PERMANENTE** |
-| 4 | Reportar en Discord/Slack público | **BAN PERMANENTE** |
-| 5 | Divulgar vulnerabilidad antes del fix | **BAN PERMANENTE + Acciones Legales** |
-| 6 | Explotar vulnerabilidad sin reportar | **BAN PERMANENTE + Acciones Legales** |
-| 7 | Vender información de vulnerabilidades | **BAN PERMANENTE + Acciones Legales** |
+| #   | Prohibición                            | Consecuencia                          |
+| --- | -------------------------------------- | ------------------------------------- |
+| 1   | Reportar en Issues públicas            | **BAN PERMANENTE**                    |
+| 2   | Reportar en Pull Requests              | **BAN PERMANENTE**                    |
+| 3   | Reportar en redes sociales             | **BAN PERMANENTE**                    |
+| 4   | Reportar en Discord/Slack público      | **BAN PERMANENTE**                    |
+| 5   | Divulgar vulnerabilidad antes del fix  | **BAN PERMANENTE + Acciones Legales** |
+| 6   | Explotar vulnerabilidad sin reportar   | **BAN PERMANENTE + Acciones Legales** |
+| 7   | Vender información de vulnerabilidades | **BAN PERMANENTE + Acciones Legales** |
 
 ### 3.3 Información Obligatoria en el Reporte
 
@@ -60,17 +67,17 @@ Asunto: [SECURITY] [SEVERIDAD] Descripción breve
 
 El reporte **DEBE** incluir TODA la siguiente información:
 
-| Campo | Obligatorio | Descripción |
-|-------|-------------|-------------|
-| Tipo de vulnerabilidad | ✅ Sí | XSS, SQL Injection, CSRF, RCE, etc. |
-| Ubicación exacta | ✅ Sí | Endpoint, archivo, línea de código |
-| Pasos para reproducir | ✅ Sí | Instrucciones detalladas paso a paso |
-| Impacto potencial | ✅ Sí | Datos comprometidos, funcionalidad afectada |
-| Prueba de concepto | ✅ Sí | Código, screenshots, videos |
-| Severidad estimada | ✅ Sí | Crítica, Alta, Media, Baja |
-| Versión afectada | ✅ Sí | Versión exacta del sistema |
-| Entorno de prueba | ✅ Sí | SO, navegador, configuración |
-| Sugerencia de corrección | ❌ No | Recomendado pero opcional |
+| Campo                    | Obligatorio | Descripción                                 |
+| ------------------------ | ----------- | ------------------------------------------- |
+| Tipo de vulnerabilidad   | ✅ Sí       | XSS, SQL Injection, CSRF, RCE, etc.         |
+| Ubicación exacta         | ✅ Sí       | Endpoint, archivo, línea de código          |
+| Pasos para reproducir    | ✅ Sí       | Instrucciones detalladas paso a paso        |
+| Impacto potencial        | ✅ Sí       | Datos comprometidos, funcionalidad afectada |
+| Prueba de concepto       | ✅ Sí       | Código, screenshots, videos                 |
+| Severidad estimada       | ✅ Sí       | Crítica, Alta, Media, Baja                  |
+| Versión afectada         | ✅ Sí       | Versión exacta del sistema                  |
+| Entorno de prueba        | ✅ Sí       | SO, navegador, configuración                |
+| Sugerencia de corrección | ❌ No       | Recomendado pero opcional                   |
 
 ### 3.4 Formato Obligatorio del Reporte
 
@@ -78,42 +85,50 @@ El reporte **DEBE** incluir TODA la siguiente información:
 # [SECURITY] [SEVERIDAD] Descripción
 
 ## Tipo de Vulnerabilidad
+
 [XSS / SQL Injection / CSRF / RCE / IDOR / Otro]
 
 ## Ubicación
-- Endpoint: 
-- Archivo: 
-- Línea: 
+
+- Endpoint:
+- Archivo:
+- Línea:
 
 ## Pasos para Reproducir
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ## Impacto
+
 - [ ] Datos de usuarios comprometidos
 - [ ] Datos de pago comprometidos
 - [ ] Acceso no autorizado
 - [ ] Manipulación de datos
 - [ ] Denegación de servicio
-- [ ] Otro: 
+- [ ] Otro:
 
 ## Prueba de Concepto
+
 [Código o evidencia]
 
 ## Severidad Estimada
+
 [ ] Crítica - Acceso completo al sistema
 [ ] Alta - Acceso a datos sensibles
 [ ] Media - Acceso limitado
 [ ] Baja - Información expuesta
 
 ## Versión Afectada
+
 [ ]
 
 ## Entorno de Prueba
-- SO: 
-- Navegador: 
-- Node.js: 
+
+- SO:
+- Navegador:
+- Node.js:
 ```
 
 ---
@@ -122,12 +137,12 @@ El reporte **DEBE** incluir TODA la siguiente información:
 
 ### 4.1 Tabla de Tiempos
 
-| Severidad | Acuse de Recibo | Evaluación | Fix | Publicación |
-|-----------|-----------------|------------|-----|-------------|
-| **Crítica** | 1 hora | 4 horas | 24 horas | 48 horas |
-| **Alta** | 4 horas | 24 horas | 72 horas | 7 días |
-| **Media** | 24 horas | 48 horas | 7 días | 30 días |
-| **Baja** | 48 horas | 5 días | 30 días | 90 días |
+| Severidad   | Acuse de Recibo | Evaluación | Fix      | Publicación |
+| ----------- | --------------- | ---------- | -------- | ----------- |
+| **Crítica** | 1 hora          | 4 horas    | 24 horas | 48 horas    |
+| **Alta**    | 4 horas         | 24 horas   | 72 horas | 7 días      |
+| **Media**   | 24 horas        | 48 horas   | 7 días   | 30 días     |
+| **Baja**    | 48 horas        | 5 días     | 30 días  | 90 días     |
 
 ### 4.2 Incumplimiento de Tiempos
 
@@ -144,12 +159,12 @@ Si no se cumplen los tiempos:
 
 ### 5.1 Niveles de Severidad
 
-| Nivel | Descripción | Ejemplos | Tiempo de Respuesta |
-|-------|-------------|----------|---------------------|
-| **CRÍTICA** | Acceso completo al sistema, robo de datos masivo | SQL Injection autenticado, RCE, JWT bypass total, Authentication bypass, Exfiltración de base de datos completa | 1 hora |
-| **ALTA** | Acceso a datos sensibles, manipulación de información | Stored XSS persistente, IDOR en datos de pago, CSRF en cambio de contraseña, Acceso a panel admin no autorizado | 4 horas |
-| **MEDIA** | Acceso limitado, información expuesta parcialmente | Reflected XSS, CSRF en acciones no críticas, Información de sistema expuesta, Enumeración de usuarios | 24 horas |
-| **BAJA** | Información de configuración, mejoras menores | Stack traces expuestas, Versiones de software, Headers de seguridad faltantes, Configuración insegura | 48 horas |
+| Nivel       | Descripción                                           | Ejemplos                                                                                                        | Tiempo de Respuesta |
+| ----------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------- |
+| **CRÍTICA** | Acceso completo al sistema, robo de datos masivo      | SQL Injection autenticado, RCE, JWT bypass total, Authentication bypass, Exfiltración de base de datos completa | 1 hora              |
+| **ALTA**    | Acceso a datos sensibles, manipulación de información | Stored XSS persistente, IDOR en datos de pago, CSRF en cambio de contraseña, Acceso a panel admin no autorizado | 4 horas             |
+| **MEDIA**   | Acceso limitado, información expuesta parcialmente    | Reflected XSS, CSRF en acciones no críticas, Información de sistema expuesta, Enumeración de usuarios           | 24 horas            |
+| **BAJA**    | Información de configuración, mejoras menores         | Stack traces expuestas, Versiones de software, Headers de seguridad faltantes, Configuración insegura           | 48 horas            |
 
 ### 5.2 Criterios de Escalamiento
 
@@ -167,73 +182,73 @@ Una vulnerabilidad se **ESCALA** de nivel cuando:
 
 ### Capa 1: GESTIÓN DE SECRETS
 
-| Componente | Requisito | Estado |
-|------------|-----------|--------|
-| `.gitignore` | Excluir `.env`, secrets, certs | ✅ OBLIGATORIO |
-| `.env.example` | Plantilla sin valores reales | ✅ OBLIGATORIO |
-| JWT_SECRET | Mínimo 32 caracteres, alta entropía | ✅ OBLIGATORIO |
+| Componente      | Requisito                                | Estado         |
+| --------------- | ---------------------------------------- | -------------- |
+| `.gitignore`    | Excluir `.env`, secrets, certs           | ✅ OBLIGATORIO |
+| `.env.example`  | Plantilla sin valores reales             | ✅ OBLIGATORIO |
+| JWT_SECRET      | Mínimo 32 caracteres, alta entropía      | ✅ OBLIGATORIO |
 | Credenciales DB | Variables de entorno, nunca hardcodeadas | ✅ OBLIGATORIO |
-| API Keys | Variables de entorno, nunca en código | ✅ OBLIGATORIO |
-| Certificados | Nunca en repositorio | ✅ OBLIGATORIO |
+| API Keys        | Variables de entorno, nunca en código    | ✅ OBLIGATORIO |
+| Certificados    | Nunca en repositorio                     | ✅ OBLIGATORIO |
 
 **VIOLACIÓN = RECHAZO INMEDIATO DEL PR**
 
 ### Capa 2: AUTENTICACIÓN
 
-| Componente | Requisito | Estado |
-|------------|-----------|--------|
-| JWT Algorithm | HS256 explícito, nunca "none" | ✅ OBLIGATORIO |
-| Password Policy | Mayúscula + minúscula + dígito + especial, mínimo 12 chars | ✅ OBLIGATORIO |
-| bcrypt Rounds | Mínimo 12 | ✅ OBLIGATORIO |
-| Timing Protection | Dummy compare en login fallido | ✅ OBLIGATORIO |
-| Duplicate Check | 409 en email existente | ✅ OBLIGATORIO |
-| Account Lockout | 5 intentos → 15 min lockout | ✅ OBLIGATORIO |
+| Componente        | Requisito                                                  | Estado         |
+| ----------------- | ---------------------------------------------------------- | -------------- |
+| JWT Algorithm     | HS256 explícito, nunca "none"                              | ✅ OBLIGATORIO |
+| Password Policy   | Mayúscula + minúscula + dígito + especial, mínimo 12 chars | ✅ OBLIGATORIO |
+| bcrypt Rounds     | Mínimo 12                                                  | ✅ OBLIGATORIO |
+| Timing Protection | Dummy compare en login fallido                             | ✅ OBLIGATORIO |
+| Duplicate Check   | 409 en email existente                                     | ✅ OBLIGATORIO |
+| Account Lockout   | 5 intentos → 15 min lockout                                | ✅ OBLIGATORIO |
 
 ### Capa 3: VALIDACIÓN DE ENTRADA
 
-| Componente | Requisito | Estado |
-|------------|-----------|--------|
-| Zod Schemas | TODAS las rutas | ✅ OBLIGATORIO |
-| XSS Sanitization | Middleware recursivo | ✅ OBLIGATORIO |
-| Error Handler | Logs sanitizados, sin stack trace en prod | ✅ OBLIGATORIO |
-| Payload Limit | Máximo 1MB | ✅ OBLIGATORIO |
-| Enum Validation | Valores permitidos estrictos | ✅ OBLIGATORIO |
+| Componente       | Requisito                                 | Estado         |
+| ---------------- | ----------------------------------------- | -------------- |
+| Zod Schemas      | TODAS las rutas                           | ✅ OBLIGATORIO |
+| XSS Sanitization | Middleware recursivo                      | ✅ OBLIGATORIO |
+| Error Handler    | Logs sanitizados, sin stack trace en prod | ✅ OBLIGATORIO |
+| Payload Limit    | Máximo 1MB                                | ✅ OBLIGATORIO |
+| Enum Validation  | Valores permitidos estrictos              | ✅ OBLIGATORIO |
 
 ### Capa 4: HEADERS DE SEGURIDAD
 
-| Header | Valor Mínimo | Estado |
-|--------|--------------|--------|
-| Content-Security-Policy | `default-src 'self'` | ✅ OBLIGATORIO |
-| Strict-Transport-Security | `max-age=31536000; includeSubDomains` | ✅ OBLIGATORIO |
-| X-Frame-Options | `DENY` | ✅ OBLIGATORIO |
-| X-Content-Type-Options | `nosniff` | ✅ OBLIGATORIO |
-| X-XSS-Protection | `1; mode=block` | ✅ OBLIGATORIO |
-| Referrer-Policy | `strict-origin-when-cross-origin` | ✅ OBLIGATORIO |
-| Permissions-Policy | Restringir cámara, micrófono, geolocalización | ✅ OBLIGATORIO |
+| Header                    | Valor Mínimo                                  | Estado         |
+| ------------------------- | --------------------------------------------- | -------------- |
+| Content-Security-Policy   | `default-src 'self'`                          | ✅ OBLIGATORIO |
+| Strict-Transport-Security | `max-age=31536000; includeSubDomains`         | ✅ OBLIGATORIO |
+| X-Frame-Options           | `DENY`                                        | ✅ OBLIGATORIO |
+| X-Content-Type-Options    | `nosniff`                                     | ✅ OBLIGATORIO |
+| X-XSS-Protection          | `1; mode=block`                               | ✅ OBLIGATORIO |
+| Referrer-Policy           | `strict-origin-when-cross-origin`             | ✅ OBLIGATORIO |
+| Permissions-Policy        | Restringir cámara, micrófono, geolocalización | ✅ OBLIGATORIO |
 
 ### Capa 5: SESIONES
 
-| Componente | Requisito | Estado |
-|------------|-----------|--------|
-| Access Token | 15 min expiración | ✅ OBLIGATORIO |
-| Refresh Token | 7 días, rotación obligatoria | ✅ OBLIGATORIO |
+| Componente       | Requisito                      | Estado         |
+| ---------------- | ------------------------------ | -------------- |
+| Access Token     | 15 min expiración              | ✅ OBLIGATORIO |
+| Refresh Token    | 7 días, rotación obligatoria   | ✅ OBLIGATORIO |
 | Token Revocation | Tabla RefreshToken con revoked | ✅ OBLIGATORIO |
-| Logout | Revocar refresh token en DB | ✅ OBLIGATORIO |
-| Password Change | Invalidar TODOS los tokens | ✅ OBLIGATORIO |
-| Request ID | UUID tracking por request | ✅ OBLIGATORIO |
+| Logout           | Revocar refresh token en DB    | ✅ OBLIGATORIO |
+| Password Change  | Invalidar TODOS los tokens     | ✅ OBLIGATORIO |
+| Request ID       | UUID tracking por request      | ✅ OBLIGATORIO |
 
 ### Capa 6: TESTING DE SEGURIDAD
 
-| Test | Cobertura | Frecuencia |
-|------|-----------|------------|
-| Headers (CSP, HSTS, etc.) | 100% | Cada PR |
-| Rate Limiting | 100% | Cada PR |
-| Password Policy | 100% | Cada PR |
-| Token Refresh | 100% | Cada PR |
-| Account Lockout | 100% | Cada PR |
-| XSS Sanitization | 100% | Cada PR |
-| Input Validation | 100% | Cada PR |
-| JWT Security | 100% | Cada PR |
+| Test                      | Cobertura | Frecuencia |
+| ------------------------- | --------- | ---------- |
+| Headers (CSP, HSTS, etc.) | 100%      | Cada PR    |
+| Rate Limiting             | 100%      | Cada PR    |
+| Password Policy           | 100%      | Cada PR    |
+| Token Refresh             | 100%      | Cada PR    |
+| Account Lockout           | 100%      | Cada PR    |
+| XSS Sanitization          | 100%      | Cada PR    |
+| Input Validation          | 100%      | Cada PR    |
+| JWT Security              | 100%      | Cada PR    |
 
 **MINIMO**: 34 tests de seguridad pasando antes de cada merge.
 
@@ -243,40 +258,40 @@ Una vulnerabilidad se **ESCALA** de nivel cuando:
 
 ### 7.1 En Código
 
-| # | Prohibición | Consecuencia |
-|---|-------------|--------------|
-| 1 | Hardcodear credenciales o secrets | **RECHAZO + ADVERTENCIA** |
-| 2 | Usar HTTP en producción | **RECHAZO + ADVERTENCIA** |
-| 3 | Deshabilitar validación de entrada | **RECHAZO + ADVERTENCIA** |
-| 4 | Deshabilitar CORS sin justificación | **RECHAZO + ADVERTENCIA** |
-| 5 | Usar `eval()` o `Function()` | **RECHAZO + ADVERTENCIA** |
-| 6 | Conectar a DB sin SSL en producción | **RECHAZO + ADVERTENCIA** |
-| 7 | Loguear datos sensibles (passwords, tokens) | **RECHAZO + ADVERTENCIA** |
-| 8 | Deshabilitar helmet o middleware de seguridad | **RECHAZO + ADVERTENCIA** |
-| 9 | Usar `any` en TypeScript sin justificación | **RECHAZO** |
-| 10 | Ignorar warnings de npm audit | **RECHAZO** |
+| #   | Prohibición                                   | Consecuencia              |
+| --- | --------------------------------------------- | ------------------------- |
+| 1   | Hardcodear credenciales o secrets             | **RECHAZO + ADVERTENCIA** |
+| 2   | Usar HTTP en producción                       | **RECHAZO + ADVERTENCIA** |
+| 3   | Deshabilitar validación de entrada            | **RECHAZO + ADVERTENCIA** |
+| 4   | Deshabilitar CORS sin justificación           | **RECHAZO + ADVERTENCIA** |
+| 5   | Usar `eval()` o `Function()`                  | **RECHAZO + ADVERTENCIA** |
+| 6   | Conectar a DB sin SSL en producción           | **RECHAZO + ADVERTENCIA** |
+| 7   | Loguear datos sensibles (passwords, tokens)   | **RECHAZO + ADVERTENCIA** |
+| 8   | Deshabilitar helmet o middleware de seguridad | **RECHAZO + ADVERTENCIA** |
+| 9   | Usar `any` en TypeScript sin justificación    | **RECHAZO**               |
+| 10  | Ignorar warnings de npm audit                 | **RECHAZO**               |
 
 ### 7.2 En Configuración
 
-| # | Prohibición | Consecuencia |
-|---|-------------|--------------|
-| 1 | Commit de `.env` | **REVERT + ADVERTENCIA** |
-| 2 | Commit de `node_modules` | **REVERT + ADVERTENCIA** |
-| 3 | Commit de archivos de certificados | **REVERT + ADVERTENCIA** |
-| 4 | Deshabilitar HTTPS | **RECHAZO + ADVERTENCIA** |
-| 5 | Usar JWT_SECRET débil | **RECHAZO + ADVERTENCIA** |
-| 6 | Configurar CORS `*` en producción | **RECHAZO + ADVERTENCIA** |
-| 7 | Deshabilitar rate limiting | **RECHAZO + ADVERTENCIA** |
+| #   | Prohibición                        | Consecuencia              |
+| --- | ---------------------------------- | ------------------------- |
+| 1   | Commit de `.env`                   | **REVERT + ADVERTENCIA**  |
+| 2   | Commit de `node_modules`           | **REVERT + ADVERTENCIA**  |
+| 3   | Commit de archivos de certificados | **REVERT + ADVERTENCIA**  |
+| 4   | Deshabilitar HTTPS                 | **RECHAZO + ADVERTENCIA** |
+| 5   | Usar JWT_SECRET débil              | **RECHAZO + ADVERTENCIA** |
+| 6   | Configurar CORS `*` en producción  | **RECHAZO + ADVERTENCIA** |
+| 7   | Deshabilitar rate limiting         | **RECHAZO + ADVERTENCIA** |
 
 ### 7.3 En Dependencias
 
-| # | Prohibición | Consecuencia |
-|---|-------------|--------------|
-| 1 | Instalar paquete con vulnerabilidades críticas | **RECHAZO** |
-| 2 | Ignorar `npm audit` | **RECHAZO** |
-| 3 | Usar dependencias no verificadas | **RECHAZO** |
-| 4 | No documentar nuevas dependencias | **RECHAZO** |
-| 5 | Instalar dependencias sin aprobación | **RECHAZO + ADVERTENCIA** |
+| #   | Prohibición                                    | Consecuencia              |
+| --- | ---------------------------------------------- | ------------------------- |
+| 1   | Instalar paquete con vulnerabilidades críticas | **RECHAZO**               |
+| 2   | Ignorar `npm audit`                            | **RECHAZO**               |
+| 3   | Usar dependencias no verificadas               | **RECHAZO**               |
+| 4   | No documentar nuevas dependencias              | **RECHAZO**               |
+| 5   | Instalar dependencias sin aprobación           | **RECHAZO + ADVERTENCIA** |
 
 ---
 
@@ -284,12 +299,12 @@ Una vulnerabilidad se **ESCALA** de nivel cuando:
 
 ### 8.1 Niveles de Incidente
 
-| Nivel | Descripción | Equipo | Tiempo |
-|-------|-------------|--------|--------|
-| **N1** | Vulnerabilidad reportada porexterno | Equipo de seguridad | 1-24 horas |
-| **N2** | Vulnerabilidad explotada activamente | Equipo completo | Inmediato |
-| **N3** | Brecha de datos confirmada | Equipo completo + Legal | Inmediato |
-| **N4** | Compromiso de sistema completo | Todos + Autoridades | Inmediato |
+| Nivel  | Descripción                          | Equipo                  | Tiempo     |
+| ------ | ------------------------------------ | ----------------------- | ---------- |
+| **N1** | Vulnerabilidad reportada porexterno  | Equipo de seguridad     | 1-24 horas |
+| **N2** | Vulnerabilidad explotada activamente | Equipo completo         | Inmediato  |
+| **N3** | Brecha de datos confirmada           | Equipo completo + Legal | Inmediato  |
+| **N4** | Compromiso de sistema completo       | Todos + Autoridades     | Inmediato  |
 
 ### 8.2 Flujo de Respuesta
 
@@ -369,13 +384,13 @@ Cada colaborador es **PERSONALMENTE RESPONSABLE** por:
 
 ### 10.1 Contraseñas
 
-| Regla | Requisito |
-|-------|-----------|
-| Longitud | Mínimo 12 caracteres |
-| Complejidad | Mayúscula + minúscula + dígito + especial |
-| Reutilización | **PROHIBIDO** reutilizar entre servicios |
-| Almacenamiento | **NUNCA** en texto plano |
-| Cambio | Cada 90 días o ante sospecha |
+| Regla          | Requisito                                 |
+| -------------- | ----------------------------------------- |
+| Longitud       | Mínimo 12 caracteres                      |
+| Complejidad    | Mayúscula + minúscula + dígito + especial |
+| Reutilización  | **PROHIBIDO** reutilizar entre servicios  |
+| Almacenamiento | **NUNCA** en texto plano                  |
+| Cambio         | Cada 90 días o ante sospecha              |
 
 ### 10.2 Autenticación
 
@@ -397,22 +412,22 @@ Cada colaborador es **PERSONALMENTE RESPONSABLE** por:
 
 ### 11.1 Logs Obligatorios
 
-| Evento | Información Mínima |
-|--------|-------------------|
-| Login exitoso | Email, IP, timestamp, User-Agent |
-| Login fallido | Email, IP, timestamp, razón |
-| Cambio de contraseña | Email, IP, timestamp |
-| Acceso a datos sensibles | Usuario, IP, timestamp, datos accedidos |
-| Error de aplicación | Error, endpoint, timestamp (sin stack trace en prod) |
+| Evento                   | Información Mínima                                   |
+| ------------------------ | ---------------------------------------------------- |
+| Login exitoso            | Email, IP, timestamp, User-Agent                     |
+| Login fallido            | Email, IP, timestamp, razón                          |
+| Cambio de contraseña     | Email, IP, timestamp                                 |
+| Acceso a datos sensibles | Usuario, IP, timestamp, datos accedidos              |
+| Error de aplicación      | Error, endpoint, timestamp (sin stack trace en prod) |
 
 ### 11.2 Retención de Logs
 
-| Tipo de Log | Retención |
-|-------------|-----------|
-| Autenticación | 1 año |
-| Acceso a datos | 2 años |
-| Errores | 6 meses |
-| Auditoría de seguridad | 5 años |
+| Tipo de Log            | Retención |
+| ---------------------- | --------- |
+| Autenticación          | 1 año     |
+| Acceso a datos         | 2 años    |
+| Errores                | 6 meses   |
+| Auditoría de seguridad | 5 años    |
 
 ### 11.3 Prohibiciones en Logs
 
@@ -428,12 +443,12 @@ Cada colaborador es **PERSONALMENTE RESPONSABLE** por:
 
 ### 12.1 Programa de Recompensas
 
-| Severidad | Recompensa |
-|-----------|------------|
-| Crítica | $500 - $2,000 + Agradecimiento público |
-| Alta | $200 - $500 + Agradecimiento público |
-| Media | $50 - $200 + Agradecimiento público |
-| Baja | Agradecimiento público |
+| Severidad | Recompensa                             |
+| --------- | -------------------------------------- |
+| Crítica   | $500 - $2,000 + Agradecimiento público |
+| Alta      | $200 - $500 + Agradecimiento público   |
+| Media     | $50 - $200 + Agradecimiento público    |
+| Baja      | Agradecimiento público                 |
 
 ### 12.2 Condiciones
 
@@ -452,12 +467,12 @@ Cada colaborador es **PERSONALMENTE RESPONSABLE** por:
 
 ## 13. CONTACTO
 
-| Propósito | Email | Tiempo de Respuesta |
-|-----------|-------|---------------------|
-| Reportar vulnerabilidad | `security@hostalcofee.com` | 1-4 horas |
-| Preguntas de seguridad | `security-questions@hostalcofee.com` | 24 horas |
-| Emergencias de seguridad | `security-emergency@hostalcofee.com` | Inmediato |
-| Auditorías de seguridad | `security-audit@hostalcofee.com` | 48 horas |
+| Propósito                | Email                                | Tiempo de Respuesta |
+| ------------------------ | ------------------------------------ | ------------------- |
+| Reportar vulnerabilidad  | `security@hostalcofee.com`           | 1-4 horas           |
+| Preguntas de seguridad   | `security-questions@hostalcofee.com` | 24 horas            |
+| Emergencias de seguridad | `security-emergency@hostalcofee.com` | Inmediato           |
+| Auditorías de seguridad  | `security-audit@hostalcofee.com`     | 48 horas            |
 
 ---
 
@@ -465,22 +480,22 @@ Cada colaborador es **PERSONALMENTE RESPONSABLE** por:
 
 ### 14.1 Para Colaboradores
 
-| Violación | Consecuencia |
-|-----------|--------------|
-| Exponer secrets | Advertencia + Rotación obligatoria |
-| Introducir vulnerabilidad | Rechazo + Corrección obligatoria |
-| Ignorar npm audit | Rechazo + Auditoría |
-| No seguir protocolo de reporte | Advertencia |
-| Divulgar vulnerabilidad | Ban permanente + Acciones legales |
+| Violación                      | Consecuencia                       |
+| ------------------------------ | ---------------------------------- |
+| Exponer secrets                | Advertencia + Rotación obligatoria |
+| Introducir vulnerabilidad      | Rechazo + Corrección obligatoria   |
+| Ignorar npm audit              | Rechazo + Auditoría                |
+| No seguir protocolo de reporte | Advertencia                        |
+| Divulgar vulnerabilidad        | Ban permanente + Acciones legales  |
 
 ### 14.2 Para Usuarios
 
-| Violación | Consecuencia |
-|-----------|--------------|
-| Compartir credenciales | Suspensión de cuenta |
+| Violación                 | Consecuencia                |
+| ------------------------- | --------------------------- |
+| Compartir credenciales    | Suspensión de cuenta        |
 | Explotar vulnerabilidades | Ban + Reporte a autoridades |
-| Acceso no autorizado | Ban + Reporte a autoridades |
-| Fraude | Ban + Reporte a autoridades |
+| Acceso no autorizado      | Ban + Reporte a autoridades |
+| Fraude                    | Ban + Reporte a autoridades |
 
 ---
 

@@ -1,5 +1,12 @@
 # Política de Privacidad
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+
+---
+
 **Última actualización**: 16 de julio de 2026
 
 ## 1. Introducción
@@ -101,11 +108,11 @@ Procesamos su información personal bajo las siguientes bases legales:
 
 Compartimos información con:
 
-| Tercer Servicio | Propósito | Información Compartida |
-|-----------------|-----------|------------------------|
-| **Wompi** | Procesamiento de pagos | Datos de transacción |
-| **PostgreSQL** | Almacenamiento de datos | Todos los datos de cuenta |
-| **WhatsApp** | Comunicación con clientes | Número de teléfono (opcional) |
+| Tercer Servicio | Propósito                 | Información Compartida        |
+| --------------- | ------------------------- | ----------------------------- |
+| **Wompi**       | Procesamiento de pagos    | Datos de transacción          |
+| **PostgreSQL**  | Almacenamiento de datos   | Todos los datos de cuenta     |
+| **WhatsApp**    | Comunicación con clientes | Número de teléfono (opcional) |
 
 ### 5.2 No Vendemos Datos
 
@@ -134,13 +141,13 @@ Implementamos medidas de seguridad técnicas y organizativas:
 
 Retenemos su información personal solo mientras sea necesario:
 
-| Tipo de Dato | Período de Retención |
-|--------------|----------------------|
-| Cuenta de usuario | Mientras la cuenta esté activa |
+| Tipo de Dato         | Período de Retención             |
+| -------------------- | -------------------------------- |
+| Cuenta de usuario    | Mientras la cuenta esté activa   |
 | Historial de pedidos | 5 años (requerimientos fiscales) |
-| Reservas | 2 años |
-| Logs de seguridad | 1 año |
-| Cookies de sesión | Hasta cerrar sesión |
+| Reservas             | 2 años                           |
+| Logs de seguridad    | 1 año                            |
+| Cookies de sesión    | Hasta cerrar sesión              |
 
 Cuando eliminamos datos, lo hacemos de forma segura e irreversible.
 
@@ -161,6 +168,7 @@ Usted tiene derecho a:
 ### Ejercer sus Derechos
 
 Para ejercer estos derechos, contáctenos a través de:
+
 - **Email**: privacy@hostalcofee.com
 - **Asunto**: [Privacy Request] Tipo de solicitud
 
@@ -172,11 +180,11 @@ Responderemos a su solicitud dentro de 30 días.
 
 ### 9.1 Cookies que Utilizamos
 
-| Cookie | Propósito | Duración |
-|--------|-----------|----------|
-| `session_id` | Autenticación | Sesión |
-| `preferences` | Preferencias del usuario | 1 año |
-| `analytics` | Análisis de uso | 1 año |
+| Cookie        | Propósito                | Duración |
+| ------------- | ------------------------ | -------- |
+| `session_id`  | Autenticación            | Sesión   |
+| `preferences` | Preferencias del usuario | 1 año    |
+| `analytics`   | Análisis de uso          | 1 año    |
 
 ### 9.2 Control de Cookies
 
@@ -205,6 +213,7 @@ Al utilizar el Servicio, usted consiente dichas transferencias.
 Podemos actualizar esta Política de Privacidad periódicamente.
 
 Notificaremos cambios significativos a través de:
+
 - Correo electrónico a la dirección registrada
 - Aviso en el Servicio
 - Actualización de la fecha de "Última actualización"

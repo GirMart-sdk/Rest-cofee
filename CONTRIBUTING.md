@@ -1,5 +1,12 @@
 # Guía de Contribución — Normativa Obligatoria
 
+![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
+![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
+![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+
+---
+
 **Versión**: 2.0
 **Última actualización**: 23 de julio de 2026
 
