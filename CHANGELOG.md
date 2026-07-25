@@ -4,6 +4,10 @@
 ![Versión](https://img.shields.io/badge/Versión-1.0.0-blue.svg)
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Keep a Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-e05735.svg)
+![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)
+![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
+![Security](https://img.shields.io/badge/Security-Hardened-red.svg)
+![Tests](https://img.shields.io/badge/Tests-73%20Passing-brightgreen)
 
 ---
 

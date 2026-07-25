@@ -4,6 +4,10 @@
 ![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+![Responsabilidad](https://img.shields.io/badge/Responsabilidad-Usuario-blue.svg)
+![Actividad Prohibida](https://img.shields.io/badge/Actividad-Prohibida-red.svg)
+![Garantía](<https://img.shields.io/badge/Garantía-Sin%20Garantía%20(AS%20IS)-yellow.svg>)
+![Terminación](https://img.shields.io/badge/Terminación-Por%20Violación-red.svg)
 
 ---
 

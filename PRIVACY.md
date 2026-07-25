@@ -4,6 +4,9 @@
 ![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+![Venta de Datos](https://img.shields.io/badge/Venta%20de%20Datos-Nunca-red.svg)
+![Derechos del Usuario](https://img.shields.io/badge/Derechos-Garantizados-blue.svg)
+![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
 
 ---
 

@@ -4,6 +4,10 @@
 ![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
+![Reporte](https://img.shields.io/badge/Reporte-Obligatorio-yellow.svg)
+![Capas](https://img.shields.io/badge/Seguridad-6%20Capas-red.svg)
+![Tests](https://img.shields.io/badge/Tests%20Seguridad-34%20Mínimo-green.svg)
 
 ---
 

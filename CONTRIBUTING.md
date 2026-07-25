@@ -4,6 +4,10 @@
 ![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+![Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
+![PR Size](https://img.shields.io/badge/PR%20Size-%3C500%20Lines-red.svg)
+![Tests](https://img.shields.io/badge/Tests-Coverage%2080%25-green.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 
 ---
 

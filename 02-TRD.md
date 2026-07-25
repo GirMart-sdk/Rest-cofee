@@ -5,6 +5,11 @@
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
 
+![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
+![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
+![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
+![Tests](https://img.shields.io/badge/Tests-73%20Pasando-brightgreen.svg)
+
 ---
 
 **Producto:** Hostal Cofee v2

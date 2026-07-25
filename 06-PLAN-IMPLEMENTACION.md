@@ -5,6 +5,12 @@
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
 
+![Progreso General](https://img.shields.io/badge/Progreso-75%25-blue.svg)
+![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-29%2F30-brightgreen.svg)
+![Tests Pasando](https://img.shields.io/badge/Tests-73%2F73-brightgreen.svg)
+![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-10%20items-yellow.svg)
+![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
+
 ---
 
 **Producto:** Hostal Cofee v2

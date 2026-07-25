@@ -4,6 +4,9 @@
 ![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+![Alcance](https://img.shields.io/badge/Alcance-Total-yellow.svg)
+![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
+![Reportes](https://img.shields.io/badge/Reportes-Confidenciales-blue.svg)
 
 ---
 

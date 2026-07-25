@@ -5,6 +5,13 @@
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Estado](https://img.shields.io/badge/Estado-Activo-success.svg)
 
+![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-18-green?logo=nodedotjs)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
+![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
+![Security](https://img.shields.io/badge/Security-6%20Layers-red)
+![Tests](https://img.shields.io/badge/Tests-73%20Passing-brightgreen)
+
 ---
 
 Sistema completo de restaurante con React + Node.js + PostgreSQL.

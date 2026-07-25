@@ -5,6 +5,11 @@
 ![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Fecha](https://img.shields.io/badge/Fecha-16%20Jul%202026-blue.svg)
 
+![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)
+![Vulnerabilidades Mitigadas](https://img.shields.io/badge/Vulnerabilidades%20Mitigadas-16-brightgreen.svg)
+![Tests de Seguridad](https://img.shields.io/badge/Tests%20de%20Seguridad-34-green.svg)
+![Archivos Afectados](https://img.shields.io/badge/Archivos%20Afectados-26-blue.svg)
+
 ---
 
 ## Fecha: 2026-07-16
