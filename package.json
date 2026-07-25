@@ -13,8 +13,6 @@
     "format": "npm run format --prefix hostal-cofre/server && npm run format --prefix hostal-cofre/client",
     "test": "npm run test --prefix hostal-cofre/server",
     "test:security": "npm run test:security --prefix hostal-cofre/server",
-    "docker:up": "docker compose --file hostal-cofre/docker-compose.yml up -d",
-    "docker:down": "docker compose --file hostal-cofre/docker-compose.yml down",
     "start:all": "powershell -ExecutionPolicy Bypass -File start.ps1",
     "prepare": "husky"
   },
