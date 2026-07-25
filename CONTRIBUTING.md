@@ -30,14 +30,14 @@ Al contribuir a **Hostal Cofee**, usted acepta expresamente:
 
 ### 2.2 Herramientas Obligatorias
 
-| Herramienta | Versión Mínima | Propósito |
-|-------------|----------------|-----------|
-| Node.js | 18.0.0 | Runtime |
-| npm | 9.0.0 | Package manager |
-| PostgreSQL | 14.0 | Base de datos |
-| Git | 2.40.0 | Control de versiones |
-| ESLint | Última estable | Linting |
-| Prettier | Última estable | Formateo |
+| Herramienta | Versión Mínima | Propósito            |
+| ----------- | -------------- | -------------------- |
+| Node.js     | 18.0.0         | Runtime              |
+| npm         | 9.0.0          | Package manager      |
+| PostgreSQL  | 14.0           | Base de datos        |
+| Git         | 2.40.0         | Control de versiones |
+| ESLint      | Última estable | Linting              |
+| Prettier    | Última estable | Formateo             |
 
 ### 2.3 Configuración Local
 
@@ -81,14 +81,14 @@ npm run test
 
 ### 3.1 Naming de Ramas
 
-| Tipo | Formato | Ejemplo | Ejemplo No Válido |
-|------|---------|---------|-------------------|
-| Feature | `feature/xxx-xxx` | `feature/add-cart-system` | `feature/cart` (incompleto) |
-| Fix | `fix/xxx-xxx` | `fix/login-redirect` | `fix-bug` (sin slash) |
-| Docs | `docs/xxx-xxx` | `docs/update-api` | `docs` (sin descripción) |
+| Tipo     | Formato            | Ejemplo                    | Ejemplo No Válido           |
+| -------- | ------------------ | -------------------------- | --------------------------- |
+| Feature  | `feature/xxx-xxx`  | `feature/add-cart-system`  | `feature/cart` (incompleto) |
+| Fix      | `fix/xxx-xxx`      | `fix/login-redirect`       | `fix-bug` (sin slash)       |
+| Docs     | `docs/xxx-xxx`     | `docs/update-api`          | `docs` (sin descripción)    |
 | Refactor | `refactor/xxx-xxx` | `refactor/auth-middleware` | `refactor-code` (sin slash) |
-| Test | `test/xxx-xxx` | `test/add-menu-tests` | `test` (sin descripción) |
-| Hotfix | `hotfix/xxx-xxx` | `hotfix/security-patch` | `hotfix` (sin descripción) |
+| Test     | `test/xxx-xxx`     | `test/add-menu-tests`      | `test` (sin descripción)    |
+| Hotfix   | `hotfix/xxx-xxx`   | `hotfix/security-patch`    | `hotfix` (sin descripción)  |
 
 ### 3.2 Reglas de Ramas
 
@@ -127,18 +127,17 @@ git checkout -b feature/tu-funcionalidad
 
 ### 4.2 Tipos Permitidos
 
-| Tipo | Uso | Ejemplo |
-|------|-----|---------|
-| `feat` | Nueva funcionalidad | `feat(cart): add quantity selector` |
-| `fix` | Corrección de bug | `fix(auth): resolve token refresh` |
-| `docs` | Documentación | `docs(api): update endpoints` |
-| `style` | Formato (sin cambio lógico) | `style(client): apply prettier` |
-| `refactor` | Refactoring | `refactor(middleware): extract validation` |
-| `test` | Tests | `test(orders): add integration tests` |
-| `chore` | Mantenimiento | `chore(deps): update prisma` |
-| `perf` | Rendimiento | `perf(menu): optimize queries` |
-| `ci` | CI/CD | `ci(github): add test job` |
-| `build` | Build | `build(docker): optimize image` |
+| Tipo       | Uso                         | Ejemplo                                    |
+| ---------- | --------------------------- | ------------------------------------------ |
+| `feat`     | Nueva funcionalidad         | `feat(cart): add quantity selector`        |
+| `fix`      | Corrección de bug           | `fix(auth): resolve token refresh`         |
+| `docs`     | Documentación               | `docs(api): update endpoints`              |
+| `style`    | Formato (sin cambio lógico) | `style(client): apply prettier`            |
+| `refactor` | Refactoring                 | `refactor(middleware): extract validation` |
+| `test`     | Tests                       | `test(orders): add integration tests`      |
+| `chore`    | Mantenimiento               | `chore(deps): update prisma`               |
+| `perf`     | Rendimiento                 | `perf(menu): optimize queries`             |
+| `ci`       | CI/CD                       | `ci(github): add test job`                 |
 
 ### 4.3 Reglas de Commits
 
@@ -160,6 +159,7 @@ git checkout -b feature/tu-funcionalidad
 ### 4.5 Ejemplos
 
 **Correcto:**
+
 ```
 feat(reservations): add cancellation policy
 
@@ -171,6 +171,7 @@ Closes #45
 ```
 
 **Incorrecto:**
+
 ```
 fix stuff
 ```
@@ -193,16 +194,16 @@ actualizado el carrito de compras
 
 ### 5.2 Naming Conventions
 
-| Elemento | Formato | Ejemplo |
-|----------|---------|---------|
-| Variables | `camelCase` | `userName`, `orderTotal` |
-| Funciones | `camelCase` | `calculateTotal()`, `fetchOrders()` |
-| Componentes React | `PascalCase` | `CartComponent`, `OrderList` |
-| Clases | `PascalCase` | `AuthService`, `OrderService` |
-| Constantes | `UPPER_SNAKE_CASE` | `MAX_RETRY_COUNT`, `API_VERSION` |
-| Interfaces | `PascalCase` + prefijo `I` | `IUser`, `IOrder` |
-| Enums | `PascalCase` | `OrderStatus`, `PaymentMethod` |
-| Archivos | `kebab-case` | `order-service.ts`, `cart-component.ts` |
+| Elemento          | Formato                    | Ejemplo                                 |
+| ----------------- | -------------------------- | --------------------------------------- |
+| Variables         | `camelCase`                | `userName`, `orderTotal`                |
+| Funciones         | `camelCase`                | `calculateTotal()`, `fetchOrders()`     |
+| Componentes React | `PascalCase`               | `CartComponent`, `OrderList`            |
+| Clases            | `PascalCase`               | `AuthService`, `OrderService`           |
+| Constantes        | `UPPER_SNAKE_CASE`         | `MAX_RETRY_COUNT`, `API_VERSION`        |
+| Interfaces        | `PascalCase` + prefijo `I` | `IUser`, `IOrder`                       |
+| Enums             | `PascalCase`               | `OrderStatus`, `PaymentMethod`          |
+| Archivos          | `kebab-case`               | `order-service.ts`, `cart-component.ts` |
 
 ### 5.3 Estructura de Código
 
@@ -224,6 +225,7 @@ src/
 - **Obligatorio**: Explicar **por qué**, no **qué**
 
 **Correcto:**
+
 ```typescript
 /**
  * Calculate total with tax and discount
@@ -235,7 +237,7 @@ src/
 function calculateTotal(
   subtotal: number,
   taxRate: number,
-  discount: number
+  discount: number,
 ): number {
   // Using Math.round to avoid floating point precision issues
   return Math.round(subtotal * (1 + taxRate) * (1 - discount));
@@ -243,9 +245,14 @@ function calculateTotal(
 ```
 
 **Incorrecto:**
+
 ```typescript
 // Función para calcular total
-function calculateTotal(subtotal: number, taxRate: number, discount: number): number {
+function calculateTotal(
+  subtotal: number,
+  taxRate: number,
+  discount: number,
+): number {
   // Calcular impuesto
   let tax = subtotal * taxRate;
   // Calcular descuento
@@ -292,9 +299,11 @@ function calculateTotal(subtotal: number, taxRate: number, discount: number): nu
 
 ```markdown
 ## Descripción
+
 [Descripción clara del cambio]
 
 ## Tipo de Cambio
+
 - [ ] Bug fix (fix)
 - [ ] Nueva funcionalidad (feat)
 - [ ] Documentación (docs)
@@ -303,19 +312,24 @@ function calculateTotal(subtotal: number, taxRate: number, discount: number): nu
 - [ ] Otro: ___
 
 ## Issue Relacionado
+
 Closes #[número]
 
 ## Cambios Realizados
+
 - [ ] Detalle 1
 - [ ] Detalle 2
 
 ## Testing
+
 [Descripción de cómo se probó]
 
 ## Screenshots (si aplica)
+
 [Capturas de pantalla]
 
 ## Checklist
+
 - [ ] Código compila sin errores
 - [ ] Tests pasan
 - [ ] Lint sin errores
@@ -339,12 +353,12 @@ Closes #[número]
 
 ### 6.4 Tamaño del PR
 
-| Tamaño | Líneas | Ejemplo |
-|--------|--------|---------|
-| Pequeño | < 100 | Fix simple, cambio de configuración |
-| Mediano | 100-300 | Feature completa |
-| Grande | 300-500 | Múltiples features relacionadas |
-| **RECHAZADO** | > 500 | Dividir en múltiples PRs |
+| Tamaño        | Líneas  | Ejemplo                             |
+| ------------- | ------- | ----------------------------------- |
+| Pequeño       | < 100   | Fix simple, cambio de configuración |
+| Mediano       | 100-300 | Feature completa                    |
+| Grande        | 300-500 | Múltiples features relacionadas     |
+| **RECHAZADO** | > 500   | Dividir en múltiples PRs            |
 
 **Si el PR excede 500 líneas, será rechazado automáticamente.**
 
@@ -400,18 +414,18 @@ npm audit fix
 
 ### 8.1 Tipos de Tests
 
-| Tipo | Cobertura Mínima | Ejecución |
-|------|------------------|-----------|
-| Unit | 80% | `npm run test` |
-| Integration | 60% | `npm run test:integration` |
-| Security | 100% | `npm run test:security` |
+| Tipo        | Cobertura Mínima | Ejecución                  |
+| ----------- | ---------------- | -------------------------- |
+| Unit        | 80%              | `npm run test`             |
+| Integration | 60%              | `npm run test:integration` |
+| Security    | 100%             | `npm run test:security`    |
 
 ### 8.2 Estructura de Tests
 
 ```typescript
-describe('OrderService', () => {
-  describe('calculateTotal', () => {
-    it('should calculate total with tax', () => {
+describe("OrderService", () => {
+  describe("calculateTotal", () => {
+    it("should calculate total with tax", () => {
       // Arrange
       const subtotal = 100;
       const taxRate = 0.19;
@@ -423,13 +437,14 @@ describe('OrderService', () => {
       expect(result).toBe(119);
     });
 
-    it('should throw error for negative subtotal', () => {
+    it("should throw error for negative subtotal", () => {
       // Arrange
       const subtotal = -100;
 
       // Act & Assert
-      expect(() => calculateTotal(subtotal, 0.19, 0))
-        .toThrow('Subtotal cannot be negative');
+      expect(() => calculateTotal(subtotal, 0.19, 0)).toThrow(
+        "Subtotal cannot be negative",
+      );
     });
   });
 });
@@ -470,30 +485,37 @@ describe('OrderService', () => {
 
 ```markdown
 ## Descripción
+
 [Descripción clara y concisa del bug]
 
 ## Pasos para Reproducir
+
 1. Ir a '...'
 2. Hacer clic en '...'
 3. Desplazarse hasta '...'
 4. Ver error
 
 ## Comportamiento Esperado
+
 [Qué debería pasar]
 
 ## Comportamiento Actual
+
 [Qué pasa realmente]
 
 ## Entorno
+
 - SO: [ej. Windows 11]
 - Navegador: [ej. Chrome 120]
 - Node.js: [ej. 18.17.0]
 - npm: [ej. 9.6.7]
 
 ## Screenshots
+
 [Si aplica]
 
 ## Additional Context
+
 [Cualquier otra información relevante]
 ```
 
@@ -501,15 +523,19 @@ describe('OrderService', () => {
 
 ```markdown
 ## Descripción
+
 [Descripción clara de la funcionalidad]
 
 ## Use Case
+
 [Por qué es necesaria esta funcionalidad]
 
 ## Alternativas Consideradas
+
 [Otras soluciones evaluadas]
 
 ## Additional Context
+
 [Cualquier otra información relevante]
 ```
 
@@ -532,12 +558,12 @@ describe('OrderService', () => {
 
 ### 11.2 Consecuencias
 
-| Infracción | Consecuencia |
-|------------|--------------|
-| 1ra vez | Advertencia y solicitud de corrección |
-| 2da vez | Rechazo del PR y revisión obligatoria |
-| 3ra vez | Suspensión temporal de contribuciones |
-| Gravedad alta | Ban permanente del proyecto |
+| Infracción    | Consecuencia                          |
+| ------------- | ------------------------------------- |
+| 1ra vez       | Advertencia y solicitud de corrección |
+| 2da vez       | Rechazo del PR y revisión obligatoria |
+| 3ra vez       | Suspensión temporal de contribuciones |
+| Gravedad alta | Ban permanente del proyecto           |
 
 ---
 
