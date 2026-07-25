@@ -2,7 +2,7 @@
 
 ![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
 ![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
-![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
 ![Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 ![PR Size](https://img.shields.io/badge/PR%20Size-%3C500%20Lines-red.svg)
@@ -23,7 +23,7 @@
 Al contribuir a **Hostal Cofee**, usted acepta expresamente:
 
 1. Cumplir con el [Código de Conducta](CODE_OF_CONDUCT.md)
-2. Licenciar sus contribuciones bajo [AGPLv3](LICENSE)
+2. Ceder todos los derechos de sus contribuciones al propietario del proyecto bajo los términos de la [Licencia Propietaria](LICENSE)
 3. Seguir **todas** las normas establecidas en este documento
 4. Someterse al proceso de revisión y aprobación
 

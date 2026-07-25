@@ -2,7 +2,7 @@
 
 ![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
 ![Tipo](https://img.shields.io/badge/Tipo-Informe%20Técnico-informational.svg)
-![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
 ![Fecha](https://img.shields.io/badge/Fecha-16%20Jul%202026-blue.svg)
 
 ![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)

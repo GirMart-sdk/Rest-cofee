@@ -2,7 +2,7 @@
 
 ![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
 ![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
-![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
 ![Venta de Datos](https://img.shields.io/badge/Venta%20de%20Datos-Nunca-red.svg)
 ![Derechos del Usuario](https://img.shields.io/badge/Derechos-Garantizados-blue.svg)
@@ -247,9 +247,9 @@ Al utilizar el Servicio, usted acepta esta Política de Privacidad.
 
 ## Licencia
 
-[![Licencia: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
-Este proyecto está licenciado bajo la **Licencia Pública General de Affero v3.0 (AGPL-3.0)**.
+Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
 
 Para más detalles, consulte el archivo LICENSE.
 

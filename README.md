@@ -2,7 +2,7 @@
 
 ![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
 ![Versión](https://img.shields.io/badge/Versión-1.0.0-blue.svg)
-![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
 ![Estado](https://img.shields.io/badge/Estado-Activo-success.svg)
 
 ![React](https://img.shields.io/badge/React-18-blue?logo=react)
@@ -109,7 +109,7 @@ npm run dev
 
 | Documento                                | Descripción                             |
 | ---------------------------------------- | --------------------------------------- |
-| [LICENSE](LICENSE)                       | Licencia GNU AGPL v3.0                  |
+| [LICENSE](LICENSE)                       | Licencia Propietaria DEVCO              |
 | [CONTRIBUTING.md](CONTRIBUTING.md)       | Guía para contribuidores                |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Código de conducta                      |
 | [CHANGELOG.md](CHANGELOG.md)             | Historial de cambios                    |

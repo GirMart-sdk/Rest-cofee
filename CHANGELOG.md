@@ -2,7 +2,7 @@
 
 ![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
 ![Versión](https://img.shields.io/badge/Versión-1.0.0-blue.svg)
-![Licencia](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
 ![Keep a Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-e05735.svg)
 ![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)
 ![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
@@ -110,8 +110,8 @@ y este proyecto adheres a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## Licencia
 
-[![Licencia: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
-Este proyecto está licenciado bajo la **Licencia Pública General de Affero v3.0 (AGPL-3.0)**.
+Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
 
 Para más detalles, consulte el archivo LICENSE.
