@@ -290,4 +290,14 @@ Si tiene preguntas sobre estos Términos de Uso:
 
 Al utilizar el Servicio, usted confirma que ha leído, comprendido y acepta estar sujeto a estos Términos de Uso.
 
+---
+
+## Licencia
+
+[![Licencia: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
+Este proyecto está licenciado bajo la **Licencia Pública General de Affero v3.0 (AGPL-3.0)**.
+
+Para más detalles, consulte el archivo LICENSE.
+
 Si tiene entre 13 y 17 años, garantiza que tiene el consentimiento de sus padres o tutores para utilizar el Servicio.

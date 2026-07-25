@@ -243,4 +243,14 @@ Si no está satisfecho con nuestra respuesta, tiene derecho a presentar una quej
 
 Al utilizar el Servicio, usted acepta esta Política de Privacidad.
 
+---
+
+## Licencia
+
+[![Licencia: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
+Este proyecto está licenciado bajo la **Licencia Pública General de Affero v3.0 (AGPL-3.0)**.
+
+Para más detalles, consulte el archivo LICENSE.
+
 Si no está de acuerdo con esta política, por favor no utilice el Servicio.

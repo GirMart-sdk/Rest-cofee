@@ -316,3 +316,13 @@ export default defineConfig({
 | 8   | Charts CSS puros en reportes (sin librería)                                         | Media     | 4h       |
 | 9   | cleanupExpiredTokens() nunca llamado                                                | Media     | 1h       |
 | 10  | Sin paginación en listas (pedidos, reservas)                                        | Media     | 6h       |
+
+---
+
+## Licencia
+
+[![Licencia: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
+Este proyecto está licenciado bajo la **Licencia Pública General de Affero v3.0 (AGPL-3.0)**.
+
+Para más detalles, consulte el archivo [LICENSE](LICENSE).

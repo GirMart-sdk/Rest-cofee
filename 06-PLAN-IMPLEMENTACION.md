@@ -262,3 +262,13 @@ UI/UX:      ████████████████░░░░  80% (s
 | Multi-sucursal | Schema con `branchId` / Microservicios | Schema con `branchId` (monolito escalado)    |
 | Image storage  | Local / Cloudinary / S3                | Cloudinary (free tier generoso)              |
 | Cache          | Sin cache / Redis / In-memory          | Redis (cuando se necesite escalabilidad)     |
+
+---
+
+## Licencia
+
+[![Licencia: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
+Este proyecto está licenciado bajo la **Licencia Pública General de Affero v3.0 (AGPL-3.0)**.
+
+Para más detalles, consulte el archivo LICENSE.
