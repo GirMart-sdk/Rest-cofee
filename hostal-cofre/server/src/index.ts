@@ -1,5 +1,8 @@
-import 'express-async-errors' // Must be the first import
+import 'express-async-errors'
 import express from 'express'
+import http from 'http'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
@@ -16,63 +19,106 @@ import { errorHandler } from './middleware/errors.js'
 import { sanitize } from './middleware/sanitize.js'
 import { requestId } from './middleware/requestId.js'
 
-const app = express()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: config.nodeEnv === 'production' ? 100 : 1000,
-  standardHeaders: true,
-  legacyHeaders: false,
-})
+async function main() {
+  const app = express()
 
-app.use(cors({ origin: config.corsOrigin, credentials: true }))
-app.use(express.json({ limit: '10kb' }))
-app.use(requestId)
-app.use(sanitize)
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: config.nodeEnv === 'production' ? 100 : 1000,
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      fontSrc: ["'self'"],
-      connectSrc: ["'self'"],
-      frameSrc: ["'none'"],
-      objectSrc: ["'none'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'"],
-      upgradeInsecureRequests: [],
+  if (config.nodeEnv === 'production') {
+    app.use(express.static(path.join(__dirname, '../../client/dist')))
+  } else {
+    app.use(cors({ origin: config.corsOrigin, credentials: true }))
+  }
+
+  app.use(express.json({ limit: '10kb' }))
+  app.use(requestId)
+  app.use(sanitize)
+
+  const isDev = config.nodeEnv !== 'production'
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: isDev ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        connectSrc: isDev ? ["'self'", 'ws://localhost:3001'] : ["'self'"],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: isDev ? [] : [],
+      },
     },
-  },
-  crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: { policy: 'same-site' },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  hsts: { maxAge: 31536000, includeSubDomains: true },
-  noSniff: true,
-  xssFilter: true,
-}))
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'same-site' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+    noSniff: true,
+    xssFilter: true,
+  }))
 
-app.use(limiter)
+  app.use(limiter)
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
-})
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  })
 
-app.use('/api/auth', authRoutes)
-app.use('/api/menu', menuRoutes)
-app.use('/api/orders', orderRoutes)
-app.use('/api/reservations', reservationRoutes)
-app.use('/api/payments', paymentRoutes)
-app.use('/api/shifts', shiftRoutes)
-app.use('/api/tables', tableRoutes)
-app.use('/api/reports', reportRoutes)
+  app.use('/api/auth', authRoutes)
+  app.use('/api/menu', menuRoutes)
+  app.use('/api/orders', orderRoutes)
+  app.use('/api/reservations', reservationRoutes)
+  app.use('/api/payments', paymentRoutes)
+  app.use('/api/shifts', shiftRoutes)
+  app.use('/api/tables', tableRoutes)
+  app.use('/api/reports', reportRoutes)
 
-app.use(errorHandler)
+  const httpServer = http.createServer(app)
 
-app.listen(config.port, () => {
-  console.log(`🚀 Server running on http://localhost:${config.port}`)
-  console.log(`📦 Environment: ${config.nodeEnv}`)
-  console.log(`🔒 Security: Helmet + CORS + Rate Limit + XSS Sanitize + Lockout + Refresh Tokens`)
-})
+  // Dev: Vite middleware (HMR + SPA routing + static)
+  if (config.nodeEnv !== 'production') {
+    const { createServer: createViteServer } = await import('vite')
+    const react = (await import('@vitejs/plugin-react')).default
+    const vite = await createViteServer({
+      root: path.resolve(__dirname, '../../client'),
+      plugins: [react()],
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, '../../client/src'),
+        },
+      },
+      server: {
+        middlewareMode: true,
+        hmr: { server: httpServer },
+      },
+      appType: 'spa',
+      configFile: false,
+    })
+    app.use(vite.middlewares)
+  }
+
+  app.use(errorHandler)
+
+  if (config.nodeEnv === 'production') {
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(__dirname, '../../client/dist/index.html'))
+    })
+  }
+
+  httpServer.listen(config.port, () => {
+    console.log(`🚀 Server running on http://localhost:${config.port}`)
+    console.log(`📦 Environment: ${config.nodeEnv}`)
+    console.log(`🔒 Security: Helmet + CORS + Rate Limit + XSS Sanitize + Lockout + Refresh Tokens`)
+  })
+}
+
+main().catch(console.error)

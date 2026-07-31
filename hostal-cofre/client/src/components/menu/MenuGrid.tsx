@@ -98,7 +98,7 @@ export default function MenuGrid() {
                     onClick={() => handleAdd(item)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
                       addedIds.has(item.id)
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-primary text-white'
                         : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'
                     }`}
                   >

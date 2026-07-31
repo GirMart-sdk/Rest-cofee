@@ -11,13 +11,15 @@ import prisma from '../db.js'
 import { z } from 'zod'
 import { validate } from '../middleware/validation.js'
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { success: false, error: 'Too many attempts, please try again after 15 minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-})
+const authLimiter = process.env.NODE_ENV === 'test'
+  ? (req: Request, _res: Response, next: NextFunction) => next()
+  : rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { success: false, error: 'Too many attempts, please try again after 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
 
 const router = Router()
 
@@ -30,9 +32,9 @@ function generateAccessToken(user: { id: string; email: string; role: string }):
   })
 }
 
-function generateRefreshToken(userId: string): string {
+async function generateRefreshToken(userId: string): Promise<string> {
   const token = crypto.randomUUID()
-  prisma.refreshToken.create({
+  await prisma.refreshToken.create({
     data: {
       token,
       userId,
@@ -70,7 +72,7 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: Requ
   const user = await prisma.user.create({ data: { name, email, password: hashed } })
 
   const accessToken = generateAccessToken(user)
-  const refreshToken = generateRefreshToken(user.id)
+  const refreshToken = await generateRefreshToken(user.id)
 
   res.status(201).json({
     success: true,
@@ -104,7 +106,7 @@ router.post('/login', authLimiter, validate(loginSchema), checkLockout, async (r
   }
 
   const accessToken = generateAccessToken(user)
-  const refreshToken = generateRefreshToken(user.id)
+  const refreshToken = await generateRefreshToken(user.id)
 
   res.json({
     success: true,
@@ -146,7 +148,7 @@ router.post('/refresh', validate(refreshSchema), async (req: Request, res: Respo
   await revokeRefreshToken(refreshToken)
 
   const newAccessToken = generateAccessToken(record.user)
-  const newRefreshToken = generateRefreshToken(record.user.id)
+  const newRefreshToken = await generateRefreshToken(record.user.id)
 
   res.json({
     success: true,

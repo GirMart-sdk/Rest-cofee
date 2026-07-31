@@ -1,45 +1,34 @@
 # Dependencies
-node_modules/
-
-# Environment files
-.env
-.env.local
-.env.development
-.env.production
-.env.*.local
+# Ignora las carpetas de dependencias en la raíz y en los subproyectos.
+/node_modules
+/hostal-cofre/client/node_modules
+/hostal-cofre/server/node_modules
 
 # Build output
-dist/
-build/
+# Ignora las carpetas de compilación.
+/dist
+/build
+
+# Environment variables
+# Ignora los archivos de entorno que contienen secretos, pero incluye los de ejemplo.
+.env
+.env.*
+!.env.example
 
 # Logs
+# Ignora archivos de log que pueden generarse.
+logs
 *.log
 npm-debug.log*
 
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# IDE
+# IDE directories
+.vscode/
 .idea/
 
-# Coverage
-coverage/
-.nyc_output/
-
-# Secrets / certificates
-*.key
-*.pem
-*.cert
-*.crt
-secrets/
-
-# Docker
-docker-compose.override.yml
-
 # Prisma
-hostal-cofre/server/prisma/migrations/
-
-# Client build
-hostal-cofre/client/dist/
+# Ignora el cliente de Prisma generado, ya que se crea al instalar dependencias.
+/hostal-cofre/server/node_modules/.prisma/client

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
 
-export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
   if (process.env.NODE_ENV !== 'production') {
     console.error(`[ERROR] ${err.message}`)
   }
@@ -22,6 +22,10 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
 
   if (err instanceof Prisma.PrismaClientValidationError) {
     return res.status(400).json({ success: false, error: 'Invalid data provided.' })
+  }
+
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({ success: false, error: err.message })
   }
 
   res.status(500).json({ success: false, error: 'An unexpected error occurred on the server.' })

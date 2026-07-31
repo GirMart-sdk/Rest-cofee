@@ -4,15 +4,14 @@
   "private": true,
   "description": "Hostal Cofee - Restaurant Management System",
   "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "npm run dev --prefix hostal-cofre/server",
-    "dev:client": "npm run dev --prefix hostal-cofre/client",
+    "dev": "npm run dev --prefix hostal-cofre/server",
     "build": "npm run build --prefix hostal-cofre/server && npm run build --prefix hostal-cofre/client",
     "lint": "npm run lint --prefix hostal-cofre/server && npm run lint --prefix hostal-cofre/client",
     "lint:fix": "npm run lint:fix --prefix hostal-cofre/server && npm run lint:fix --prefix hostal-cofre/client",
     "format": "npm run format --prefix hostal-cofre/server && npm run format --prefix hostal-cofre/client",
     "test": "npm run test --prefix hostal-cofre/server",
     "test:security": "npm run test:security --prefix hostal-cofre/server",
+    "start": "npm run start --prefix hostal-cofre/server",
     "start:all": "powershell -ExecutionPolicy Bypass -File start.ps1",
     "prepare": "husky"
   },
@@ -26,9 +25,5 @@
     "husky": "^9.1.4",
     "lint-staged": "^15.2.8",
     "prettier": "^3.9.5"
-  },
-  "lint-staged": {
-    "hostal-cofre/server/**/*.{ts,js}": "npm run lint:fix --prefix hostal-cofre/server",
-    "hostal-cofre/client/**/*.{ts,tsx,js,jsx}": "npm run lint:fix --prefix hostal-cofre/client"
   }
 }

@@ -1,7 +1,11 @@
+import 'express-async-errors'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcryptjs'
+import { errorHandler } from '../src/middleware/errors.js'
 
 const prisma = new PrismaClient()
 
@@ -18,12 +22,26 @@ app.use('/api/auth', authRoutes)
 app.use('/api/menu', menuRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/reservations', reservationRoutes)
+app.use(errorHandler)
+
+let adminToken = ''
 
 beforeAll(async () => {
   await prisma.$connect()
+  const hashed = await bcrypt.hash('AdminPass!1', 12)
+  const admin = await prisma.user.create({
+    data: { name: 'Admin Test', email: `admin-${Date.now()}@test.com`, password: hashed, role: 'admin' },
+  })
+  adminToken = jwt.sign(
+    { id: admin.id, email: admin.email, role: admin.role },
+    process.env.JWT_SECRET || 'test-secret-that-is-at-least-32-characters-long!!',
+    { expiresIn: '15m', algorithm: 'HS256' },
+  )
 })
 
 afterAll(async () => {
+  await prisma.menuItem.deleteMany()
+  await prisma.user.deleteMany()
   await prisma.$disconnect()
 })
 
@@ -38,6 +56,7 @@ describe('Menu Validation', () => {
   it('should reject invalid category', async () => {
     const res = await request(app)
       .post('/api/menu')
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'Test', price: 10, category: 'invalid' })
     expect(res.status).toBe(400)
   })
@@ -45,6 +64,7 @@ describe('Menu Validation', () => {
   it('should reject missing name', async () => {
     const res = await request(app)
       .post('/api/menu')
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ price: 10, category: 'pizza' })
     expect(res.status).toBe(400)
   })
@@ -52,6 +72,7 @@ describe('Menu Validation', () => {
   it('should reject negative price', async () => {
     const res = await request(app)
       .post('/api/menu')
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'Test', price: -5, category: 'pizza' })
     expect(res.status).toBe(400)
   })

@@ -103,7 +103,7 @@ export default function AdminReservations() {
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
                           {res.status === 'pending' && res.id && (
-                            <button onClick={() => updateStatus(res.id!, 'confirmed')} className="px-3 py-1 bg-green-500 text-white rounded-lg text-xs font-semibold hover:bg-green-600">Confirmar</button>
+                            <button onClick={() => updateStatus(res.id!, 'confirmed')} className="px-3 py-1 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary-dark">Confirmar</button>
                           )}
                           {res.status !== 'cancelled' && res.id && (
                             <button onClick={() => updateStatus(res.id!, 'cancelled')} className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-200">Cancelar</button>

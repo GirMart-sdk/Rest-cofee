@@ -241,7 +241,7 @@ export default function CartDrawer() {
             <button
               onClick={handleOrder}
               disabled={submitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50"
             >
               {submitting ? 'Registrando...' : <><FiMessageCircle size={20} /> Enviar Pedido</>}
             </button>

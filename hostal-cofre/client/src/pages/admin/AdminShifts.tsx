@@ -80,9 +80,9 @@ export default function AdminShifts() {
 
   return (
     <>
-      <div>
+      <div className="container-main">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-display">Turnos</h1>
+          <h1 className="text-3xl font-display">Turnos</h1>
           <button onClick={() => setShowOpenModal(true)} className="btn-primary text-sm px-4 py-2 flex items-center gap-1">
             <FiUnlock size={16} /> Abrir Turno
           </button>
@@ -98,10 +98,10 @@ export default function AdminShifts() {
               {activeShifts.map(shift => {
                 const period = SHIFT_PERIOD_LABELS[shift.shiftPeriod]
                 return (
-                  <motion.div key={shift.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-green-50 border-2 border-green-200 rounded-2xl p-5">
+                  <motion.div key={shift.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center text-white">
+                        <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white">
                           <FiUser size={16} />
                         </div>
                         <div>
@@ -109,7 +109,7 @@ export default function AdminShifts() {
                           <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${period.color}`}>{period.label}</span>
                         </div>
                       </div>
-                      <button onClick={() => setClosingShift(shift)} className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 flex items-center gap-1">
+                      <button onClick={() => setClosingShift(shift)} className="px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-semibold hover:bg-accent-dark flex items-center gap-1">
                         <FiLock size={12} /> Cerrar
                       </button>
                     </div>
@@ -184,8 +184,8 @@ export default function AdminShifts() {
       </div>
 
       {showOpenModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="modal-overlay">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-display">Abrir Turno</h2>
               <button onClick={() => setShowOpenModal(false)} className="text-gray-400 hover:text-gray-600"><FiX size={24} /></button>
@@ -228,15 +228,15 @@ export default function AdminShifts() {
 
             <div className="flex gap-3">
               <button onClick={() => setShowOpenModal(false)} className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold">Cancelar</button>
-              <button onClick={openShift} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700">Abrir Turno</button>
+              <button onClick={openShift} className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark">Abrir Turno</button>
             </div>
           </motion.div>
         </div>
       )}
 
       {closingShift && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="modal-overlay">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-display">Cerrar Turno</h2>
               <button onClick={() => setClosingShift(null)} className="text-gray-400 hover:text-gray-600"><FiX size={24} /></button>
@@ -278,7 +278,7 @@ export default function AdminShifts() {
 
             <div className="flex gap-3">
               <button onClick={() => setClosingShift(null)} className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold">Cancelar</button>
-              <button onClick={closeShift} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700">Cerrar Turno</button>
+              <button onClick={closeShift} className="flex-1 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-dark">Cerrar Turno</button>
             </div>
           </motion.div>
         </div>

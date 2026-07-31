@@ -102,9 +102,9 @@ export default function AdminTables() {
   }
 
   return (
-    <div>
+    <div className="container-main">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-display">Gestión de Mesas</h1>
+        <h1 className="text-3xl font-display">Gestión de Mesas</h1>
         <div className="flex gap-2">
           <button onClick={fetchTables} className="btn-outline text-sm px-3 py-2">Actualizar</button>
           <button onClick={openCreateForm} className="btn-primary text-sm px-3 py-2 flex items-center gap-1">
@@ -122,13 +122,13 @@ export default function AdminTables() {
               key={table.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className={`bg-white rounded-2xl p-5 shadow-md border-2 transition-all cursor-pointer group ${
-                table.isOccupied ? 'border-orange-300 bg-orange-50' : 'border-green-200 hover:border-primary/50'
+                className={`bg-white rounded-2xl p-5 shadow-md border-2 transition-all cursor-pointer group ${
+                table.isOccupied ? 'border-orange-300 bg-orange-50' : 'border-primary/20 hover:border-primary/50'
               }`}
               onClick={() => setSelectedTable(table)}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${table.isOccupied ? 'bg-orange-500' : 'bg-green-500'}`}>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${table.isOccupied ? 'bg-orange-500' : 'bg-primary'}`}>
                   <FiGrid size={22} />
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -166,8 +166,8 @@ export default function AdminTables() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="modal-overlay">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-display">{editingTable ? 'Editar Mesa' : 'Nueva Mesa'}</h2>
               <button onClick={() => { setShowForm(false); setEditingTable(null) }} className="text-gray-400 hover:text-gray-600"><FiX size={24} /></button>
@@ -230,8 +230,8 @@ export default function AdminTables() {
       )}
 
       {selectedTable && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="modal-overlay">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-display">Mesa #{selectedTable.number}</h2>
               <button onClick={() => setSelectedTable(null)} className="text-gray-400 hover:text-gray-600"><FiX size={24} /></button>

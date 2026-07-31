@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { api } from '../../services/api'
 import { FiGrid, FiClipboard, FiCalendar, FiDollarSign, FiShoppingCart, FiUsers, FiBarChart2 } from 'react-icons/fi'
+import toast from 'react-hot-toast'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ orders: 0, reservations: 0, revenue: 0, todaySales: 0 })
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
           revenue: report.summary.totalSales,
           todaySales: report.summary.totalSales,
         })
-      } catch { /* stats remain default */ }
+      } catch { toast.error('Error al cargar estadísticas'); /* stats remain default */ }
     }
     fetchStats()
   }, [])

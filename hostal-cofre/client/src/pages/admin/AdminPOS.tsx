@@ -101,7 +101,7 @@ export default function AdminPOS() {
     <>
     <div className="container-main">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-display">Punto de Venta</h1>
+          <h1 className="text-3xl font-display">Punto de Venta</h1>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <FiClock size={14} /> {new Date().toLocaleString('es-CO')}
           </div>
@@ -191,7 +191,7 @@ export default function AdminPOS() {
                     </div>
                   </div>
 
-                  <button onClick={() => setShowPayment(true)} className="w-full mt-4 py-3 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-colors">
+                  <button onClick={() => setShowPayment(true)} className="w-full mt-4 py-3 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors">
                     Cobrar
                   </button>
                 </>
@@ -202,8 +202,8 @@ export default function AdminPOS() {
       </div>
 
       {showPayment && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="modal-overlay">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content">
             <h2 className="text-2xl font-display mb-6 text-center">Cobrar</h2>
 
             <div className="mb-4">
@@ -244,7 +244,7 @@ export default function AdminPOS() {
                 {parseFloat(cashReceived) > 0 && (
                   <div className="text-center mt-2">
                     <span className="text-sm text-gray-500">Cambio: </span>
-                    <span className="text-lg font-bold text-green-600">
+                    <span className="text-lg font-bold text-primary">
                       ${Math.max(0, parseFloat(cashReceived) - subtotal).toFixed(2)}
                     </span>
                   </div>
@@ -261,7 +261,7 @@ export default function AdminPOS() {
 
             <div className="flex gap-3">
               <button onClick={() => setShowPayment(false)} className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold">Cancelar</button>
-              <button onClick={handlePayment} disabled={submitting} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 disabled:opacity-50">
+              <button onClick={handlePayment} disabled={submitting} className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark disabled:opacity-50">
                 {submitting ? 'Procesando...' : 'Confirmar Cobro'}
               </button>
             </div>
@@ -270,8 +270,8 @@ export default function AdminPOS() {
       )}
 
       {showReceipt && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl max-w-sm w-full receipt-container" id="receipt">
+        <div className="modal-overlay">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content max-w-sm receipt-container" id="receipt">
             <div className="receipt p-6 text-center">
               <h2 className="font-display text-xl font-bold mb-1">Hostal Cofre</h2>
               <p className="text-xs text-gray-500 mb-4">NIT: XXX-XXXX-X</p>

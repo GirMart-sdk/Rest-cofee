@@ -6,7 +6,7 @@ export default function Hero() {
   return (
     <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
       <div className="absolute inset-0">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60">
+        <video autoPlay loop muted playsInline preload="none" poster="/images/ensalada.webp" className="w-full h-full object-cover opacity-60">
           <source src="/bg_video.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80" />
