@@ -1,49 +1,70 @@
+import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Layout from './components/layout/Layout'
 import AdminLayout from './components/layout/AdminLayout'
 import HomePage from './pages/HomePage'
-import MenuPage from './pages/MenuPage'
-import ReservationsPage from './pages/ReservationsPage'
-import CartPage from './pages/CartPage'
-import LoginPage from './pages/LoginPage'
-import MesaPage from './pages/MesaPage'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminMenu from './pages/admin/AdminMenu'
-import AdminOrders from './pages/admin/AdminOrders'
-import AdminReservations from './pages/admin/AdminReservations'
-import AdminPOS from './pages/admin/AdminPOS'
-import AdminShifts from './pages/admin/AdminShifts'
-import AdminReports from './pages/admin/AdminReports'
-import AdminTables from './pages/admin/AdminTables'
 import ProtectedRoute from './components/layout/ProtectedRoute'
+
+const MenuPage = lazy(() => import('./pages/MenuPage'))
+const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
+const CartPage = lazy(() => import('./pages/CartPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const MesaPage = lazy(() => import('./pages/MesaPage'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminMenu = lazy(() => import('./pages/admin/AdminMenu'))
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'))
+const AdminReservations = lazy(() => import('./pages/admin/AdminReservations'))
+const AdminPOS = lazy(() => import('./pages/admin/AdminPOS'))
+const AdminShifts = lazy(() => import('./pages/admin/AdminShifts'))
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
+const AdminTables = lazy(() => import('./pages/admin/AdminTables'))
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+    </div>
+  )
+}
 
 export default function App() {
   return (
     <>
-      <Toaster position="top-right" toastOptions={{ duration: 3000, style: { fontFamily: '"Mulish", sans-serif' } }} />
-      <Routes>
-        <Route path="/mesa" element={<MesaPage />} />
-        <Route path="/login" element={<LoginPage />} />
+      <Toaster
+        position="top-right"
+        toastOptions={{ duration: 3000, style: { fontFamily: '"Mulish", sans-serif' } }}
+      />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/mesa" element={<MesaPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/menu" element={<MenuPage />} />
-          <Route path="/reservas" element={<ReservationsPage />} />
-          <Route path="/carrito" element={<CartPage />} />
-        </Route>
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/reservas" element={<ReservationsPage />} />
+            <Route path="/carrito" element={<CartPage />} />
+          </Route>
 
-        <Route element={<ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/menu" element={<AdminMenu />} />
-          <Route path="/admin/pedidos" element={<AdminOrders />} />
-          <Route path="/admin/reservas" element={<AdminReservations />} />
-          <Route path="/admin/pos" element={<AdminPOS />} />
-          <Route path="/admin/turnos" element={<AdminShifts />} />
-          <Route path="/admin/reportes" element={<AdminReports />} />
-          <Route path="/admin/mesas" element={<AdminTables />} />
-        </Route>
-      </Routes>
+          <Route
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/menu" element={<AdminMenu />} />
+            <Route path="/admin/pedidos" element={<AdminOrders />} />
+            <Route path="/admin/reservas" element={<AdminReservations />} />
+            <Route path="/admin/pos" element={<AdminPOS />} />
+            <Route path="/admin/turnos" element={<AdminShifts />} />
+            <Route path="/admin/reportes" element={<AdminReports />} />
+            <Route path="/admin/mesas" element={<AdminTables />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </>
   )
 }

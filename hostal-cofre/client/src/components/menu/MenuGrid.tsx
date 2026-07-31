@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { MenuItem } from '../../types'
 import { api } from '../../services/api'
 import { useCart } from '../../context/CartContext'
@@ -22,21 +22,21 @@ export default function MenuGrid() {
   const { addItem } = useCart()
 
   useEffect(() => {
-    api.get('/menu')
-      .then(res => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
+    api
+      .get('/menu')
+      .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = activeCategory === 'all'
-    ? menuItems
-    : menuItems.filter(m => m.category === activeCategory)
+  const filtered =
+    activeCategory === 'all' ? menuItems : menuItems.filter((m) => m.category === activeCategory)
 
   const handleAdd = (item: MenuItem) => {
     addItem(item)
-    setAddedIds(prev => new Set(prev).add(item.id))
+    setAddedIds((prev) => new Set(prev).add(item.id))
     setTimeout(() => {
-      setAddedIds(prev => {
+      setAddedIds((prev) => {
         const next = new Set(prev)
         next.delete(item.id)
         return next
@@ -56,7 +56,7 @@ export default function MenuGrid() {
   return (
     <div>
       <div className="flex flex-wrap justify-center gap-3 mb-10">
-        {CATEGORIES.map(c => (
+        {CATEGORIES.map((c) => (
           <button
             key={c.key}
             onClick={() => setActiveCategory(c.key)}
@@ -71,45 +71,54 @@ export default function MenuGrid() {
         ))}
       </div>
 
-      <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <AnimatePresence mode="popLayout">
-          {filtered.map(item => (
-            <motion.div
-              key={item.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="card group"
-            >
-              <div className="relative overflow-hidden h-52">
-                <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <span className="absolute top-3 left-3 bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-                  {item.category}
-                </span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filtered.map((item) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="card group"
+          >
+            <div className="relative overflow-hidden h-52">
+              <img
+                src={item.image}
+                alt={item.name}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <span className="absolute top-3 left-3 bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
+                {item.category}
+              </span>
+            </div>
+            <div className="p-5">
+              <h3 className="font-display text-xl text-gray-900 mb-2">{item.name}</h3>
+              <p className="text-gray-500 text-sm mb-4 line-clamp-2">{item.description}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-primary">${item.price}</span>
+                <button
+                  onClick={() => handleAdd(item)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                    addedIds.has(item.id)
+                      ? 'bg-primary text-white'
+                      : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'
+                  }`}
+                >
+                  {addedIds.has(item.id) ? (
+                    <>
+                      <FiCheck /> Añadido
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus /> Añadir
+                    </>
+                  )}
+                </button>
               </div>
-              <div className="p-5">
-                <h3 className="font-display text-xl text-gray-900 mb-2">{item.name}</h3>
-                <p className="text-gray-500 text-sm mb-4 line-clamp-2">{item.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-primary">${item.price}</span>
-                  <button
-                    onClick={() => handleAdd(item)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
-                      addedIds.has(item.id)
-                        ? 'bg-primary text-white'
-                        : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'
-                    }`}
-                  >
-                    {addedIds.has(item.id) ? <><FiCheck /> Añadido</> : <><FiPlus /> Añadir</>}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
       {filtered.length === 0 && (
         <div className="text-center py-16 text-gray-400">

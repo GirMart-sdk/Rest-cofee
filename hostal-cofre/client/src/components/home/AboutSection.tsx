@@ -22,8 +22,8 @@ export default function AboutSection() {
               colombiana con técnicas internacionales.
             </p>
             <p className="text-gray-600 text-lg leading-relaxed mb-8">
-              Cada ingrediente es seleccionado cuidadosamente de productores locales,
-              garantizando frescura y calidad en cada bocado.
+              Cada ingrediente es seleccionado cuidadosamente de productores locales, garantizando
+              frescura y calidad en cada bocado.
             </p>
             <Link to="/menu" className="btn-primary">
               Explorar Menú
@@ -42,6 +42,7 @@ export default function AboutSection() {
                 <img
                   src="/images/nosotros1.webp"
                   alt="Restaurante"
+                  loading="lazy"
                   className="w-full h-48 object-cover"
                 />
               </div>
@@ -49,6 +50,7 @@ export default function AboutSection() {
                 <img
                   src="/images/nosotros2.webp"
                   alt="Pasta fresca"
+                  loading="lazy"
                   className="w-full h-36 object-cover"
                 />
               </div>
@@ -58,6 +60,7 @@ export default function AboutSection() {
                 <img
                   src="/images/nosotros3.webp"
                   alt="Pizza artesanal"
+                  loading="lazy"
                   className="w-full h-36 object-cover"
                 />
               </div>
@@ -65,6 +68,7 @@ export default function AboutSection() {
                 <img
                   src="/images/postres1.webp"
                   alt="Postre"
+                  loading="lazy"
                   className="w-full h-48 object-cover"
                 />
               </div>

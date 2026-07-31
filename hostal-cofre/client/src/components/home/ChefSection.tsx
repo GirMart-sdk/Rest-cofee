@@ -24,6 +24,7 @@ export default function ChefSection() {
             <img
               src="/images/chef.webp"
               alt="Chef María González"
+              loading="lazy"
               className="w-full h-80 object-cover"
             />
             <div className="p-8">
@@ -31,12 +32,20 @@ export default function ChefSection() {
               <p className="text-primary font-semibold mb-4">Chef Ejecutiva</p>
               <p className="text-gray-600 text-lg leading-relaxed">
                 Con más de 25 años de experiencia creando experiencias gastronómicas inolvidables,
-                María fusiona los sabores tradicionales colombianos con técnicas culinarias internacionales.
-                Su pasión por los ingredientes frescos y locales se refleja en cada platillo que sale de nuestra cocina.
+                María fusiona los sabores tradicionales colombianos con técnicas culinarias
+                internacionales. Su pasión por los ingredientes frescos y locales se refleja en cada
+                platillo que sale de nuestra cocina.
               </p>
               <div className="flex justify-center gap-4 mt-6">
-                {['🏆 Chef del Año 2023', '🌟 Estrella Michelin', '📖 Autora de "Sabores de Casa"'].map((badge, i) => (
-                  <span key={i} className="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold">
+                {[
+                  '🏆 Chef del Año 2023',
+                  '🌟 Estrella Michelin',
+                  '📖 Autora de "Sabores de Casa"',
+                ].map((badge, i) => (
+                  <span
+                    key={i}
+                    className="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold"
+                  >
                     {badge}
                   </span>
                 ))}
