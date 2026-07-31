@@ -14,6 +14,7 @@
     "db:generate": "prisma generate --schema=./prisma/schema.prisma",
     "db:seed": "tsx src/utils/seed.ts",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:security": "tsx tests/security.test.ts"
   },
@@ -40,6 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.3.3",

@@ -32,3 +32,6 @@ Thumbs.db
 # Prisma
 # Ignora el cliente de Prisma generado, ya que se crea al instalar dependencias.
 /hostal-cofre/server/node_modules/.prisma/client
+
+# Test coverage
+/hostal-cofre/server/coverage

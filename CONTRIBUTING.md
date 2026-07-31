@@ -6,7 +6,8 @@
 ![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
 ![Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 ![PR Size](https://img.shields.io/badge/PR%20Size-%3C500%20Lines-red.svg)
-![Tests](https://img.shields.io/badge/Tests-Coverage%2080%25-green.svg)
+![Tests](https://img.shields.io/badge/Tests-156%20Passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-97%25-brightgreen.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 
 ---
@@ -427,9 +428,12 @@ npm audit fix
 
 | Tipo        | Cobertura Mínima | Ejecución                  |
 | ----------- | ---------------- | -------------------------- |
-| Unit        | 80%              | `npm run test`             |
+| Unit        | 80%              | `npm run test:coverage`    |
 | Integration | 60%              | `npm run test:integration` |
 | Security    | 100%             | `npm run test:security`    |
+
+> **Estado real (Julio 2026)**: 156 tests pasando — Statements 96.9%, Branch 83.2%, Functions 100%, Lines 96.9%.
+> Los thresholds se aplican en `server/vitest.config.ts` y se verifican en CI (`npm run test:coverage`).
 
 ### 8.2 Estructura de Tests
 

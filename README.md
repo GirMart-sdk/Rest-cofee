@@ -10,7 +10,8 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
 ![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
 ![Security](https://img.shields.io/badge/Security-6%20Layers-red)
-![Tests](https://img.shields.io/badge/Tests-73%20Passing-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-156%20Passing-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-97%25-brightgreen)
 
 ---
 

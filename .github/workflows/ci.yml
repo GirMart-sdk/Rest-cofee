@@ -78,7 +78,7 @@ jobs:
           cache-dependency-path: hostal-cofre/server/package-lock.json
       - run: npm ci
       - run: npx prisma migrate deploy
-      - run: npm run test
+      - run: npm run test:coverage
 
   build:
     name: Build
