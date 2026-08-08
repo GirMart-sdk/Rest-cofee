@@ -11,21 +11,40 @@ router.get('/', async (_req, res: Response) => {
   res.json({ success: true, data: items })
 })
 
+const imageSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .refine(
+    (v) => v === '' || v.startsWith('/') || /^https?:\/\//i.test(v),
+    'Image must be a valid URL or a path',
+  )
+  .optional()
+  .nullable()
+
 const menuItemSchema = z.object({
   body: z.object({
     name: z.string().min(1, 'Name is required').max(200),
     description: z.string().max(1000).optional(),
     price: z.number().positive('Price must be a positive number'),
     category: z.enum(['ensalada', 'pasta', 'pizza', 'postre', 'bebida']),
-    image: z.string().url('Image must be a valid URL').max(500).optional(),
+    image: imageSchema,
   }),
 })
 
-router.post('/', authenticate, requireAdmin, validate(menuItemSchema), async (req: AuthRequest, res: Response) => {
-  const { name, description, price, category, image } = req.body
-  const item = await prisma.menuItem.create({ data: { name, description, price, category, image } })
-  res.status(201).json({ success: true, data: item })
-})
+router.post(
+  '/',
+  authenticate,
+  requireAdmin,
+  validate(menuItemSchema),
+  async (req: AuthRequest, res: Response) => {
+    const { name, description, price, category, image } = req.body
+    const item = await prisma.menuItem.create({
+      data: { name, description, price, category, image },
+    })
+    res.status(201).json({ success: true, data: item })
+  },
+)
 
 const updateMenuItemSchema = z.object({
   body: z.object({
@@ -33,7 +52,7 @@ const updateMenuItemSchema = z.object({
     description: z.string().max(1000).optional(),
     price: z.number().positive().optional(),
     category: z.enum(['ensalada', 'pasta', 'pizza', 'postre', 'bebida']).optional(),
-    image: z.string().url().max(500).optional(),
+    image: imageSchema,
     available: z.boolean().optional(),
   }),
   params: z.object({
@@ -41,14 +60,20 @@ const updateMenuItemSchema = z.object({
   }),
 })
 
-router.put('/:id', authenticate, requireAdmin, validate(updateMenuItemSchema), async (req: AuthRequest, res: Response) => {
-  const { name, description, price, category, image, available } = req.body
-  const item = await prisma.menuItem.update({
-    where: { id: req.params.id },
-    data: { name, description, price, category, image, available },
-  })
-  res.json({ success: true, data: item })
-})
+router.put(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  validate(updateMenuItemSchema),
+  async (req: AuthRequest, res: Response) => {
+    const { name, description, price, category, image, available } = req.body
+    const item = await prisma.menuItem.update({
+      where: { id: req.params.id },
+      data: { name, description, price, category, image, available },
+    })
+    res.json({ success: true, data: item })
+  },
+)
 
 const deleteMenuItemSchema = z.object({
   params: z.object({
@@ -56,9 +81,15 @@ const deleteMenuItemSchema = z.object({
   }),
 })
 
-router.delete('/:id', authenticate, requireAdmin, validate(deleteMenuItemSchema), async (req: AuthRequest, res: Response) => {
-  await prisma.menuItem.delete({ where: { id: req.params.id } })
-  res.status(204).send()
-})
+router.delete(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  validate(deleteMenuItemSchema),
+  async (req: AuthRequest, res: Response) => {
+    await prisma.menuItem.delete({ where: { id: req.params.id } })
+    res.status(204).send()
+  },
+)
 
 export default router
