@@ -1,24 +1,37 @@
 # INFORME DE BLINDAJE CYBERSECURITY — HOSTAL COFEE
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Tipo](https://img.shields.io/badge/Tipo-Informe%20Técnico-informational.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Fecha](https://img.shields.io/badge/Fecha-16%20Jul%202026-blue.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Tipo](https://img.shields.io/badge/Tipo-Informe%20Técnico-informational.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Fecha](https://img.shields.io/badge/Fecha-08%20Ago%202026-blue.svg)
 
-![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)
-![Vulnerabilidades Mitigadas](https://img.shields.io/badge/Vulnerabilidades%20Mitigadas-16-brightgreen.svg)
-![Tests de Seguridad](https://img.shields.io/badge/Tests%20de%20Seguridad-34-green.svg)
-![Archivos Afectados](https://img.shields.io/badge/Archivos%20Afectados-26-blue.svg)
+[![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)
+[![Vulnerabilidades Mitigadas](https://img.shields.io/badge/Vulnerabilidades%20Mitigadas-16-brightgreen.svg)
+[![Tests](https://img.shields.io/badge/Tests%20de%20Seguridad-34-green.svg)
+[![Archivos Afectados](https://img.shields.io/badge/Archivos%20Afectados-26-blue.svg)
 
 ---
 
-## Fecha: 2026-07-16
+## Fecha: 2026-08-08
+
+> **Nota de rutas**: todas las rutas de archivo de este informe son relativas a
+> `hostal-cofre/server/` (el monorepo ahora usa la carpeta `hostal-cofre/`).
 
 ---
 
 ## RESUMEN EJECUTIVO
 
-Se implementó un sistema de blindaje de seguridad en **6 capas** sobre la aplicación **Hostal Cofee** (Restaurante Fullstack), cubriendo gestión de secrets, hardening de autenticación, validación de entrada, headers de seguridad, gestión de sesiones y tests automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades mitigadas**.
+Se implementó un sistema de blindaje de seguridad en **6 capas** sobre la aplicación
+**Hostal Cofee** (Restaurante Fullstack), cubriendo gestión de secrets, hardening de
+autenticación, validación de entrada, headers de seguridad, gestión de sesiones y tests
+automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades mitigadas**.
+
+### Lo esencial
+
+> - **6 capas de protección** implementadas y verificadas con tests automatizados (34 tests de seguridad).
+> - **16 vulnerabilidades mitigadas**, 5 de severidad CRÍTICA/ALTA resueltas.
+> - Todo integrado en CI: cada PR ejecuta `npm run test:coverage` (umbral 80%) y los tests de seguridad.
+> - Los pasos manuales originales (renombrado de carpetas, migraciones, JWT) ya fueron ejecutados.
 
 ---
 
@@ -189,34 +202,15 @@ Se implementó un sistema de blindaje de seguridad en **6 capas** sobre la aplic
 
 ---
 
-## PASOS MANUALES PENDIENTES
+## ESTADO ACTUAL (los pasos manuales ya fueron ejecutados)
 
-### 1. Renombrar carpetas:
-
-```powershell
-Rename-Item -LiteralPath "D:\Restaurant-HC-main" -NewName "REST-COFEE"
-Rename-Item -LiteralPath "D:\REST-COFEE\hostal-cofre" -NewName "hostal-cofee"
-```
-
-### 2. Recrear migración de Prisma (nuevos modelos):
-
-```bash
-cd hostal-cofee/server
-npx prisma migrate dev --name add_security_models
-```
-
-### 3. Generar JWT_SECRET fuerte:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
-### 4. Ejecutar tests:
-
-```bash
-cd hostal-cofee/server
-npm run test:security
-```
+| Paso                                                                              | Estado   |
+| --------------------------------------------------------------------------------- | -------- |
+| Carpetas renombradas a monorepo `hostal-cofre/{server,client}`                    | ✅ Hecho |
+| Migración de Prisma con los modelos de seguridad (`RefreshToken`, `LoginAttempt`) | ✅ Hecho |
+| `JWT_SECRET` fuerte generado (min 32 chars, validado en `config/index.ts`)        | ✅ Hecho |
+| Tests de seguridad ejecutados (`npm run test:security`)                           | ✅ 34/34 |
+| Cobertura en CI (`npm run test:coverage`) con umbral real de 80%                  | ✅ Hecho |
 
 ---
 
@@ -230,3 +224,13 @@ Capa 4: Headers      ███████████████████�
 Capa 5: Sessions     ████████████████████ ✅
 Capa 6: Testing      ████████████████████ ✅ (34 tests)
 ```
+
+---
+
+## Licencia
+
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
+Documento confidencial — prohibida su distribución sin autorización expresa.
+Consulte el archivo [LICENSE](LICENSE).

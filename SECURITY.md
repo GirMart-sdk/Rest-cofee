@@ -1,21 +1,31 @@
 # POLÍTICA DE SEGURIDAD — NORMATIVA OBLIGATORIA
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
-![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
-![Reporte](https://img.shields.io/badge/Reporte-Obligatorio-yellow.svg)
-![Capas](https://img.shields.io/badge/Seguridad-6%20Capas-red.svg)
-![Tests](https://img.shields.io/badge/Tests%20Seguridad-34%20Mínimo-green.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+[![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
+[![Reporte](https://img.shields.io/badge/Reporte-Obligatorio-yellow.svg)
+[![Capas](https://img.shields.io/badge/Seguridad-6%20Capas-red.svg)
+[![Tests](https://img.shields.io/badge/Tests%20Seguridad-34%20Mínimo-green.svg)
 
 ---
 
 **Versión**: 2.0
-**Última actualización**: 23 de julio de 2026
+**Última actualización**: 08 de agosto de 2026
 **Clasificación**: DOCUMENTO OFICIAL Y CONFIDENCIAL
 
 > **IMPORTANTE**: La seguridad es **INNEGOCIABLE**. El incumplimiento de esta política resultará en **ACCIONES LEGALES** y **BAN PERMANENTE**.
+
+---
+
+## 0. Resumen — Lo esencial
+
+> - **Canal único de reportes**: `security@hostalcofee.com` — reportar en Issues/PR/redes es **BAN PERMANENTE**.
+> - **Respuestas**: Crítica 1 h (fix 24 h) · Alta 4 h · Media 24 h · Baja 48 h.
+> - **6 capas obligatorias**: Secrets, Autenticación, Validación, Headers, Sesiones y Testing (mínimo 34 tests de seguridad).
+> - **Prohibido**: hardcodear credenciales, HTTP en producción, loguear datos sensibles, deshabilitar helmet/rate-limit.
+> - **Recompensas**: hasta **$2,000 USD** por vulnerabilidades críticas reportadas responsablemente.
 
 ---
 
@@ -542,5 +552,7 @@ Al usar **Hostal Cofee**, usted acepta:
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
 Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
 
-Para más detalles, consulte el archivo LICENSE.
+Prohibida la reproducción total o parcial sin autorización expresa por escrito.
+Para más detalles, consulte el archivo [LICENSE](LICENSE).

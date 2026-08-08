@@ -1,20 +1,36 @@
 # TRD — Documento de Requisitos Técnicos
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Versión Documento](https://img.shields.io/badge/Versión-2.0-blue.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Versión Documento](https://img.shields.io/badge/Versión-2.0-blue.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)]
 
-![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
-![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
-![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-73%20Pasando-brightgreen.svg)
+[![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
+[![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
+[![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
+[![Tests](https://img.shields.io/badge/Tests-189%20Pasando-brightgreen.svg)
+[![Coverage](https://img.shields.io/badge/Coverage-93%25%20Lines-brightgreen.svg)
+[![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
 ---
 
 **Producto:** Hostal Cofee v2
 **Versión:** 2.0
-**Fecha:** Julio 2026
+**Fecha:** Agosto 2026
+
+---
+
+## 0. Resumen Ejecutivo
+
+> **Lo más importante en 30 segundos:**
+>
+> - **Arquitectura**: Monolito por capas (Routes → Services → Prisma) — React 18 + Vite en el frontend, Express 4 + TypeScript ESM en el backend, PostgreSQL 14 como base de datos.
+> - **Autenticación**: JWT HS256 (15 min) + refresh tokens rotados (7 días), lockout anti brute force y política de contraseñas fuerte.
+> - **Seguridad**: 6 capas — secrets, auth hardening, validación Zod + sanitización XSS, headers Helmet/CSP, sesiones revocables y tests automatizados.
+> - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
+> - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
+> - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
+> - **Testing**: 164 tests backend + 25 frontend + suite E2E Playwright (cobertura 93% líneas).
 
 ---
 
@@ -173,14 +189,22 @@ Proxy:     Vite redirige /api/* → http://localhost:3001
 
 ```
 DATABASE_URL          # PostgreSQL connection string
+LOG_LEVEL             # Nivel de log: info | debug | warn | error
 JWT_SECRET            # Mínimo 32 caracteres
 JWT_EXPIRES_IN        # Default: 15m
 JWT_REFRESH_EXPIRES_IN # Default: 7d
-| CORS_ORIGIN           # Default: http://localhost:5173
-WOMPI_PUBLIC_KEY      # Wompi sandbox public key
-WOMPI_PRIVATE_KEY     # Wompi sandbox private key
-WOMPI_BASE_URL        # Default: https://api-sandbox.wompi.su/v1
-WHATSAPP_PHONE        # Número de WhatsApp del restaurante
+CORS_ORIGIN           # Default: http://localhost:5173
+WOMPI_MODE            # sandbox | production
+WOMPI_PUBLIC_KEY      # Wompi public key
+WOMPI_PRIVATE_KEY     # Wompi private key
+WOMPI_BASE_URL        # Opcional; default según WOMPI_MODE
+WHATSAPP_PHONE        # Número de WhatsApp del restaurante (wa.me)
+WHATSAPP_API_TOKEN    # Token WhatsApp Business API (opcional)
+WHATSAPP_PHONE_NUMBER_ID # ID del número en Meta (opcional)
+WHATSAPP_BUSINESS_ACCOUNT_ID # ID de cuenta de negocio (opcional)
+LOCKOUT_MAX_ATTEMPTS  # Intentos fallidos antes de bloquear (5)
+LOCKOUT_WINDOW_MS     # Ventana de intentos (900000)
+LOCKOUT_DURATION_MS   # Duración del bloqueo (900000)
 ADMIN_EMAIL           # Email del admin seed
 ADMIN_PASSWORD        # Password del admin seed
 CLIENT_EMAIL          # Email del cliente seed
@@ -199,17 +223,26 @@ VITE_WHATSAPP_PHONE   # Número de WhatsApp para deep links
 
 ### 5.1 Wompi (Pasarela de Pagos)
 
-- **Tipo:** Sandbox API REST
-- **Base URL:** `https://api-sandbox.wompi.su/v1`
-- **Uso actual:** Backend proxy para crear/transacciones y consultar estado
-- **Uso pendiente:** Frontend SDK para checkout real
+- **Tipo:** API REST (sandbox y producción)
+- **Base URL sandbox:** `https://api-sandbox.wompi.su/v1` (default con `WOMPI_MODE=sandbox`)
+- **Base URL producción:** `https://api.wompi.su/v1` (automática con `WOMPI_MODE=production`)
+- **Uso actual:** Backend proxy para crear transacciones y consultar estado
 - **Endpoints consumidos:** POST `/transactions`, GET `/transactions/:id`
 
 ### 5.2 WhatsApp (Notificaciones)
 
-- **Tipo:** Deep links a `wa.me`
-- **Uso actual:** Links client-side con mensaje pre-llenado
-- **Uso pendiente:** WhatsApp Business API (envío server-side automático)
+- **Tipo:** Deep links `wa.me` + WhatsApp Business API (opcional)
+- **Deep links:** Links client-side con mensaje pre-llenado (`WHATSAPP_PHONE`)
+- **Business API:** Envío server-side automático cuando se configuran
+  `WHATSAPP_API_TOKEN` y `WHATSAPP_PHONE_NUMBER_ID`; si la API falla se hace
+  fallback automático al deep link.
+
+### 5.3 Observabilidad
+
+- Logs estructurados JSON (`utils/logger.ts`) con `LOG_LEVEL`
+- Request ID (UUID) en cada petición
+- Request logging (método, ruta, status, duración)
+- `GET /api/metrics` (admin): contadores de requests, status codes y latencia
 
 ---
 
@@ -240,15 +273,32 @@ export default defineConfig({
 
 ### 6.3 Cobertura Actual
 
-| Suite                | Tests  | Estado           |
-| -------------------- | ------ | ---------------- |
-| auth.test.ts         | 15     | Todos pasando    |
-| orders.test.ts       | 15     | Todos pasando    |
-| reservations.test.ts | 14     | Todos pasando    |
-| menu.test.ts         | 11     | Todos pasando    |
-| shifts.test.ts       | 9      | Todos pasando    |
-| validation.test.ts   | 9      | Todos pasando    |
-| **Total**            | **73** | **100% pasando** |
+**Backend (Vitest + Supertest) — 164 tests:**
+
+| Suite                | Tests   | Estado           |
+| -------------------- | ------- | ---------------- |
+| auth.test.ts         | 16      | Todos pasando    |
+| orders.test.ts       | 16      | Todos pasando    |
+| reservations.test.ts | 12      | Todos pasando    |
+| menu.test.ts         | 11      | Todos pasando    |
+| middleware.test.ts   | 23      | Todos pasando    |
+| payments.test.ts     | 6       | Todos pasando    |
+| reports.test.ts      | 6       | Todos pasando    |
+| services.test.ts     | 27      | Todos pasando    |
+| shifts.test.ts       | 12      | Todos pasando    |
+| tables.test.ts       | 18      | Todos pasando    |
+| validation.test.ts   | 9       | Todos pasando    |
+| whatsapp.test.ts     | 8       | Todos pasando    |
+| **Total backend**    | **164** | **100% pasando** |
+
+**Cobertura (v8, umbral en CI):** Statements **93.1%** · Branches **81.9%** ·
+Functions **95.7%** · Lines **93.1%** (thresholds: 80/65/80/80)
+
+**Frontend (Vitest + Testing Library) — 25 tests:** App (3), AuthContext (4),
+CartContext (8), api client (7), MenuGrid (3).
+
+**E2E (Playwright):** home, menú, auth, carrito + capturas para documentación
+(`npm run test:e2e:docs`).
 
 ### 6.4 Patrón de Tests
 
@@ -291,14 +341,17 @@ export default defineConfig({
 
 ---
 
-## 8. Stack de Despliegue (Futuro)
+## 8. Stack de Despliegue
 
-| Componente       | Opción Actual    | Opción Recomendada           |
-| ---------------- | ---------------- | ---------------------------- |
-| Hosting frontend | Local / Vercel   | Vercel / Netlify             |
-| Hosting backend  | Local / Railway  | Railway / Render             |
-| Database         | Local PostgreSQL | Supabase / Neon / Railway DB |
-| Dominio          | —                | Cloudflare + SSL             |
+| Componente       | Opción Actual (implementada)                             | Opción Recomendada               |
+| ---------------- | -------------------------------------------------------- | -------------------------------- |
+| Hosting frontend | Servido por el mismo proceso Node (estático)             | CDN (Vercel/Cloudflare)          |
+| Hosting backend  | Windows bare-metal: servicio NSSM (`node dist/index.js`) | Windows Server / VPS             |
+| Reverse proxy    | Caddy (HTTPS automático)                                 | Caddy / Nginx                    |
+| Database         | PostgreSQL local                                         | PostgreSQL (con backups diarios) |
+| Dominio          | DNS + Let's Encrypt (Caddy)                              | Cloudflare + SSL                 |
+
+Ver [deploy/README.md](deploy/README.md) para la guía completa de despliegue.
 
 ---
 
@@ -310,8 +363,8 @@ export default defineConfig({
 | 2   | Componentes UI definidos pero no adoptados (ui/index.tsx)                           | Media     | 4h       |
 | 3   | CartContext duplicado en MesaPage (MesaCartContext separado)                        | Baja      | 2h       |
 | 4   | Modelo DailyReport sin uso (nunca se escribe)                                       | Baja      | 15min    |
-| 5   | Wompi solo como label, sin SDK real en frontend                                     | Alta      | 8h       |
-| 6   | WhatsApp solo deep links, sin API server-side                                       | Alta      | 16h      |
+| 5   | ~~Wompi solo como label~~ — resuelto: modo producción + proxy de transacciones      | ~~Alta~~  | ✅       |
+| 6   | ~~WhatsApp solo deep links~~ — resuelto: Business API con fallback a wa.me          | ~~Alta~~  | ✅       |
 | 7   | Social links stub (href="#")                                                        | Baja      | 30min    |
 | 8   | Charts CSS puros en reportes (sin librería)                                         | Media     | 4h       |
 | 9   | cleanupExpiredTokens() nunca llamado                                                | Media     | 1h       |
@@ -324,5 +377,7 @@ export default defineConfig({
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
 Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
 
+Prohibida la reproducción total o parcial sin autorización expresa por escrito.
 Para más detalles, consulte el archivo [LICENSE](LICENSE).

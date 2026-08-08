@@ -1,17 +1,28 @@
 # Términos de Uso
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
-![Responsabilidad](https://img.shields.io/badge/Responsabilidad-Usuario-blue.svg)
-![Actividad Prohibida](https://img.shields.io/badge/Actividad-Prohibida-red.svg)
-![Garantía](<https://img.shields.io/badge/Garantía-Sin%20Garantía%20(AS%20IS)-yellow.svg>)
-![Terminación](https://img.shields.io/badge/Terminación-Por%20Violación-red.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+[![Responsabilidad](https://img.shields.io/badge/Responsabilidad-Usuario-blue.svg)
+[![Actividad Prohibida](https://img.shields.io/badge/Actividad-Prohibida-red.svg)
+[![Garantía](<https://img.shields.io/badge/Garantía-Sin%20Garantía%20(AS%20IS)-yellow.svg>)
+[![Terminación](https://img.shields.io/badge/Terminación-Por%20Violación-red.svg)
 
 ---
 
-**Última actualización**: 16 de julio de 2026
+**Última actualización**: 08 de agosto de 2026
+
+## 0. Resumen — Lo esencial
+
+> - **Aceptación**: al usar el Servicio aceptas estos Términos; si no estás de acuerdo, no lo uses.
+> - **Cuenta**: eres responsable de tus credenciales; la información falsa o el fraude pueden causar la suspensión de tu cuenta.
+> - **Pagos**: se procesan por terceros (Wompi); no almacenamos datos de tarjetas.
+> - **Prohibido**: acceso no autorizado, bots/scrapers, malware, fraude e ingeniería inversa.
+> - **Sin garantías**: el Servicio se provee "TAL CUAL"; responsabilidad máxima limitada al monto pagado en los últimos 12 meses.
+> - **Ley aplicable**: República de Colombia.
+
+---
 
 ## 1. Aceptación de Términos
 
@@ -224,7 +235,7 @@ Tras la terminación:
 
 ## 15. Ley Aplicable
 
-Estos Términos se regirán e interpretarán de acuerdo con las leyes de [País/Estado], sin consideración a sus principios de conflicto de leyes.
+Estos Términos se regirán e interpretarán de acuerdo con las leyes de la **República de Colombia**, sin consideración a sus principios de conflicto de leyes.
 
 ---
 
@@ -232,11 +243,11 @@ Estos Términos se regirán e interpretarán de acuerdo con las leyes de [País/
 
 ### 16.1 Negociación Informal
 
-Antes de presentar una reclamación formal,您同意 intentar resolver la disputa mediante negociación informal contactándonos a través de legal@hostalcofee.com.
+Antes de presentar una reclamación formal, usted acepta intentar resolver la disputa mediante negociación informal contactándonos a través de legal@hostalcofee.com.
 
 ### 16.2 Arbitraje
 
-Cualquier disputa no resuelta mediante negociación será resuelta mediante arbitraje vinculante de acuerdo con las reglas de [Organismo de Arbitraje].
+Cualquier disputa no resuelta mediante negociación será resuelta mediante arbitraje vinculante de acuerdo con las reglas del **Centro de Arbitraje y Conciliación de la Cámara de Comercio de Bogotá**.
 
 ### 16.3 Excepciones
 
@@ -297,7 +308,9 @@ Al utilizar el Servicio, usted confirma que ha leído, comprendido y acepta esta
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
 Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
 
-Para más detalles, consulte el archivo LICENSE.
+Prohibida la reproducción total o parcial sin autorización expresa por escrito.
+Para más detalles, consulte el archivo [LICENSE](LICENSE).
 
 Si tiene entre 13 y 17 años, garantiza que tiene el consentimiento de sus padres o tutores para utilizar el Servicio.

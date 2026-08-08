@@ -1,20 +1,20 @@
 # 6. Plan de Implementación
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Estado](https://img.shields.io/badge/Estado-Activo-success.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Estado](https://img.shields.io/badge/Estado-Activo-success.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)]
 
-![Progreso General](https://img.shields.io/badge/Progreso-75%25-blue.svg)
-![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-29%2F30-brightgreen.svg)
-![Tests Pasando](https://img.shields.io/badge/Tests-73%2F73-brightgreen.svg)
-![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-10%20items-yellow.svg)
-![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
+[![Progreso General](https://img.shields.io/badge/Progreso-90%25-blue.svg)
+[![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-29%2F30-brightgreen.svg)
+[![Tests Pasando](https://img.shields.io/badge/Tests-189%2F189-brightgreen.svg)
+[![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-8%20items-yellow.svg)
+[![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
 
 ---
 
 **Producto:** Hostal Cofee v2
-**Fecha:** Julio 2026
+**Fecha:** Agosto 2026
 
 ---
 
@@ -56,28 +56,33 @@
 
 ### 1.2 Infraestructura Corregida
 
-- **Docker Eliminado**: Se han removido `docker-compose.yml`, `Dockerfile`s y scripts relacionados. El proyecto ahora se enfoca en un entorno de desarrollo local basado en Node.js/PostgreSQL.
+- Docker Eliminado: se removieron `docker-compose.yml`, `Dockerfile`s y scripts relacionados. El proyecto se enfoca en desarrollo local y despliegue **bare-metal en Windows** (NSSM + Caddy, ver `deploy/`).
 - Express async error handling (catchAsync middleware en todas las rutas)
 - Error handler global mejorado (statusCode custom, FK constraints, Prisma errors)
 - Rate limiting deshabilitado en test (NODE_ENV=test)
-- Tests: **73/73 pasando** (auth: 15, orders: 15, reservations: 14, menu: 11, shifts: 9, validation: 9)
+- Tests: **164/164 backend** (auth: 16, orders: 16, reservations: 12, menu: 11, middleware: 23, payments: 6, reports: 6, services: 27, shifts: 12, tables: 18, validation: 9, whatsapp: 8) + **25 frontend** + **E2E Playwright**
+- Cobertura backend: **93.1% líneas** (umbral CI 80%)
+- Observabilidad: logs JSON, request ID, `GET /api/metrics`
 
 ### 1.3 Funcionalidades Implementadas al 100%
 
-| Módulo                                  | Estado              |
-| --------------------------------------- | ------------------- |
-| Auth (registro, login, JWT, roles)      | COMPLETO            |
-| Menú (CRUD admin, catálogo público)     | COMPLETO            |
-| Pedidos (3 tipos, machine de estados)   | COMPLETO            |
-| Reservas (formulario, gestión admin)    | COMPLETO            |
-| POS (terminal táctil, receipt, print)   | COMPLETO            |
-| Turnos (apertura, conciliación, cierre) | COMPLETO            |
-| Reportes (diarios, top items, horarios) | COMPLETO            |
-| Mesas (CRUD, QR codes, occupancy)       | COMPLETO            |
-| Delivery zones (tarifas, cálculo)       | COMPLETO            |
-| WhatsApp deep links                     | COMPLETO            |
-| Wompi sandbox API (backend)             | COMPLETO            |
-| Test suite                              | COMPLETO (73 tests) |
+| Módulo                                                | Estado               |
+| ----------------------------------------------------- | -------------------- |
+| Auth (registro, login, JWT, roles)                    | COMPLETO             |
+| Menú (CRUD admin, catálogo público)                   | COMPLETO             |
+| Pedidos (3 tipos, machine de estados)                 | COMPLETO             |
+| Reservas (formulario, gestión admin)                  | COMPLETO             |
+| POS (terminal táctil, receipt, print)                 | COMPLETO             |
+| Turnos (apertura, conciliación, cierre)               | COMPLETO             |
+| Reportes (diarios, top items, horarios)               | COMPLETO             |
+| Mesas (CRUD, QR codes, occupancy)                     | COMPLETO             |
+| Delivery zones (tarifas, cálculo)                     | COMPLETO             |
+| WhatsApp Business API (deep links + API con fallback) | COMPLETO             |
+| Wompi (sandbox + producción)                          | COMPLETO             |
+| Observabilidad (logs JSON, request ID, métricas)      | COMPLETO             |
+| Despliegue bare-metal Windows (NSSM + Caddy)          | COMPLETO             |
+| E2E Playwright + capturas para docs                   | COMPLETO             |
+| Test suite                                            | COMPLETO (189 tests) |
 
 ---
 
@@ -89,8 +94,8 @@
 | 2   | Media     | UI Library definida (`ui/index.tsx`) pero no adoptada — cada página construye UI inline      | 4h       | Consistencia visual        |
 | 3   | Baja      | CartContext duplicado en MesaPage (`MesaCartContext` separado)                               | 2h       | Mantenibilidad             |
 | 4   | Baja      | Modelo `DailyReport` en Prisma schema pero nunca escrito                                     | 15min    | Schema limpio              |
-| 5   | Alta      | Wompi solo como label — sin SDK real en frontend                                             | 8h       | Pagos reales               |
-| 6   | Alta      | WhatsApp solo deep links — sin Business API                                                  | 16h      | Notificaciones automáticas |
+| 5   | ~~Alta~~  | ~~Wompi solo como label~~ — ✅ resuelto: modo producción + proxy de transacciones            | —        | Pagos reales               |
+| 6   | ~~Alta~~  | ~~WhatsApp solo deep links~~ — ✅ resuelto: Business API con fallback a wa.me                | —        | Notificaciones automáticas |
 | 7   | Baja      | Social links stub (`href="#"` en Footer)                                                     | 30min    | UX                         |
 | 8   | Media     | Charts CSS puros en reportes — sin librería de gráficos                                      | 4h       | Visualización              |
 | 9   | Media     | `cleanupExpiredTokens()` definido pero nunca llamado                                         | 1h       | Seguridad                  |
@@ -104,16 +109,17 @@
 
 **Objetivo:** Consolidar lo existente y cerrar deuda técnica
 
-| Tarea                                                            | Esfuerzo | Dependencias            |
-| ---------------------------------------------------------------- | -------- | ----------------------- |
-| Adoptar `ui/index.tsx` como design system en páginas admin       | 4h       | Ninguna                 |
-| Eliminar hooks no usados del directorio `hooks/`                 | 1h       | Ninguna                 |
-| Eliminar modelo `DailyReport` del schema (o habilitar escritura) | 15min    | Decisión de producto    |
-| Conectar `cleanupExpiredTokens()` a un cron o middleware         | 1h       | Ninguna                 |
-| Integrar Wompi SDK real en checkout frontend                     | 8h       | Cuenta Wompi production |
-| Agregar tests de integración E2E (Playwright o similar)          | 8h       | Setup de framework      |
-| Agregar paginación a `GET /api/orders` y `GET /api/reservations` | 6h       | Frontend update         |
-| Configurar ESLint rules para evitar imports no usados            | 30min    | Ninguna                 |
+| Tarea                                                                | Esfuerzo | Dependencias         |
+| -------------------------------------------------------------------- | -------- | -------------------- |
+| Adoptar `ui/index.tsx` como design system en páginas admin           | 4h       | Ninguna              |
+| Eliminar hooks no usados del directorio `hooks/`                     | 1h       | Ninguna              |
+| Eliminar modelo `DailyReport` del schema (o habilitar escritura)     | 15min    | Decisión de producto |
+| Conectar `cleanupExpiredTokens()` a un cron o middleware             | 1h       | Ninguna              |
+| ~~Integrar Wompi modo producción~~ — ✅ hecho (backend + WOMPI_MODE) | —        | —                    |
+| ~~Agregar tests E2E (Playwright)~~ — ✅ hecho (suite + capturas)     | —        | —                    |
+| ~~WhatsApp Business API~~ — ✅ hecho (envío server-side + fallback)  | —        | —                    |
+| Agregar paginación a `GET /api/orders` y `GET /api/reservations`     | 6h       | Frontend update      |
+| Configurar ESLint rules para evitar imports no usados                | 30min    | Ninguna              |
 
 **Total estimado:** ~29h
 
@@ -231,24 +237,28 @@ POS:        ████████████████████ 100%
 Turnos:     ████████████████████ 100%
 Reportes:   ████████████████████ 100%
 Mesas:      ████████████████████ 100%
-Pagos:      ████████████░░░░░░░░  60% (sin SDK frontend)
-Notif:      ████████░░░░░░░░░░░░  40% (solo deep links)
-Testing:    ██████████████████░░  90% (sin E2E)
+Pagos:      ████████████████████ 100% (sandbox + producción)
+Notif:      ████████████████████ 100% (Business API + wa.me)
+Testing:    ████████████████████ 100% (164 + 25 + E2E)
+Observab:   ████████████████████ 100% (logs JSON + métricas)
+Deploy:     ████████████████████ 100% (Windows bare-metal)
 UI/UX:      ████████████████░░░░  80% (sin design system adoptado)
 ```
 
 ### 6.2 Progreso General
 
-| Categoría                  | Progreso                    |
-| -------------------------- | --------------------------- |
-| Funcionalidad backend      | 100%                        |
-| Funcionalidad frontend     | 95%                         |
-| Testing                    | 90%                         |
-| Integración pagos          | 60%                         |
-| Integración notificaciones | 40%                         |
-| Design system              | 30% (definido, no adoptado) |
-| PWA                        | 0%                          |
-| **General**                | **~75%**                    |
+| Categoría                  | Progreso                      |
+| -------------------------- | ----------------------------- |
+| Funcionalidad backend      | 100%                          |
+| Funcionalidad frontend     | 95%                           |
+| Testing                    | 100% (unit + cobertura + E2E) |
+| Integración pagos          | 100% (sandbox + producción)   |
+| Integración notificaciones | 100% (Business API + wa.me)   |
+| Observabilidad             | 100%                          |
+| Despliegue                 | 100% (Windows bare-metal)     |
+| Design system              | 30% (definido, no adoptado)   |
+| PWA                        | 0%                            |
+| **General**                | **~90%**                      |
 
 ---
 
@@ -270,5 +280,7 @@ UI/UX:      ████████████████░░░░  80% (s
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
 Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
 
-Para más detalles, consulte el archivo LICENSE.
+Prohibida la reproducción total o parcial sin autorización expresa por escrito.
+Para más detalles, consulte el archivo [LICENSE](LICENSE).

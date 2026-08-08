@@ -1,20 +1,30 @@
 # CÓDIGO DE CONDUCTA — NORMATIVA OBLIGATORIA
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
-![Alcance](https://img.shields.io/badge/Alcance-Total-yellow.svg)
-![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
-![Reportes](https://img.shields.io/badge/Reportes-Confidenciales-blue.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+[![Alcance](https://img.shields.io/badge/Alcance-Total-yellow.svg)
+[![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
+[![Reportes](https://img.shields.io/badge/Reportes-Confidenciales-blue.svg)
 
 ---
 
 **Versión**: 2.0
-**Última actualización**: 23 de julio de 2026
+**Última actualización**: 08 de agosto de 2026
 **Alcance**: Total — Aplica a TODO el proyecto y sus colaboradores
 
 > **ADVERTENCIA**: El incumplimiento de cualquiera de estas normas será sancionado de manera **INMEDIATA** y **SIN PREVIO AVISO**.
+
+---
+
+## 0. Resumen — Lo esencial
+
+> - **Aplica a todo**: código, issues, PRs, redes sociales y comunicaciones oficiales.
+> - **Tolerancia cero**: acoso, discriminación, amenazas, doxxing o actividad ilegal → **BAN PERMANENTE**.
+> - **Reporta incidentes** en `conduct@hostalcofee.com` (confidencial, sin represalias).
+> - **Respuesta**: acuse en 24 h, investigación inicial en 48 h, resolución en 7 días hábiles.
+> - **Apelaciones**: hasta 14 días después de la sanción vía `conduct-appeals@hostalcofee.com`.
 
 ---
 
@@ -365,5 +375,7 @@ Al participar en este proyecto, usted confirma que:
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
 Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
 
-Para más detalles, consulte el archivo LICENSE.
+Prohibida la reproducción total o parcial sin autorización expresa por escrito.
+Para más detalles, consulte el archivo [LICENSE](LICENSE).

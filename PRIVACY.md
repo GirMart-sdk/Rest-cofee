@@ -1,16 +1,26 @@
 # Política de Privacidad
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
-![Venta de Datos](https://img.shields.io/badge/Venta%20de%20Datos-Nunca-red.svg)
-![Derechos del Usuario](https://img.shields.io/badge/Derechos-Garantizados-blue.svg)
-![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+[![Venta de Datos](https://img.shields.io/badge/Venta%20de%20Datos-Nunca-red.svg)
+[![Derechos del Usuario](https://img.shields.io/badge/Derechos-Garantizados-blue.svg)
+[![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
 
 ---
 
-**Última actualización**: 16 de julio de 2026
+**Última actualización**: 08 de agosto de 2026
+
+## 0. Resumen — Lo esencial
+
+> - **Nunca vendemos tus datos personales a terceros.**
+> - **Qué recopilamos**: datos de cuenta (nombre, email, contraseña hasheada con bcrypt), pedidos, reservas y datos de uso.
+> - **Pagos**: procesados por terceros (Wompi); **no almacenamos datos de tarjetas**.
+> - **Seguridad**: cifrado en tránsito (HTTPS/TLS), contraseñas con bcrypt, acceso por menor privilegio.
+> - **Tus derechos**: acceder, rectificar, eliminar, portabilidad, oponerse y retirar consentimiento (`privacy@hostalcofee.com`, respuesta en 30 días).
+
+---
 
 ## 1. Introducción
 
@@ -49,7 +59,7 @@ Cuando realiza una reserva, recopilamos:
 - Solicitudes especiales
 - Nombre de contacto
 
-### 2.3 Información de Uso
+### 2.4 Información de Uso
 
 Recopilamos automáticamente:
 
@@ -250,7 +260,9 @@ Al utilizar el Servicio, usted acepta esta Política de Privacidad.
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 
 Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
 
-Para más detalles, consulte el archivo LICENSE.
+Prohibida la reproducción total o parcial sin autorización expresa por escrito.
+Para más detalles, consulte el archivo [LICENSE](LICENSE).
 
 Si no está de acuerdo con esta política, por favor no utilice el Servicio.

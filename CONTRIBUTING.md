@@ -1,19 +1,19 @@
 # Guía de Contribución — Normativa Obligatoria
 
-![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee%20v2-brightgreen.svg)
-![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
-![Licencia](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)
-![Actualizado](https://img.shields.io/badge/Actualizado-Julio%202026-orange.svg)
-![Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
-![PR Size](https://img.shields.io/badge/PR%20Size-%3C500%20Lines-red.svg)
-![Tests](https://img.shields.io/badge/Tests-156%20Passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-97%25-brightgreen.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+[![Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
+[![PR Size](https://img.shields.io/badge/PR%20Size-%3C500%20Lines-red.svg)
+[![Tests](https://img.shields.io/badge/Tests-189%20Passing-brightgreen.svg)
+[![Coverage](https://img.shields.io/badge/Coverage-93%25%20Lines-brightgreen.svg)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 
 ---
 
 **Versión**: 2.0
-**Última actualización**: 23 de julio de 2026
+**Última actualización**: 08 de agosto de 2026
 
 > **ADVERTENCIA**: El incumplimiento de cualquiera de estas normas resultará en el **rechazo inmediato** del Pull Request o la **suspensión** del contribuidor.
 
@@ -432,8 +432,10 @@ npm audit fix
 | Integration | 60%              | `npm run test:integration` |
 | Security    | 100%             | `npm run test:security`    |
 
-> **Estado real (Julio 2026)**: 156 tests pasando — Statements 96.9%, Branch 83.2%, Functions 100%, Lines 96.9%.
-> Los thresholds se aplican en `server/vitest.config.ts` y se verifican en CI (`npm run test:coverage`).
+> **Estado real (Agosto 2026)**: 189 tests pasando (164 backend + 25 frontend) —
+> Statements 93.1%, Branch 81.9%, Functions 95.7%, Lines 93.1%.
+> Los thresholds se aplican en `hostal-cofre/server/vitest.config.ts` y se verifican
+> en CI (`npm run test:coverage`). Además: suite E2E Playwright (`npm run test:e2e`).
 
 ### 8.2 Estructura de Tests
 
@@ -609,6 +611,19 @@ Al contribuir a este proyecto, usted confirma que:
 1. Ha leído y comprendido todas las normas
 2. Acepta cumplirlas estrictamente
 3. Entiende las consecuencias del incumplimiento
-4. Licencia sus contribuciones bajo AGPLv3
+4. Licencia sus contribuciones bajo la [Licencia Propietaria DEVCO](LICENSE)
 
 **Contribuciones que no cumplan con estas normas serán rechazadas sin excepción.**
+
+---
+
+## 14. Licencia
+
+[![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
+
+Este proyecto se distribuye bajo una **Licencia de Uso Propietario DEVCO - Versión Comercial**.
+Copyright (c) 2026 **GirMart-SDK**. Todos los derechos reservados.
+
+Al contribuir, usted cede los derechos de sus aportes al propietario bajo los
+términos de la [LICENSE](LICENSE). Prohibida la reproducción total o parcial sin
+autorización expresa por escrito.
