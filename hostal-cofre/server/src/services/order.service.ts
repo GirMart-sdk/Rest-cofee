@@ -1,15 +1,22 @@
 import prisma from '../db.js'
 import { DeliveryService } from './delivery.service.js'
+import { metrics } from '../utils/metrics.js'
 
 function generateReceiptNumber(): string {
   const date = new Date()
   const prefix = date.toISOString().slice(2, 10).replace(/-/g, '')
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+  const random = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, '0')
   return `HC-${prefix}-${random}`
 }
 
 export class OrderService {
-  static async getAll(userId?: string, role?: string, filters?: { orderType?: string; status?: string }) {
+  static async getAll(
+    userId?: string,
+    role?: string,
+    filters?: { orderType?: string; status?: string },
+  ) {
     const where: any = role === 'admin' ? {} : { userId }
     if (filters?.orderType) where.orderType = filters.orderType
     if (filters?.status) where.status = filters.status
@@ -43,23 +50,23 @@ export class OrderService {
     deliveryNotes?: string
     shiftId?: string
   }) {
-    const menuItemIds = data.items.map(item => item.menuItemId)
+    const menuItemIds = data.items.map((item) => item.menuItemId)
     const menuItems = await prisma.menuItem.findMany({
       where: { id: { in: menuItemIds } },
     })
 
-    const foundIds = new Set(menuItems.map(item => item.id))
+    const foundIds = new Set(menuItems.map((item) => item.id))
     if (foundIds.size !== menuItemIds.length) {
-      const notFoundIds = menuItemIds.filter(id => !foundIds.has(id))
+      const notFoundIds = menuItemIds.filter((id) => !foundIds.has(id))
       throw Object.assign(new Error('Menu items not found'), {
         statusCode: 400,
         details: { notFound: notFoundIds },
       })
     }
 
-    const priceMap = new Map(menuItems.map(item => [item.id, item.price]))
+    const priceMap = new Map(menuItems.map((item) => [item.id, item.price]))
     let subtotal = 0
-    const orderItems = data.items.map(item => {
+    const orderItems = data.items.map((item) => {
       const price = priceMap.get(item.menuItemId)!
       subtotal += price * item.quantity
       return { menuItemId: item.menuItemId, quantity: item.quantity, price }
@@ -70,7 +77,10 @@ export class OrderService {
 
     let shiftId = data.shiftId || null
     if (!shiftId) {
-      const openShift = await prisma.shift.findFirst({ where: { status: 'open' }, orderBy: { openedAt: 'desc' } })
+      const openShift = await prisma.shift.findFirst({
+        where: { status: 'open' },
+        orderBy: { openedAt: 'desc' },
+      })
       if (openShift) shiftId = openShift.id
     }
 
@@ -107,6 +117,7 @@ export class OrderService {
       })
     }
 
+    metrics.inc('ordersCreated')
     return order
   }
 
@@ -149,7 +160,9 @@ export class OrderService {
 
   static async updateStatus(id: string, status: string) {
     await this.getById(id)
-    return prisma.order.update({ where: { id }, data: { status: status as any } })
+    const updated = await prisma.order.update({ where: { id }, data: { status: status as any } })
+    if (status === 'cancelled') metrics.inc('ordersCancelled')
+    return updated
   }
 
   static async updatePayment(id: string, paymentStatus: string, paymentId?: string) {
@@ -175,11 +188,15 @@ export class OrderService {
 
     const totalSales = orders.reduce((sum, o) => sum + o.total, 0)
     const totalOrders = orders.length
-    const cashSales = orders.filter(o => o.paymentMethod === 'cash').reduce((sum, o) => sum + o.total, 0)
-    const digitalSales = orders.filter(o => o.paymentMethod !== 'cash').reduce((sum, o) => sum + o.total, 0)
-    const deliveryOrders = orders.filter(o => o.orderType === 'domicilio').length
-    const dineInOrders = orders.filter(o => o.orderType === 'mesa').length
-    const posOrders = orders.filter(o => o.orderType === 'tienda').length
+    const cashSales = orders
+      .filter((o) => o.paymentMethod === 'cash')
+      .reduce((sum, o) => sum + o.total, 0)
+    const digitalSales = orders
+      .filter((o) => o.paymentMethod !== 'cash')
+      .reduce((sum, o) => sum + o.total, 0)
+    const deliveryOrders = orders.filter((o) => o.orderType === 'domicilio').length
+    const dineInOrders = orders.filter((o) => o.orderType === 'mesa').length
+    const posOrders = orders.filter((o) => o.orderType === 'tienda').length
 
     const itemCounts: Record<string, { name: string; count: number; revenue: number }> = {}
     for (const order of orders) {

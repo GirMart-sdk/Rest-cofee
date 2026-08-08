@@ -3,9 +3,42 @@ import { authenticate, requireAdmin, AuthRequest, optionalAuth } from '../middle
 import { validate } from '../middleware/validation.js'
 import { OrderService } from '../services/order.service.js'
 import { DeliveryService } from '../services/delivery.service.js'
+import { whatsappService } from '../services/whatsapp.service.js'
+import { config } from '../config/index.js'
 import { z } from 'zod'
 
 const router = Router()
+
+function buildOrderSummary(order: {
+  receiptNumber: string | null
+  customerName: string
+  customerPhone: string
+  orderType: string
+  total: number
+  items: Array<{ quantity: number; menuItem: { name: string } }>
+}): string {
+  const items = order.items.map((item) => `• ${item.quantity}x ${item.menuItem.name}`).join('\n')
+  const typeLabel: Record<string, string> = {
+    domicilio: 'Domicilio',
+    tienda: 'Tienda',
+    mesa: 'Mesa',
+  }
+  return [
+    '🍽️ *Nuevo Pedido - Hostal Cofee*',
+    `No. ${order.receiptNumber || 'N/A'}`,
+    `Cliente: ${order.customerName}`,
+    `Tel: ${order.customerPhone}`,
+    `Tipo: ${typeLabel[order.orderType] || order.orderType}`,
+    '',
+    items,
+    '',
+    `💰 Total: $${order.total.toLocaleString('es-CO')}`,
+  ].join('\n')
+}
+
+function notifyNewOrder(order: Parameters<typeof buildOrderSummary>[0]) {
+  void whatsappService.notify({ to: config.whatsapp.phone, text: buildOrderSummary(order) })
+}
 
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const { orderType, status } = req.query
@@ -54,14 +87,42 @@ const createOrderSchema = z.object({
   }),
 })
 
-router.post('/', optionalAuth, validate(createOrderSchema), async (req: AuthRequest, res: Response) => {
-  const { customerName, customerPhone, customerEmail, items, paymentMethod, orderType, tableId, address, deliveryZone, deliveryNotes, shiftId } = req.body
-  const order = await OrderService.create({
-    customerName, customerPhone, customerEmail, paymentMethod,
-    userId: req.user?.id, items, orderType, tableId, address, deliveryZone, deliveryNotes, shiftId,
-  })
-  res.status(201).json({ success: true, data: order })
-})
+router.post(
+  '/',
+  optionalAuth,
+  validate(createOrderSchema),
+  async (req: AuthRequest, res: Response) => {
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      items,
+      paymentMethod,
+      orderType,
+      tableId,
+      address,
+      deliveryZone,
+      deliveryNotes,
+      shiftId,
+    } = req.body
+    const order = await OrderService.create({
+      customerName,
+      customerPhone,
+      customerEmail,
+      paymentMethod,
+      userId: req.user?.id,
+      items,
+      orderType,
+      tableId,
+      address,
+      deliveryZone,
+      deliveryNotes,
+      shiftId,
+    })
+    notifyNewOrder(order)
+    res.status(201).json({ success: true, data: order })
+  },
+)
 
 const createTableOrderSchema = z.object({
   body: z.object({
@@ -75,24 +136,52 @@ const createTableOrderSchema = z.object({
   }),
 })
 
-router.post('/table', optionalAuth, validate(createTableOrderSchema), async (req: AuthRequest, res: Response) => {
-  const { customerName, customerPhone, customerEmail, items, paymentMethod, tableNumber, shiftId } = req.body
-  const order = await OrderService.createFromTable({
-    customerName, customerPhone, customerEmail, paymentMethod,
-    userId: req.user?.id, items, tableNumber, shiftId,
-  })
-  res.status(201).json({ success: true, data: order })
-})
+router.post(
+  '/table',
+  optionalAuth,
+  validate(createTableOrderSchema),
+  async (req: AuthRequest, res: Response) => {
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      items,
+      paymentMethod,
+      tableNumber,
+      shiftId,
+    } = req.body
+    const order = await OrderService.createFromTable({
+      customerName,
+      customerPhone,
+      customerEmail,
+      paymentMethod,
+      userId: req.user?.id,
+      items,
+      tableNumber,
+      shiftId,
+    })
+    notifyNewOrder(order)
+    res.status(201).json({ success: true, data: order })
+  },
+)
 
 const updateStatusSchema = z.object({
   params: z.object({ id: z.string().cuid('Invalid order ID') }),
-  body: z.object({ status: z.enum(['pending', 'preparing', 'ready', 'out_for_delivery', 'delivered', 'cancelled']) }),
+  body: z.object({
+    status: z.enum(['pending', 'preparing', 'ready', 'out_for_delivery', 'delivered', 'cancelled']),
+  }),
 })
 
-router.patch('/:id/status', authenticate, requireAdmin, validate(updateStatusSchema), async (req: AuthRequest, res: Response) => {
-  const order = await OrderService.updateStatus(req.params.id, req.body.status)
-  res.json({ success: true, data: order })
-})
+router.patch(
+  '/:id/status',
+  authenticate,
+  requireAdmin,
+  validate(updateStatusSchema),
+  async (req: AuthRequest, res: Response) => {
+    const order = await OrderService.updateStatus(req.params.id, req.body.status)
+    res.json({ success: true, data: order })
+  },
+)
 
 const updatePaymentSchema = z.object({
   params: z.object({ id: z.string().cuid('Invalid order ID') }),
@@ -102,9 +191,19 @@ const updatePaymentSchema = z.object({
   }),
 })
 
-router.patch('/:id/payment', authenticate, requireAdmin, validate(updatePaymentSchema), async (req: AuthRequest, res: Response) => {
-  const order = await OrderService.updatePayment(req.params.id, req.body.paymentStatus, req.body.paymentId)
-  res.json({ success: true, data: order })
-})
+router.patch(
+  '/:id/payment',
+  authenticate,
+  requireAdmin,
+  validate(updatePaymentSchema),
+  async (req: AuthRequest, res: Response) => {
+    const order = await OrderService.updatePayment(
+      req.params.id,
+      req.body.paymentStatus,
+      req.body.paymentId,
+    )
+    res.json({ success: true, data: order })
+  },
+)
 
 export default router

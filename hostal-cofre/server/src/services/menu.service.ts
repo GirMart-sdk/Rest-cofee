@@ -11,13 +11,32 @@ export class MenuService {
     return item
   }
 
-  static async create(data: { name: string; description: string; price: number; category: string; image?: string }) {
-    return prisma.menuItem.create({ data })
+  static async create(data: {
+    name: string
+    description: string
+    price: number
+    category: string
+    image?: string
+  }) {
+    return prisma.menuItem.create({ data: { ...data, category: data.category as any } })
   }
 
-  static async update(id: string, data: Partial<{ name: string; description: string; price: number; category: string; image: string; available: boolean }>) {
+  static async update(
+    id: string,
+    data: Partial<{
+      name: string
+      description: string
+      price: number
+      category: string
+      image: string
+      available: boolean
+    }>,
+  ) {
     await this.getById(id)
-    return prisma.menuItem.update({ where: { id }, data })
+    return prisma.menuItem.update({
+      where: { id },
+      data: { ...data, category: data.category as any },
+    })
   }
 
   static async delete(id: string) {

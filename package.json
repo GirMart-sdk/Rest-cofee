@@ -11,14 +11,16 @@
     "format": "npm run format --prefix hostal-cofre/server && npm run format --prefix hostal-cofre/client",
     "test": "npm run test --prefix hostal-cofre/server",
     "test:security": "npm run test:security --prefix hostal-cofre/server",
+    "test:e2e": "playwright test",
+    "test:e2e:docs": "playwright test e2e/docs.spec.ts",
     "start": "npm run start --prefix hostal-cofre/server",
     "start:all": "powershell -ExecutionPolicy Bypass -File start.ps1",
     "prepare": "husky"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^4.6.2",
@@ -28,7 +30,7 @@
     "typescript": "^5.5.4"
   },
   "overrides": {
-    "brace-expansion": "5.0.9",
+    "brace-expansion": "^2.0.1",
     "@typescript-eslint/typescript-estree": {
       "minimatch": "^9.0.7"
     }

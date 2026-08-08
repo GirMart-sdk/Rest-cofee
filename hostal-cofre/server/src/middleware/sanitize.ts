@@ -23,7 +23,8 @@ function sanitizeObject(obj: Record<string, unknown>): Record<string, unknown> {
     } else if (Array.isArray(value)) {
       sanitized[key] = value.map((item) => {
         if (typeof item === 'string') return sanitizeString(item)
-        if (typeof item === 'object' && item !== null) return sanitizeObject(item as Record<string, unknown>)
+        if (typeof item === 'object' && item !== null)
+          return sanitizeObject(item as Record<string, unknown>)
         return item
       })
     } else {
@@ -38,7 +39,8 @@ export function sanitize(req: Request, _res: Response, next: NextFunction) {
     req.body = sanitizeObject(req.body)
   }
   if (req.query && typeof req.query === 'object') {
-    req.query = sanitizeObject(req.query as Record<string, unknown>)
+    const sanitized = sanitizeObject(req.query as Record<string, unknown>)
+    req.query = Object.fromEntries(Object.entries(sanitized)) as Request['query']
   }
   next()
 }

@@ -1,0 +1,33 @@
+# ============================================================
+# HOSTAL COFEE - Caddy reverse proxy (HTTPS automatico)
+#
+# IMPORTANTE: reemplaza 'yourdomain.com' por tu dominio real y
+# apunta su registro DNS (tipo A) al IP publico de este servidor.
+# Caddy obtiene el certificado HTTPS de Let's Encrypt de forma
+# automatica y redirige todo el trafico HTTP a HTTPS.
+#
+# Instalacion:
+#   1. Descarga Caddy desde https://caddyserver.com/download
+#   2. Copia este archivo como 'C:\Caddy\Caddyfile'
+#   3. Ejecuta como Administrador:
+#        caddy run --config C:\Caddy\Caddyfile
+#   4. Abre los puertos 80 y 443 en el firewall de Windows.
+# ============================================================
+
+yourdomain.com {
+
+	# Compresion gzip de las respuestas
+	encode gzip
+
+	# Reenvio al backend Node: un solo proceso sirve API + frontend
+	reverse_proxy localhost:3001
+
+	# Cabeceras de seguridad estandar
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+	}
+}

@@ -1,12 +1,18 @@
 import { Request, Response, NextFunction } from 'express'
-import jwt from 'jsonwebtoken'
+import jwt, { Algorithm } from 'jsonwebtoken'
 import { config } from '../config/index.js'
 
 export interface AuthRequest extends Request {
   user?: { id: string; email: string; role: string }
 }
 
-const ALLOWED_ALGORITHMS = ['HS256'] as const
+const ALLOWED_ALGORITHMS: Algorithm[] = ['HS256']
+
+function decodeToken(token: string): { id: string; email: string; role: string } {
+  return jwt.verify(token, config.jwtSecret, {
+    algorithms: ALLOWED_ALGORITHMS,
+  }) as unknown as { id: string; email: string; role: string }
+}
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization
@@ -16,10 +22,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 
   try {
     const token = header.split(' ')[1]
-    const decoded = jwt.verify(token, config.jwtSecret, {
-      algorithms: ALLOWED_ALGORITHMS as unknown as string[],
-    }) as { id: string; email: string; role: string }
-    req.user = decoded
+    req.user = decodeToken(token)
     next()
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
@@ -41,10 +44,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
   if (header?.startsWith('Bearer ')) {
     try {
       const token = header.split(' ')[1]
-      const decoded = jwt.verify(token, config.jwtSecret, {
-        algorithms: ALLOWED_ALGORITHMS as unknown as string[],
-      }) as { id: string; email: string; role: string }
-      req.user = decoded
+      req.user = decodeToken(token)
     } catch {
       // Token inválido — continuar sin usuario autenticado
     }

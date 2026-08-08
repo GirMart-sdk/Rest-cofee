@@ -2,9 +2,42 @@ import { Router, Response } from 'express'
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
 import { ReservationService } from '../services/reservation.service.js'
+import { whatsappService } from '../services/whatsapp.service.js'
+import { config } from '../config/index.js'
 import { z } from 'zod'
 
 const router = Router()
+
+function buildReservationSummary(reservation: {
+  name: string
+  phone: string
+  date: Date
+  time: string
+  guests: number
+  notes?: string | null
+  table?: { number: number } | null
+}): string {
+  const tableText = reservation.table ? `Mesa: ${reservation.table.number}` : 'Mesa: Por asignar'
+  return [
+    '📅 *Nueva Reserva - Hostal Cofee*',
+    `Nombre: ${reservation.name}`,
+    `Tel: ${reservation.phone}`,
+    `Fecha: ${reservation.date.toLocaleDateString('es-CO')}`,
+    `Hora: ${reservation.time}`,
+    `Personas: ${reservation.guests}`,
+    tableText,
+    reservation.notes ? `Notas: ${reservation.notes}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n')
+}
+
+function notifyReservation(reservation: Parameters<typeof buildReservationSummary>[0]) {
+  void whatsappService.notify({
+    to: config.whatsapp.phone,
+    text: buildReservationSummary(reservation),
+  })
+}
 
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const reservations = await ReservationService.getAll(req.user!.id, req.user!.role)
@@ -31,7 +64,17 @@ const reservationSchema = z.object({
 
 router.post('/', validate(reservationSchema), async (req, res: Response) => {
   const { name, phone, email, date, time, guests, tableId, notes } = req.body
-  const reservation = await ReservationService.create({ name, phone, email, date, time, guests, tableId, notes })
+  const reservation = await ReservationService.create({
+    name,
+    phone,
+    email,
+    date,
+    time,
+    guests,
+    tableId,
+    notes,
+  })
+  notifyReservation(reservation)
   res.status(201).json({ success: true, data: reservation })
 })
 
@@ -40,9 +83,15 @@ const updateStatusSchema = z.object({
   params: z.object({ id: z.string().cuid('Invalid reservation ID') }),
 })
 
-router.patch('/:id/status', authenticate, requireAdmin, validate(updateStatusSchema), async (req: AuthRequest, res: Response) => {
-  const reservation = await ReservationService.updateStatus(req.params.id, req.body.status)
-  res.json({ success: true, data: reservation })
-})
+router.patch(
+  '/:id/status',
+  authenticate,
+  requireAdmin,
+  validate(updateStatusSchema),
+  async (req: AuthRequest, res: Response) => {
+    const reservation = await ReservationService.updateStatus(req.params.id, req.body.status)
+    res.json({ success: true, data: reservation })
+  },
+)
 
 export default router

@@ -17,7 +17,11 @@ beforeAll(async () => {
 })
 
 beforeEach(() => {
-  fetchMock.mockResolvedValue({ json: async () => ({ id: 'txn-mock-123', status: 'APPROVED' }) })
+  fetchMock.mockResolvedValue({
+    ok: true,
+    status: 200,
+    json: async () => ({ id: 'txn-mock-123', status: 'APPROVED' }),
+  })
   vi.stubGlobal('fetch', fetchMock)
 })
 

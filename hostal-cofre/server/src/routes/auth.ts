@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
@@ -6,29 +6,36 @@ import rateLimit from 'express-rate-limit'
 import { config } from '../config/index.js'
 import { authenticate, AuthRequest } from '../middleware/auth.js'
 import { checkLockout, recordLoginAttempt } from '../middleware/lockout.js'
-import { revokeRefreshToken, revokeAllUserTokens, isRefreshTokenRevoked } from '../middleware/tokenBlacklist.js'
+import {
+  revokeRefreshToken,
+  revokeAllUserTokens,
+  isRefreshTokenRevoked,
+} from '../middleware/tokenBlacklist.js'
+import { metrics } from '../utils/metrics.js'
 import prisma from '../db.js'
 import { z } from 'zod'
 import { validate } from '../middleware/validation.js'
 
-const authLimiter = process.env.NODE_ENV === 'test'
-  ? (req: Request, _res: Response, next: NextFunction) => next()
-  : rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10,
-    message: { success: false, error: 'Too many attempts, please try again after 15 minutes.' },
-    standardHeaders: true,
-    legacyHeaders: false,
-  })
+const authLimiter =
+  process.env.NODE_ENV === 'test'
+    ? (req: Request, _res: Response, next: NextFunction) => next()
+    : rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 10,
+        message: { success: false, error: 'Too many attempts, please try again after 15 minutes.' },
+        standardHeaders: true,
+        legacyHeaders: false,
+      })
 
 const router = Router()
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};:'"\\|,.<>/?]).{8,}$/
+const PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};:'"\\|,.<>/?]).{8,}$/
 
 function generateAccessToken(user: { id: string; email: string; role: string }): string {
   return jwt.sign({ id: user.id, email: user.email, role: user.role }, config.jwtSecret, {
     algorithm: 'HS256',
-    expiresIn: config.jwtExpiresIn,
+    expiresIn: config.jwtExpiresIn as jwt.SignOptions['expiresIn'],
   })
 }
 
@@ -45,7 +52,11 @@ async function generateRefreshToken(userId: string): Promise<string> {
 }
 
 function getClientIp(req: Request): string {
-  return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown'
+  return (
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+    req.socket.remoteAddress ||
+    'unknown'
+  )
 }
 
 const registerSchema = z.object({
@@ -56,33 +67,41 @@ const registerSchema = z.object({
       .string()
       .min(8, 'Password must be at least 8 characters')
       .max(100)
-      .regex(PASSWORD_REGEX, 'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character'),
+      .regex(
+        PASSWORD_REGEX,
+        'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+      ),
   }),
 })
 
-router.post('/register', authLimiter, validate(registerSchema), async (req: Request, res: Response) => {
-  const { name, email, password } = req.body
+router.post(
+  '/register',
+  authLimiter,
+  validate(registerSchema),
+  async (req: Request, res: Response) => {
+    const { name, email, password } = req.body
 
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
-    return res.status(409).json({ success: false, error: 'Email already registered' })
-  }
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) {
+      return res.status(409).json({ success: false, error: 'Email already registered' })
+    }
 
-  const hashed = await bcrypt.hash(password, 12)
-  const user = await prisma.user.create({ data: { name, email, password: hashed } })
+    const hashed = await bcrypt.hash(password, 12)
+    const user = await prisma.user.create({ data: { name, email, password: hashed } })
 
-  const accessToken = generateAccessToken(user)
-  const refreshToken = await generateRefreshToken(user.id)
+    const accessToken = generateAccessToken(user)
+    const refreshToken = await generateRefreshToken(user.id)
 
-  res.status(201).json({
-    success: true,
-    data: {
-      accessToken,
-      refreshToken,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    },
-  })
-})
+    res.status(201).json({
+      success: true,
+      data: {
+        accessToken,
+        refreshToken,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      },
+    })
+  },
+)
 
 const loginSchema = z.object({
   body: z.object({
@@ -91,32 +110,42 @@ const loginSchema = z.object({
   }),
 })
 
-router.post('/login', authLimiter, validate(loginSchema), checkLockout, async (req: Request, res: Response) => {
-  const { email, password } = req.body
-  const ip = getClientIp(req)
+router.post(
+  '/login',
+  authLimiter,
+  validate(loginSchema),
+  checkLockout,
+  async (req: Request, res: Response) => {
+    const { email, password } = req.body
+    const ip = getClientIp(req)
 
-  const dummyHash = '$2a$10$invalidhashforhashingprevention'
-  const user = await prisma.user.findUnique({ where: { email } })
-  const passwordValid = user ? await bcrypt.compare(password, user.password) : await bcrypt.compare('x', dummyHash)
+    const dummyHash = '$2a$10$invalidhashforhashingprevention'
+    const user = await prisma.user.findUnique({ where: { email } })
+    const passwordValid = user
+      ? await bcrypt.compare(password, user.password)
+      : await bcrypt.compare('x', dummyHash)
 
-  await recordLoginAttempt(email, ip, !!user && passwordValid)
+    await recordLoginAttempt(email, ip, !!user && passwordValid)
 
-  if (!user || !passwordValid) {
-    return res.status(401).json({ success: false, error: 'Invalid credentials' })
-  }
+    if (!user || !passwordValid) {
+      metrics.inc('authFailedLogins')
+      return res.status(401).json({ success: false, error: 'Invalid credentials' })
+    }
 
-  const accessToken = generateAccessToken(user)
-  const refreshToken = await generateRefreshToken(user.id)
+    metrics.inc('authLogins')
+    const accessToken = generateAccessToken(user)
+    const refreshToken = await generateRefreshToken(user.id)
 
-  res.json({
-    success: true,
-    data: {
-      accessToken,
-      refreshToken,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    },
-  })
-})
+    res.json({
+      success: true,
+      data: {
+        accessToken,
+        refreshToken,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      },
+    })
+  },
+)
 
 const refreshSchema = z.object({
   body: z.object({
@@ -174,28 +203,36 @@ const changePasswordSchema = z.object({
       .string()
       .min(8)
       .max(100)
-      .regex(PASSWORD_REGEX, 'New password must contain uppercase, lowercase, number, and special character'),
+      .regex(
+        PASSWORD_REGEX,
+        'New password must contain uppercase, lowercase, number, and special character',
+      ),
   }),
 })
 
-router.post('/change-password', authenticate, validate(changePasswordSchema), async (req: AuthRequest, res: Response) => {
-  const { currentPassword, newPassword } = req.body
+router.post(
+  '/change-password',
+  authenticate,
+  validate(changePasswordSchema),
+  async (req: AuthRequest, res: Response) => {
+    const { currentPassword, newPassword } = req.body
 
-  const user = await prisma.user.findUnique({ where: { id: req.user!.id } })
-  if (!user) return res.status(404).json({ success: false, error: 'User not found' })
+    const user = await prisma.user.findUnique({ where: { id: req.user!.id } })
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' })
 
-  const valid = await bcrypt.compare(currentPassword, user.password)
-  if (!valid) {
-    return res.status(401).json({ success: false, error: 'Current password is incorrect' })
-  }
+    const valid = await bcrypt.compare(currentPassword, user.password)
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect' })
+    }
 
-  const hashed = await bcrypt.hash(newPassword, 12)
-  await prisma.user.update({ where: { id: user.id }, data: { password: hashed } })
+    const hashed = await bcrypt.hash(newPassword, 12)
+    await prisma.user.update({ where: { id: user.id }, data: { password: hashed } })
 
-  await revokeAllUserTokens(user.id)
+    await revokeAllUserTokens(user.id)
 
-  res.json({ success: true, message: 'Password changed. All sessions invalidated.' })
-})
+    res.json({ success: true, message: 'Password changed. All sessions invalidated.' })
+  },
+)
 
 router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   const user = await prisma.user.findUnique({

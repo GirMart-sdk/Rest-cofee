@@ -1,3 +1,22 @@
+# ============================================================
+# HOSTAL COFEE - Inicio del sistema
+#
+# - Modo desarrollo (por defecto): inicia servidor y cliente con
+#   hot-reload en ventanas separadas.
+# - Modo produccion:  powershell -ExecutionPolicy Bypass -File start.ps1 -Production
+#   Ejecuta deploy\deploy.ps1 (instala/actualiza el servicio NSSM "HostalCofee").
+#   Guia completa de despliegue en produccion: deploy\README.md
+# ============================================================
+param(
+    [switch]$Production
+)
+
+if ($Production) {
+    Write-Host "Modo produccion: ejecutando deploy\deploy.ps1 ..." -ForegroundColor Cyan
+    & (Join-Path $PSScriptRoot "deploy\deploy.ps1")
+    exit $LASTEXITCODE
+}
+
 # Silencia los mensajes de progreso de comandos como Invoke-WebRequest
 $ProgressPreference = 'SilentlyContinue'
 

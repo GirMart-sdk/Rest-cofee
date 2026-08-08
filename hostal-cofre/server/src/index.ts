@@ -18,6 +18,10 @@ import reportRoutes from './routes/reports.js'
 import { errorHandler } from './middleware/errors.js'
 import { sanitize } from './middleware/sanitize.js'
 import { requestId } from './middleware/requestId.js'
+import { requestLogger } from './middleware/requestLogger.js'
+import { authenticate, requireAdmin, AuthRequest } from './middleware/auth.js'
+import { metrics } from './utils/metrics.js'
+import { logger } from './utils/logger.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -40,37 +44,44 @@ async function main() {
 
   app.use(express.json({ limit: '10kb' }))
   app.use(requestId)
+  app.use(requestLogger)
   app.use(sanitize)
 
   const isDev = config.nodeEnv !== 'production'
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: isDev ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-        connectSrc: isDev ? ["'self'", 'ws://localhost:3001'] : ["'self'"],
-        frameSrc: ["'none'"],
-        objectSrc: ["'none'"],
-        baseUri: ["'self'"],
-        formAction: ["'self'"],
-        upgradeInsecureRequests: isDev ? [] : [],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: isDev ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+          connectSrc: isDev ? ["'self'", 'ws://localhost:3001'] : ["'self'"],
+          frameSrc: ["'none'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+          upgradeInsecureRequests: isDev ? [] : [],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: 'same-site' },
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-    hsts: { maxAge: 31536000, includeSubDomains: true },
-    noSniff: true,
-    xssFilter: true,
-  }))
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'same-site' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      hsts: { maxAge: 31536000, includeSubDomains: true },
+      noSniff: true,
+      xssFilter: true,
+    }),
+  )
 
   app.use(limiter)
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  })
+
+  app.get('/api/metrics', authenticate, requireAdmin, (req: AuthRequest, res) => {
+    res.json({ success: true, data: metrics.snapshot() })
   })
 
   app.use('/api/auth', authRoutes)
@@ -115,9 +126,12 @@ async function main() {
   }
 
   httpServer.listen(config.port, () => {
-    console.log(`🚀 Server running on http://localhost:${config.port}`)
-    console.log(`📦 Environment: ${config.nodeEnv}`)
-    console.log(`🔒 Security: Helmet + CORS + Rate Limit + XSS Sanitize + Lockout + Refresh Tokens`)
+    logger.info('server started', {
+      port: config.port,
+      nodeEnv: config.nodeEnv,
+      wompiMode: config.wompi.mode,
+      whatsappApiEnabled: config.whatsapp.apiToken && config.whatsapp.phoneNumberId ? true : false,
+    })
   })
 }
 
