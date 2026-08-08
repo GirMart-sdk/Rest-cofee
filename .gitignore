@@ -5,15 +5,18 @@
 /hostal-cofre/server/node_modules
 
 # Build output
-# Ignora las carpetas de compilación.
+# Ignora las carpetas de compilación en la raíz y en los subproyectos.
 /dist
 /build
+/hostal-cofre/client/dist
+/hostal-cofre/server/dist
 
 # Environment variables
 # Ignora los archivos de entorno que contienen secretos, pero incluye los de ejemplo.
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Logs
 # Ignora archivos de log que pueden generarse.
@@ -33,5 +36,13 @@ Thumbs.db
 # Ignora el cliente de Prisma generado, ya que se crea al instalar dependencias.
 /hostal-cofre/server/node_modules/.prisma/client
 
+# Backups de base de datos
+/backups
+
 # Test coverage
 /hostal-cofre/server/coverage
+
+# Playwright E2E
+test-results/
+playwright-report/
+playwright/.cache/
