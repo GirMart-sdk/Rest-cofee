@@ -1,7 +1,7 @@
 # Hostal Cofee v2 - Fullstack Restaurant
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
-[![Versión](https://img.shields.io/badge/Versión-1.0.0-blue.svg)](CHANGELOG.md)
+[![Versión](https://img.shields.io/badge/Versión-1.1.0-blue.svg)](CHANGELOG.md)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 [![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)]
 
@@ -11,8 +11,8 @@
 [![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 [![Security](https://img.shields.io/badge/Security-6%20Layers-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-189%20Passing-brightgreen.svg)](02-TRD.md)
-[![Coverage](https://img.shields.io/badge/Coverage-93%25%20Lines-brightgreen.svg)](02-TRD.md)
+[![Tests](https://img.shields.io/badge/Tests-342%20Passing-brightgreen.svg)](02-TRD.md)
+[![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)](02-TRD.md)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 [![Deploy](https://img.shields.io/badge/Deploy-Windows%20Bare--Metal-blue.svg)](deploy/README.md)
 

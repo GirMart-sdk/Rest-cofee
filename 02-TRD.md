@@ -8,8 +8,8 @@
 [![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
 [![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
 [![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
-[![Tests](https://img.shields.io/badge/Tests-189%20Pasando-brightgreen.svg)
-[![Coverage](https://img.shields.io/badge/Coverage-93%25%20Lines-brightgreen.svg)
+[![Tests](https://img.shields.io/badge/Tests-342%20Pasando-brightgreen.svg)
+[![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
 ---

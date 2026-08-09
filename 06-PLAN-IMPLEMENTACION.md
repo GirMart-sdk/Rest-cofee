@@ -7,7 +7,7 @@
 
 [![Progreso General](https://img.shields.io/badge/Progreso-90%25-blue.svg)
 [![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-29%2F30-brightgreen.svg)
-[![Tests Pasando](https://img.shields.io/badge/Tests-189%2F189-brightgreen.svg)
+[![Tests Pasando](https://img.shields.io/badge/Tests-342%2F342-brightgreen.svg)
 [![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-8%20items-yellow.svg)
 [![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
 

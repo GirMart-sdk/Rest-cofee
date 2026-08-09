@@ -7,7 +7,7 @@
 [![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
 [![Reporte](https://img.shields.io/badge/Reporte-Obligatorio-yellow.svg)
 [![Capas](https://img.shields.io/badge/Seguridad-6%20Capas-red.svg)
-[![Tests](https://img.shields.io/badge/Tests%20Seguridad-34%20Mínimo-green.svg)
+[![Tests](https://img.shields.io/badge/Tests%20Seguridad-42%20Mínimo-green.svg)
 
 ---
 

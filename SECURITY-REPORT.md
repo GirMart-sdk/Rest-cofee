@@ -7,7 +7,7 @@
 
 [![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)
 [![Vulnerabilidades Mitigadas](https://img.shields.io/badge/Vulnerabilidades%20Mitigadas-16-brightgreen.svg)
-[![Tests](https://img.shields.io/badge/Tests%20de%20Seguridad-34-green.svg)
+[![Tests](https://img.shields.io/badge/Tests%20de%20Seguridad-42-green.svg)
 [![Archivos Afectados](https://img.shields.io/badge/Archivos%20Afectados-26-blue.svg)
 
 ---
