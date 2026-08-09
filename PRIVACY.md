@@ -1,12 +1,12 @@
 # Política de Privacidad
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
-[![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
+![Tipo](https://img.shields.io/badge/Tipo-Documento%20Legal-yellow.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
-[![Venta de Datos](https://img.shields.io/badge/Venta%20de%20Datos-Nunca-red.svg)
-[![Derechos del Usuario](https://img.shields.io/badge/Derechos-Garantizados-blue.svg)
-[![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+![Venta de Datos](https://img.shields.io/badge/Venta%20de%20Datos-Nunca-red.svg)
+![Derechos del Usuario](https://img.shields.io/badge/Derechos-Garantizados-blue.svg)
+![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
 
 ---
 

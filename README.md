@@ -3,13 +3,13 @@
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
 [![Versión](https://img.shields.io/badge/Versión-1.1.0-blue.svg)](CHANGELOG.md)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)]
+![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 
 [![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://react.dev)
 [![Node.js](https://img.shields.io/badge/Node.js-18-green?logo=nodedotjs)](https://nodejs.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
-[![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
+![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 [![Security](https://img.shields.io/badge/Security-6%20Layers-red.svg)](SECURITY.md)
 [![Tests](https://img.shields.io/badge/Tests-342%20Passing-brightgreen.svg)](02-TRD.md)
 [![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)](02-TRD.md)

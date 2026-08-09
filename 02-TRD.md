@@ -1,15 +1,15 @@
 # TRD — Documento de Requisitos Técnicos
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
-[![Versión Documento](https://img.shields.io/badge/Versión-2.0-blue.svg)
+![Versión Documento](https://img.shields.io/badge/Versión-2.0-blue.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)]
+![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 
-[![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
-[![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
-[![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
-[![Tests](https://img.shields.io/badge/Tests-342%20Pasando-brightgreen.svg)
-[![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)
+![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
+![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
+![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
+![Tests](https://img.shields.io/badge/Tests-342%20Pasando-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
 ---

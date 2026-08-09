@@ -3,11 +3,11 @@
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
 [![Versión](https://img.shields.io/badge/Versión-1.1.0-blue.svg)](CHANGELOG.md)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)]
+![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 
 [![Keep a Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-e05735.svg)](https://keepachangelog.com/es/1.1.0/)
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)](https://semver.org/lang/es/)
-[![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
+![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 [![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](SECURITY.md)
 [![Tests](https://img.shields.io/badge/Tests-342%20Passing-brightgreen.svg)](02-TRD.md)
 

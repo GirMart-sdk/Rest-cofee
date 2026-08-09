@@ -1,14 +1,14 @@
 # INFORME DE BLINDAJE CYBERSECURITY — HOSTAL COFEE
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
-[![Tipo](https://img.shields.io/badge/Tipo-Informe%20Técnico-informational.svg)
+![Tipo](https://img.shields.io/badge/Tipo-Informe%20Técnico-informational.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Fecha](https://img.shields.io/badge/Fecha-08%20Ago%202026-blue.svg)
+![Fecha](https://img.shields.io/badge/Fecha-08%20Ago%202026-blue.svg)
 
-[![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)
-[![Vulnerabilidades Mitigadas](https://img.shields.io/badge/Vulnerabilidades%20Mitigadas-16-brightgreen.svg)
-[![Tests](https://img.shields.io/badge/Tests%20de%20Seguridad-42-green.svg)
-[![Archivos Afectados](https://img.shields.io/badge/Archivos%20Afectados-26-blue.svg)
+![Capas de Seguridad](https://img.shields.io/badge/Capas%20de%20Seguridad-6-red.svg)
+![Vulnerabilidades Mitigadas](https://img.shields.io/badge/Vulnerabilidades%20Mitigadas-16-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests%20de%20Seguridad-42-green.svg)
+![Archivos Afectados](https://img.shields.io/badge/Archivos%20Afectados-26-blue.svg)
 
 ---
 

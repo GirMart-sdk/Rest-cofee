@@ -1,13 +1,13 @@
 # POLÍTICA DE SEGURIDAD — NORMATIVA OBLIGATORIA
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
-[![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
+![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
-[![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
-[![Reporte](https://img.shields.io/badge/Reporte-Obligatorio-yellow.svg)
-[![Capas](https://img.shields.io/badge/Seguridad-6%20Capas-red.svg)
-[![Tests](https://img.shields.io/badge/Tests%20Seguridad-42%20Mínimo-green.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
+![Reporte](https://img.shields.io/badge/Reporte-Obligatorio-yellow.svg)
+![Capas](https://img.shields.io/badge/Seguridad-6%20Capas-red.svg)
+![Tests](https://img.shields.io/badge/Tests%20Seguridad-42%20Mínimo-green.svg)
 
 ---
 

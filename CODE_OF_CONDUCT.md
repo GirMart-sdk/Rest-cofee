@@ -1,12 +1,12 @@
 # CÓDIGO DE CONDUCTA — NORMATIVA OBLIGATORIA
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
-[![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
+![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-[![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
-[![Alcance](https://img.shields.io/badge/Alcance-Total-yellow.svg)
-[![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
-[![Reportes](https://img.shields.io/badge/Reportes-Confidenciales-blue.svg)
+![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+![Alcance](https://img.shields.io/badge/Alcance-Total-yellow.svg)
+![Tolerancia](https://img.shields.io/badge/Tolerancia-Cero-red.svg)
+![Reportes](https://img.shields.io/badge/Reportes-Confidenciales-blue.svg)
 
 ---
 
