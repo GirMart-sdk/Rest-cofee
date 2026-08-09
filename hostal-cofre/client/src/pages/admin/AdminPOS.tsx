@@ -26,33 +26,43 @@ export default function AdminPOS() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi' | 'daviplata' | 'wompi'>('cash')
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi' | 'daviplata' | 'wompi'>(
+    'cash',
+  )
   const [cashReceived, setCashReceived] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [showReceipt, setShowReceipt] = useState<any>(null)
 
   useEffect(() => {
-    api.get('/menu')
-      .then(res => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
+    api
+      .get('/menu')
+      .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = activeCategory === 'all' ? menuItems : menuItems.filter(m => m.category === activeCategory)
+  const filtered =
+    activeCategory === 'all' ? menuItems : menuItems.filter((m) => m.category === activeCategory)
   const subtotal = cart.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0)
   const itemCount = cart.reduce((sum, ci) => sum + ci.quantity, 0)
 
   const addToCart = (item: MenuItem) => {
-    setCart(prev => {
-      const existing = prev.find(ci => ci.menuItem.id === item.id)
-      if (existing) return prev.map(ci => ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci)
+    setCart((prev) => {
+      const existing = prev.find((ci) => ci.menuItem.id === item.id)
+      if (existing)
+        return prev.map((ci) =>
+          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci,
+        )
       return [...prev, { menuItem: item, quantity: 1 }]
     })
   }
 
   const updateQuantity = (itemId: string, qty: number) => {
-    if (qty <= 0) { setCart(prev => prev.filter(ci => ci.menuItem.id !== itemId)); return }
-    setCart(prev => prev.map(ci => ci.menuItem.id === itemId ? { ...ci, quantity: qty } : ci))
+    if (qty <= 0) {
+      setCart((prev) => prev.filter((ci) => ci.menuItem.id !== itemId))
+      return
+    }
+    setCart((prev) => prev.map((ci) => (ci.menuItem.id === itemId ? { ...ci, quantity: qty } : ci)))
   }
 
   const clearCart = () => setCart([])
@@ -64,7 +74,7 @@ export default function AdminPOS() {
       const res = await api.post('/orders', {
         customerName: customerName || 'Cliente POS',
         customerPhone: 'N/A',
-        items: cart.map(ci => ({ menuItemId: ci.menuItem.id, quantity: ci.quantity })),
+        items: cart.map((ci) => ({ menuItemId: ci.menuItem.id, quantity: ci.quantity })),
         paymentMethod,
         orderType: 'tienda',
       })
@@ -73,7 +83,10 @@ export default function AdminPOS() {
         ...res.data.data,
         cart: [...cart],
         cashReceived: paymentMethod === 'cash' ? parseFloat(cashReceived) || 0 : undefined,
-        change: paymentMethod === 'cash' ? Math.max(0, (parseFloat(cashReceived) || 0) - subtotal) : undefined,
+        change:
+          paymentMethod === 'cash'
+            ? Math.max(0, (parseFloat(cashReceived) || 0) - subtotal)
+            : undefined,
       })
 
       setCart([])
@@ -99,7 +112,7 @@ export default function AdminPOS() {
 
   return (
     <>
-    <div className="container-main">
+      <div className="container-main">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-display">Punto de Venta</h1>
           <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -110,12 +123,14 @@ export default function AdminPOS() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <div className="flex flex-wrap gap-2 mb-4">
-              {CATEGORIES.map(c => (
+              {CATEGORIES.map((c) => (
                 <button
                   key={c.key}
                   onClick={() => setActiveCategory(c.key)}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                    activeCategory === c.key ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                    activeCategory === c.key
+                      ? 'bg-primary text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-100'
                   }`}
                 >
                   {c.label}
@@ -124,13 +139,17 @@ export default function AdminPOS() {
             </div>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-              {filtered.map(item => (
+              {filtered.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => addToCart(item)}
                   className="pos-item bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all text-center active:scale-95"
                 >
-                  <img src={item.image} alt={item.name} className="w-full h-20 object-cover rounded-lg mb-2" />
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-20 object-cover rounded-lg mb-2"
+                  />
                   <p className="font-semibold text-xs line-clamp-1">{item.name}</p>
                   <p className="text-primary font-bold text-sm">${item.price}</p>
                 </button>
@@ -145,7 +164,9 @@ export default function AdminPOS() {
                   <FiShoppingBag /> Venta Actual
                 </h2>
                 {cart.length > 0 && (
-                  <button onClick={clearCart} className="text-red-500 text-xs font-semibold">Limpiar</button>
+                  <button onClick={clearCart} className="text-red-500 text-xs font-semibold">
+                    Limpiar
+                  </button>
                 )}
               </div>
 
@@ -157,23 +178,40 @@ export default function AdminPOS() {
               ) : (
                 <>
                   <div className="space-y-2 mb-4 max-h-64 overflow-y-auto">
-                    {cart.map(ci => (
-                      <div key={ci.menuItem.id} className="flex items-center gap-2 py-2 border-b last:border-0">
+                    {cart.map((ci) => (
+                      <div
+                        key={ci.menuItem.id}
+                        className="flex items-center gap-2 py-2 border-b last:border-0"
+                      >
                         <div className="flex-1">
                           <p className="font-semibold text-sm line-clamp-1">{ci.menuItem.name}</p>
                           <p className="text-xs text-gray-500">${ci.menuItem.price}</p>
                         </div>
                         <div className="flex items-center gap-1">
-                          <button onClick={() => updateQuantity(ci.menuItem.id, ci.quantity - 1)} className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center">
+                          <button
+                            onClick={() => updateQuantity(ci.menuItem.id, ci.quantity - 1)}
+                            aria-label={`Disminuir ${ci.menuItem.name}`}
+                            className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center"
+                          >
                             <FiMinus size={10} />
                           </button>
                           <span className="w-6 text-center text-sm font-bold">{ci.quantity}</span>
-                          <button onClick={() => updateQuantity(ci.menuItem.id, ci.quantity + 1)} className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center">
+                          <button
+                            onClick={() => updateQuantity(ci.menuItem.id, ci.quantity + 1)}
+                            aria-label={`Aumentar ${ci.menuItem.name}`}
+                            className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center"
+                          >
                             <FiPlus size={10} />
                           </button>
                         </div>
-                        <p className="font-bold text-sm w-16 text-right">${(ci.menuItem.price * ci.quantity).toFixed(0)}</p>
-                        <button onClick={() => updateQuantity(ci.menuItem.id, 0)} className="text-gray-400 hover:text-red-500">
+                        <p className="font-bold text-sm w-16 text-right">
+                          ${(ci.menuItem.price * ci.quantity).toFixed(0)}
+                        </p>
+                        <button
+                          onClick={() => updateQuantity(ci.menuItem.id, 0)}
+                          aria-label={`Eliminar ${ci.menuItem.name}`}
+                          className="text-gray-400 hover:text-red-500"
+                        >
                           <FiTrash2 size={12} />
                         </button>
                       </div>
@@ -191,7 +229,10 @@ export default function AdminPOS() {
                     </div>
                   </div>
 
-                  <button onClick={() => setShowPayment(true)} className="w-full mt-4 py-3 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors">
+                  <button
+                    onClick={() => setShowPayment(true)}
+                    className="w-full mt-4 py-3 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors"
+                  >
                     Cobrar
                   </button>
                 </>
@@ -203,12 +244,24 @@ export default function AdminPOS() {
 
       {showPayment && (
         <div className="modal-overlay">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="modal-content"
+          >
             <h2 className="text-2xl font-display mb-6 text-center">Cobrar</h2>
 
             <div className="mb-4">
-              <label className="text-sm font-semibold text-gray-700 mb-1 block">Nombre del cliente (opcional)</label>
-              <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className="input-field" placeholder="Cliente" />
+              <label className="text-sm font-semibold text-gray-700 mb-1 block">
+                Nombre del cliente (opcional)
+              </label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="input-field"
+                placeholder="Cliente"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-6">
@@ -217,7 +270,7 @@ export default function AdminPOS() {
                 { key: 'nequi', label: 'Nequi', icon: '📱' },
                 { key: 'daviplata', label: 'DaviPlata', icon: '📲' },
                 { key: 'wompi', label: 'Tarjeta/PSE', icon: '💳' },
-              ].map(m => (
+              ].map((m) => (
                 <button
                   key={m.key}
                   onClick={() => setPaymentMethod(m.key as any)}
@@ -233,11 +286,13 @@ export default function AdminPOS() {
 
             {paymentMethod === 'cash' && (
               <div className="mb-4">
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">Efectivo recibido</label>
+                <label className="text-sm font-semibold text-gray-700 mb-1 block">
+                  Efectivo recibido
+                </label>
                 <input
                   type="number"
                   value={cashReceived}
-                  onChange={e => setCashReceived(e.target.value)}
+                  onChange={(e) => setCashReceived(e.target.value)}
                   className="input-field text-2xl font-bold text-center"
                   placeholder="0"
                 />
@@ -260,8 +315,17 @@ export default function AdminPOS() {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => setShowPayment(false)} className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold">Cancelar</button>
-              <button onClick={handlePayment} disabled={submitting} className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark disabled:opacity-50">
+              <button
+                onClick={() => setShowPayment(false)}
+                className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handlePayment}
+                disabled={submitting}
+                className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark disabled:opacity-50"
+              >
                 {submitting ? 'Procesando...' : 'Confirmar Cobro'}
               </button>
             </div>
@@ -271,18 +335,27 @@ export default function AdminPOS() {
 
       {showReceipt && (
         <div className="modal-overlay">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-content max-w-sm receipt-container" id="receipt">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="modal-content max-w-sm receipt-container"
+            id="receipt"
+          >
             <div className="receipt p-6 text-center">
               <h2 className="font-display text-xl font-bold mb-1">Hostal Cofre</h2>
               <p className="text-xs text-gray-500 mb-4">NIT: XXX-XXXX-X</p>
               <div className="border-t border-b border-dashed border-gray-300 py-2 mb-4">
                 <p className="text-xs text-gray-500">Recibo #{showReceipt.receiptNumber}</p>
-                <p className="text-xs text-gray-500">{new Date(showReceipt.createdAt).toLocaleString('es-CO')}</p>
+                <p className="text-xs text-gray-500">
+                  {new Date(showReceipt.createdAt).toLocaleString('es-CO')}
+                </p>
               </div>
               <div className="text-left space-y-1 mb-4">
                 {showReceipt.cart?.map((ci: POSCartItem, i: number) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span>{ci.quantity}x {ci.menuItem.name}</span>
+                    <span>
+                      {ci.quantity}x {ci.menuItem.name}
+                    </span>
                     <span>${(ci.menuItem.price * ci.quantity).toFixed(0)}</span>
                   </div>
                 ))}
@@ -292,19 +365,38 @@ export default function AdminPOS() {
                   <span>TOTAL</span>
                   <span>${showReceipt.total.toFixed(2)}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Pago: {showReceipt.paymentMethod.toUpperCase()}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Pago: {showReceipt.paymentMethod.toUpperCase()}
+                </p>
                 {showReceipt.cashReceived !== undefined && (
                   <>
-                    <p className="text-xs text-gray-500">Recibido: ${showReceipt.cashReceived.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">Cambio: ${showReceipt.change.toFixed(2)}</p>
+                    <p className="text-xs text-gray-500">
+                      Recibido: ${showReceipt.cashReceived.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Cambio: ${showReceipt.change.toFixed(2)}
+                    </p>
                   </>
                 )}
               </div>
               <p className="text-xs text-gray-400">¡Gracias por su compra!</p>
             </div>
             <div className="flex gap-2 p-4">
-              <button onClick={() => setShowReceipt(null)} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-semibold">Cerrar</button>
-              <button onClick={() => { window.print(); setShowReceipt(null) }} className="flex-1 py-2 bg-primary text-white rounded-lg text-sm font-semibold">Imprimir</button>
+              <button
+                onClick={() => setShowReceipt(null)}
+                className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-semibold"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => {
+                  window.print()
+                  setShowReceipt(null)
+                }}
+                className="flex-1 py-2 bg-primary text-white rounded-lg text-sm font-semibold"
+              >
+                Imprimir
+              </button>
             </div>
           </motion.div>
         </div>

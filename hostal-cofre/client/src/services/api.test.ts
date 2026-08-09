@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const TOKEN_KEY = 'hostal-cofee-token'
-const REFRESH_KEY = 'hostal-cofee-refresh'
 
 const mock = vi.hoisted(() => {
   const state: {
@@ -46,14 +45,16 @@ vi.mock('axios', () => ({
   },
 }))
 
-import { api } from './api'
+import { api, refreshTokens, clearTokens, whatsappService } from './api'
 
 beforeEach(() => {
   localStorage.clear()
   vi.clearAllMocks()
+  vi.stubGlobal('location', { href: '' })
 })
 
 afterEach(() => {
+  vi.unstubAllGlobals()
   vi.resetModules()
 })
 
@@ -73,10 +74,9 @@ describe('api client', () => {
 
   it('refreshes the token on 401 and retries the original request', async () => {
     localStorage.setItem(TOKEN_KEY, 'old-token')
-    localStorage.setItem(REFRESH_KEY, 'refresh-xyz')
 
     mock.mockRefreshPost.mockResolvedValue({
-      data: { data: { accessToken: 'new-token', refreshToken: 'new-refresh' } },
+      data: { data: { accessToken: 'new-token' } },
     })
 
     const originalConfig = {
@@ -90,23 +90,21 @@ describe('api client', () => {
       config: originalConfig,
     })
 
-    expect(mock.mockRefreshPost).toHaveBeenCalledWith('/api/auth/refresh', {
-      refreshToken: 'refresh-xyz',
-    })
+    expect(mock.mockRefreshPost).toHaveBeenCalledWith('/api/auth/refresh')
     expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
-    expect(localStorage.getItem(REFRESH_KEY)).toBe('new-refresh')
     expect(mock.apiCallable).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/menu' }))
   })
 
-  it('rejects a 401 when no refresh token exists', async () => {
+  it('rejects a 401 when the refresh request fails', async () => {
+    mock.mockRefreshPost.mockRejectedValue(new Error('no cookie'))
     const originalConfig = { url: '/api/menu', headers: {} }
     await expect(
       mock.state.onRejected!({ response: { status: 401 }, config: originalConfig }),
     ).rejects.toBeDefined()
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
   })
 
   it('does not retry twice for the same request', async () => {
-    localStorage.setItem(REFRESH_KEY, 'refresh-xyz')
     const originalConfig = { url: '/api/menu', headers: {}, _retry: true }
 
     await expect(
@@ -124,5 +122,52 @@ describe('api client', () => {
 
   it('is an axios instance with the /api base URL', () => {
     expect(api).toBeDefined()
+  })
+
+  it('clearTokens removes the stored access token', () => {
+    localStorage.setItem(TOKEN_KEY, 'abc')
+    clearTokens()
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
+  })
+
+  it('refreshTokens stores the new access token on success', async () => {
+    mock.mockRefreshPost.mockResolvedValue({
+      data: { data: { accessToken: 'new-token' } },
+    })
+
+    const ok = await refreshTokens()
+
+    expect(ok).toBe(true)
+    expect(mock.mockRefreshPost).toHaveBeenCalledWith('/api/auth/refresh')
+    expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
+  })
+
+  it('refreshTokens clears the token and returns false when the request fails', async () => {
+    localStorage.setItem(TOKEN_KEY, 'old')
+    mock.mockRefreshPost.mockRejectedValue(new Error('nope'))
+
+    const ok = await refreshTokens()
+
+    expect(ok).toBe(false)
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
+  })
+
+  it('refreshTokens returns false when the response has no access token', async () => {
+    mock.mockRefreshPost.mockResolvedValue({ data: { data: {} } })
+    const ok = await refreshTokens()
+    expect(ok).toBe(false)
+    expect(mock.mockRefreshPost).toHaveBeenCalledWith('/api/auth/refresh')
+  })
+
+  it('whatsappService opens a WhatsApp chat for orders', () => {
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+    whatsappService.sendOrder('573001234567', 'Resumen del pedido')
+    expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('wa.me/573001234567'), '_blank')
+  })
+
+  it('whatsappService opens a WhatsApp chat for reservations', () => {
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+    whatsappService.sendReservation('573001234567', 'Reserva confirmada')
+    expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('wa.me/573001234567'), '_blank')
   })
 })

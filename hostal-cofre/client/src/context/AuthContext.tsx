@@ -14,32 +14,30 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 const TOKEN_KEY = 'hostal-cofee-token'
-const REFRESH_KEY = 'hostal-cofee-refresh'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const storeTokens = (accessToken: string, refreshToken: string) => {
+  const storeToken = (accessToken: string) => {
     localStorage.setItem(TOKEN_KEY, accessToken)
-    localStorage.setItem(REFRESH_KEY, refreshToken)
   }
 
-  const clearTokens = () => {
+  const clearToken = () => {
     localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_KEY)
   }
 
   const refreshAccessToken = useCallback(async (): Promise<boolean> => {
-    const refreshToken = localStorage.getItem(REFRESH_KEY)
-    if (!refreshToken) return false
     try {
-      const res = await api.post('/auth/refresh', { refreshToken })
-      const { accessToken, refreshToken: newRefresh } = res.data.data
-      storeTokens(accessToken, newRefresh)
-      return true
+      const res = await api.post('/auth/refresh')
+      const { accessToken } = res.data.data
+      if (accessToken) {
+        storeToken(accessToken)
+        return true
+      }
+      return false
     } catch {
-      clearTokens()
+      clearToken()
       return false
     }
   }, [])
@@ -50,8 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       return
     }
-    api.get('/auth/me')
-      .then(res => setUser(res.data.data))
+    api
+      .get('/auth/me')
+      .then((res) => setUser(res.data.data))
       .catch(async () => {
         const refreshed = await refreshAccessToken()
         if (refreshed) {
@@ -59,10 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const res = await api.get('/auth/me')
             setUser(res.data.data)
           } catch {
-            clearTokens()
+            clearToken()
           }
         } else {
-          clearTokens()
+          clearToken()
         }
       })
       .finally(() => setLoading(false))
@@ -71,8 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await api.post('/auth/login', { email, password })
-      const { accessToken, refreshToken, user: userData } = res.data.data
-      storeTokens(accessToken, refreshToken)
+      const { accessToken, user: userData } = res.data.data
+      if (!accessToken) return false
+      storeToken(accessToken)
       setUser(userData)
       return true
     } catch {
@@ -83,8 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
       const res = await api.post('/auth/register', { name, email, password })
-      const { accessToken, refreshToken, user: userData } = res.data.data
-      storeTokens(accessToken, refreshToken)
+      const { accessToken, user: userData } = res.data.data
+      if (!accessToken) return false
+      storeToken(accessToken)
       setUser(userData)
       return true
     } catch {
@@ -93,16 +94,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    const refreshToken = localStorage.getItem(REFRESH_KEY)
-    if (refreshToken) {
-      api.post('/auth/logout', { refreshToken }).catch(() => {})
-    }
-    clearTokens()
+    api.post('/auth/logout').catch(() => {})
+    clearToken()
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAdmin: user?.role === 'admin', loading }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, isAdmin: user?.role === 'admin', loading }}
+    >
       {children}
     </AuthContext.Provider>
   )
