@@ -1,6 +1,7 @@
 import { Router, Response } from 'express'
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
+import { auditMiddleware } from '../services/audit.service.js'
 import { ShiftService } from '../services/shift.service.js'
 import { z } from 'zod'
 
@@ -41,17 +42,24 @@ const openShiftSchema = z.object({
   }),
 })
 
-router.post('/open', authenticate, requireAdmin, validate(openShiftSchema), async (req: AuthRequest, res: Response) => {
-  const { cashierName, shiftPeriod, openingCash, notes } = req.body
-  const shift = await ShiftService.open({
-    userId: req.user!.id,
-    cashierName,
-    shiftPeriod,
-    openingCash,
-    notes,
-  })
-  res.status(201).json({ success: true, data: shift })
-})
+router.post(
+  '/open',
+  authenticate,
+  requireAdmin,
+  auditMiddleware('shift.open', 'shift'),
+  validate(openShiftSchema),
+  async (req: AuthRequest, res: Response) => {
+    const { cashierName, shiftPeriod, openingCash, notes } = req.body
+    const shift = await ShiftService.open({
+      userId: req.user!.id,
+      cashierName,
+      shiftPeriod,
+      openingCash,
+      notes,
+    })
+    res.status(201).json({ success: true, data: shift })
+  },
+)
 
 const closeShiftSchema = z.object({
   params: z.object({ id: z.string().cuid('Invalid shift ID') }),
@@ -61,9 +69,16 @@ const closeShiftSchema = z.object({
   }),
 })
 
-router.patch('/:id/close', authenticate, requireAdmin, validate(closeShiftSchema), async (req: AuthRequest, res: Response) => {
-  const shift = await ShiftService.close(req.params.id, req.body.closingCash, req.body.notes)
-  res.json({ success: true, data: shift })
-})
+router.patch(
+  '/:id/close',
+  authenticate,
+  requireAdmin,
+  auditMiddleware('shift.close', 'shift', { getResourceId: (req) => req.params.id }),
+  validate(closeShiftSchema),
+  async (req: AuthRequest, res: Response) => {
+    const shift = await ShiftService.close(req.params.id, req.body.closingCash, req.body.notes)
+    res.json({ success: true, data: shift })
+  },
+)
 
 export default router

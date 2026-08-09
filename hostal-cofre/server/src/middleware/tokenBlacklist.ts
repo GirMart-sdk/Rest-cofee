@@ -1,8 +1,9 @@
 import prisma from '../db.js'
+import { hashToken } from '../utils/tokens.js'
 
 export async function revokeRefreshToken(token: string) {
   await prisma.refreshToken.updateMany({
-    where: { token },
+    where: { tokenHash: hashToken(token) },
     data: { revoked: true },
   })
 }
@@ -15,7 +16,7 @@ export async function revokeAllUserTokens(userId: string) {
 }
 
 export async function isRefreshTokenRevoked(token: string): Promise<boolean> {
-  const record = await prisma.refreshToken.findUnique({ where: { token } })
+  const record = await prisma.refreshToken.findUnique({ where: { tokenHash: hashToken(token) } })
   return !record || record.revoked
 }
 

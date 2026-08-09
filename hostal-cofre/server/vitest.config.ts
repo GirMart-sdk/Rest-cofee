@@ -25,6 +25,8 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
       DATABASE_URL: testDatabaseUrl,
+      WOMPI_MODE: 'sandbox',
+      WOMPI_EVENTS_SECRET: 'test-events-secret-for-signing-0000',
     },
     coverage: {
       provider: 'v8',

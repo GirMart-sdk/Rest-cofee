@@ -12,6 +12,8 @@ interface MetricsSnapshot {
   ordersCancelled: number
   paymentsInitiated: number
   paymentsFailed: number
+  paymentsWebhookRejected: number
+  paymentsWebhookProcessed: number
   whatsappSent: number
   whatsappFailed: number
   whatsappSkipped: number
@@ -30,6 +32,8 @@ class Metrics {
   private ordersCancelled = 0
   private paymentsInitiated = 0
   private paymentsFailed = 0
+  private paymentsWebhookRejected = 0
+  private paymentsWebhookProcessed = 0
   private whatsappSent = 0
   private whatsappFailed = 0
   private whatsappSkipped = 0
@@ -43,6 +47,8 @@ class Metrics {
     else if (key === 'ordersCancelled') this.ordersCancelled += 1
     else if (key === 'paymentsInitiated') this.paymentsInitiated += 1
     else if (key === 'paymentsFailed') this.paymentsFailed += 1
+    else if (key === 'paymentsWebhookRejected') this.paymentsWebhookRejected += 1
+    else if (key === 'paymentsWebhookProcessed') this.paymentsWebhookProcessed += 1
     else if (key === 'whatsappSent') this.whatsappSent += 1
     else if (key === 'whatsappFailed') this.whatsappFailed += 1
     else if (key === 'whatsappSkipped') this.whatsappSkipped += 1
@@ -76,6 +82,8 @@ class Metrics {
       ordersCancelled: this.ordersCancelled,
       paymentsInitiated: this.paymentsInitiated,
       paymentsFailed: this.paymentsFailed,
+      paymentsWebhookRejected: this.paymentsWebhookRejected,
+      paymentsWebhookProcessed: this.paymentsWebhookProcessed,
       whatsappSent: this.whatsappSent,
       whatsappFailed: this.whatsappFailed,
       whatsappSkipped: this.whatsappSkipped,

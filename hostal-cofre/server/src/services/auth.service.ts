@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { randomUUID } from 'crypto'
 import { config } from '../config/index.js'
+import { hashToken } from '../utils/tokens.js'
 
 const SALT_ROUNDS = 12
 const ACCESS_TOKEN_EXPIRY = '15m'
@@ -49,7 +50,7 @@ export class AuthService {
 
   static async refresh(refreshToken: string) {
     const stored = await prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
+      where: { tokenHash: hashToken(refreshToken) },
       include: { user: true },
     })
 
@@ -67,7 +68,7 @@ export class AuthService {
 
   static async logout(refreshToken: string) {
     await prisma.refreshToken.updateMany({
-      where: { token: refreshToken },
+      where: { tokenHash: hashToken(refreshToken) },
       data: { revoked: true },
     })
   }
@@ -107,7 +108,7 @@ export class AuthService {
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRY_DAYS)
 
     await prisma.refreshToken.create({
-      data: { token: refreshToken, userId, expiresAt },
+      data: { tokenHash: hashToken(refreshToken), userId, expiresAt },
     })
 
     return { accessToken, refreshToken }

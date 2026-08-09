@@ -1,5 +1,6 @@
 import { Router, Response } from 'express'
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
+import { auditMiddleware } from '../services/audit.service.js'
 import prisma from '../db.js'
 import { validate } from '../middleware/validation.js'
 import { z } from 'zod'
@@ -36,6 +37,9 @@ router.post(
   '/',
   authenticate,
   requireAdmin,
+  auditMiddleware('menu.create', 'menu', {
+    getDetails: (req) => ({ name: req.body.name, category: req.body.category }),
+  }),
   validate(menuItemSchema),
   async (req: AuthRequest, res: Response) => {
     const { name, description, price, category, image } = req.body
@@ -64,6 +68,14 @@ router.put(
   '/:id',
   authenticate,
   requireAdmin,
+  auditMiddleware('menu.update', 'menu', {
+    getResourceId: (req) => req.params.id,
+    getDetails: (req) => ({
+      name: req.body.name,
+      price: req.body.price,
+      available: req.body.available,
+    }),
+  }),
   validate(updateMenuItemSchema),
   async (req: AuthRequest, res: Response) => {
     const { name, description, price, category, image, available } = req.body
@@ -85,6 +97,7 @@ router.delete(
   '/:id',
   authenticate,
   requireAdmin,
+  auditMiddleware('menu.delete', 'menu', { getResourceId: (req) => req.params.id }),
   validate(deleteMenuItemSchema),
   async (req: AuthRequest, res: Response) => {
     await prisma.menuItem.delete({ where: { id: req.params.id } })

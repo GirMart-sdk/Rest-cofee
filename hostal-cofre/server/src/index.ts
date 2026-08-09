@@ -15,6 +15,7 @@ import paymentRoutes from './routes/payments.js'
 import shiftRoutes from './routes/shifts.js'
 import tableRoutes from './routes/tables.js'
 import reportRoutes from './routes/reports.js'
+import auditRoutes from './routes/audit.js'
 import { errorHandler } from './middleware/errors.js'
 import { sanitize } from './middleware/sanitize.js'
 import { requestId } from './middleware/requestId.js'
@@ -71,6 +72,7 @@ async function main() {
       hsts: { maxAge: 31536000, includeSubDomains: true },
       noSniff: true,
       xssFilter: true,
+      frameguard: { action: 'deny' },
     }),
   )
 
@@ -92,6 +94,7 @@ async function main() {
   app.use('/api/shifts', shiftRoutes)
   app.use('/api/tables', tableRoutes)
   app.use('/api/reports', reportRoutes)
+  app.use('/api/audit', auditRoutes)
 
   const httpServer = http.createServer(app)
 

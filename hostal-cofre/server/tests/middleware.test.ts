@@ -233,14 +233,14 @@ describe('tokenBlacklist cleanup', () => {
     const { user } = await createUser('client')
     await prisma.refreshToken.create({
       data: {
-        token: 'c0000000-0000-0000-0000-000000000001',
+        tokenHash: 'c0000000-0000-0000-0000-000000000001',
         userId: user.id,
         expiresAt: new Date(Date.now() - 60_000),
       },
     })
     await cleanupExpiredTokens()
     const gone = await prisma.refreshToken.findUnique({
-      where: { token: 'c0000000-0000-0000-0000-000000000001' },
+      where: { tokenHash: 'c0000000-0000-0000-0000-000000000001' },
     })
     expect(gone).toBeNull()
   })

@@ -12,7 +12,10 @@ export function createTestApp() {
   return app
 }
 
-export function mountRoutes(app: express.Express, ...routeConfigs: Array<(app: express.Express) => void>) {
+export function mountRoutes(
+  app: express.Express,
+  ...routeConfigs: Array<(app: express.Express) => void>
+) {
   for (const config of routeConfigs) {
     config(app)
   }
@@ -65,15 +68,17 @@ export async function createTable() {
   })
 }
 
-export async function createOrder(overrides: {
-  customerName?: string
-  customerPhone?: string
-  paymentMethod?: string
-  orderType?: string
-  status?: string
-  menuItemId?: string
-  shiftId?: string
-} = {}) {
+export async function createOrder(
+  overrides: {
+    customerName?: string
+    customerPhone?: string
+    paymentMethod?: string
+    orderType?: string
+    status?: string
+    menuItemId?: string
+    shiftId?: string
+  } = {},
+) {
   const menuItem = await createMenuItem()
   const total = menuItem.price * 2
   return prisma.order.create({
@@ -98,13 +103,15 @@ export async function createOrder(overrides: {
   })
 }
 
-export async function createReservation(overrides: {
-  name?: string
-  phone?: string
-  guests?: number
-  tableId?: string
-  status?: string
-} = {}) {
+export async function createReservation(
+  overrides: {
+    name?: string
+    phone?: string
+    guests?: number
+    tableId?: string
+    status?: string
+  } = {},
+) {
   const table = overrides.tableId ? null : await createTable()
   return prisma.reservation.create({
     data: {
@@ -120,11 +127,13 @@ export async function createReservation(overrides: {
   })
 }
 
-export async function createShift(overrides: {
-  userId?: string
-  status?: string
-  openingCash?: number
-} = {}) {
+export async function createShift(
+  overrides: {
+    userId?: string
+    status?: string
+    openingCash?: number
+  } = {},
+) {
   const user = overrides.userId
     ? await prisma.user.findUnique({ where: { id: overrides.userId } })
     : (await createUser('admin')).user
@@ -147,6 +156,7 @@ export async function cleanupData() {
   await prisma.loginAttempt.deleteMany()
   await prisma.refreshToken.deleteMany()
   await prisma.shift.deleteMany()
+  await prisma.auditLog.deleteMany()
   await prisma.menuItem.deleteMany()
   await prisma.table.deleteMany()
   await prisma.user.deleteMany()

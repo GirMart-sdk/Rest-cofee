@@ -38,9 +38,10 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   wompi: {
     mode: (process.env.WOMPI_MODE === 'production' ? 'production' : 'sandbox') as
-      'sandbox' | 'production',
+      'production' | 'sandbox',
     publicKey: process.env.WOMPI_PUBLIC_KEY || '',
     privateKey: process.env.WOMPI_PRIVATE_KEY || '',
+    eventsSecret: process.env.WOMPI_EVENTS_SECRET || '',
     baseUrl:
       process.env.WOMPI_BASE_URL ||
       wompiBaseUrls[process.env.WOMPI_MODE === 'production' ? 'production' : 'sandbox'],

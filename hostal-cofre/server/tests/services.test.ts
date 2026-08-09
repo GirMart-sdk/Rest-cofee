@@ -136,7 +136,7 @@ describe('AuthService', () => {
         id: 'rt1',
         revoked: false,
         expiresAt: new Date(Date.now() + 60_000),
-        token: 'some-uuid',
+        tokenHash: 'some-hash',
         userId: 'u1',
         createdAt: new Date(),
         user: fakeUser,
@@ -151,6 +151,10 @@ describe('AuthService', () => {
         data: { revoked: true },
       })
       expect(result.accessToken).toBeTruthy()
+      expect(prismaMock.refreshToken.findUnique).toHaveBeenCalledWith({
+        where: { tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/) },
+        include: { user: true },
+      })
     })
 
     it('should throw 401 for revoked tokens', async () => {
@@ -179,7 +183,7 @@ describe('AuthService', () => {
       prismaMock.refreshToken.updateMany.mockResolvedValue({ count: 1 })
       await AuthService.logout('some-uuid')
       expect(prismaMock.refreshToken.updateMany).toHaveBeenCalledWith({
-        where: { token: 'some-uuid' },
+        where: { tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/) },
         data: { revoked: true },
       })
     })

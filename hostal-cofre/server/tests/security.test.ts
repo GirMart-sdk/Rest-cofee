@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 const BASE = process.env.TEST_URL || 'http://localhost:3001'
 
 let passed = 0
@@ -30,6 +32,20 @@ async function api(method: string, path: string, body?: any, headers?: Record<st
   return { status: res.status, data, headers: Object.fromEntries(res.headers.entries()) }
 }
 
+function getRefreshCookie(headers: Record<string, string>): string {
+  const raw = headers['set-cookie'] || ''
+  for (const cookie of raw.split(',')) {
+    const [pair] = cookie.trim().split(';')
+    const [name, ...rest] = pair.split('=')
+    if (name === 'hostal_refresh') return rest.join('=')
+  }
+  return ''
+}
+
+function withCookie(cookie: string): Record<string, string> {
+  return { Cookie: `hostal_refresh=${cookie}` }
+}
+
 // ============================================================
 // CAPA 4: HEADERS DE SEGURIDAD
 // ============================================================
@@ -38,12 +54,18 @@ async function testSecurityHeaders() {
 
   await test('Helmet X-Content-Type-Options: nosniff', async () => {
     const { headers } = await api('GET', '/api/health')
-    assert(headers['x-content-type-options'] === 'nosniff', `Expected nosniff, got: ${headers['x-content-type-options']}`)
+    assert(
+      headers['x-content-type-options'] === 'nosniff',
+      `Expected nosniff, got: ${headers['x-content-type-options']}`,
+    )
   })
 
   await test('Helmet X-Frame-Options: DENY', async () => {
     const { headers } = await api('GET', '/api/health')
-    assert(headers['x-frame-options'] === 'DENY', `Expected DENY, got: ${headers['x-frame-options']}`)
+    assert(
+      headers['x-frame-options'] === 'DENY',
+      `Expected DENY, got: ${headers['x-frame-options']}`,
+    )
   })
 
   await test('Helmet Strict-Transport-Security present', async () => {
@@ -63,7 +85,10 @@ async function testSecurityHeaders() {
 
   await test('X-Request-Id echoed from client', async () => {
     const { headers } = await api('GET', '/api/health', undefined, { 'X-Request-Id': 'test-123' })
-    assert(headers['x-request-id'] === 'test-123', `Expected test-123, got: ${headers['x-request-id']}`)
+    assert(
+      headers['x-request-id'] === 'test-123',
+      `Expected test-123, got: ${headers['x-request-id']}`,
+    )
   })
 
   await test('CORS headers configured', async () => {
@@ -85,7 +110,10 @@ async function testRateLimiting() {
 
   await test('Rate limit headers present', async () => {
     const { headers } = await api('GET', '/api/menu')
-    assert(!!headers['ratelimit-limit'] || !!headers['x-ratelimit-limit'], 'Rate limit headers missing')
+    assert(
+      !!headers['ratelimit-limit'] || !!headers['x-ratelimit-limit'],
+      'Rate limit headers missing',
+    )
   })
 }
 
@@ -97,86 +125,106 @@ async function testPasswordPolicy() {
 
   await test('Reject password without uppercase', async () => {
     const { status } = await api('POST', '/api/auth/register', {
-      name: 'Test', email: `test-${Date.now()}@mail.com`, password: 'alllower1!',
+      name: 'Test',
+      email: `test-${Date.now()}@mail.com`,
+      password: 'alllower1!',
     })
     assert(status === 400, `Expected 400, got: ${status}`)
   })
 
   await test('Reject password without number', async () => {
     const { status } = await api('POST', '/api/auth/register', {
-      name: 'Test', email: `test-${Date.now()}@mail.com`, password: 'AllLower!',
+      name: 'Test',
+      email: `test-${Date.now()}@mail.com`,
+      password: 'AllLower!',
     })
     assert(status === 400, `Expected 400, got: ${status}`)
   })
 
   await test('Reject password without special char', async () => {
     const { status } = await api('POST', '/api/auth/register', {
-      name: 'Test', email: `test-${Date.now()}@mail.com`, password: 'AllLower1',
+      name: 'Test',
+      email: `test-${Date.now()}@mail.com`,
+      password: 'AllLower1',
     })
     assert(status === 400, `Expected 400, got: ${status}`)
   })
 
   await test('Reject short password', async () => {
     const { status } = await api('POST', '/api/auth/register', {
-      name: 'Test', email: `test-${Date.now()}@mail.com`, password: 'Ab1!',
+      name: 'Test',
+      email: `test-${Date.now()}@mail.com`,
+      password: 'Ab1!',
     })
     assert(status === 400, `Expected 400, got: ${status}`)
   })
 
   await test('Accept valid strong password', async () => {
     const { status } = await api('POST', '/api/auth/register', {
-      name: 'Test User', email: `test-${Date.now()}@mail.com`, password: 'Secure!Pass1',
+      name: 'Test User',
+      email: `test-${Date.now()}@mail.com`,
+      password: 'Secure!Pass1',
     })
     assert(status === 201, `Expected 201, got: ${status}`)
   })
 }
 
 // ============================================================
-// CAPA 5: AUTH - TOKEN REFRESH
+// CAPA 5: AUTH - TOKEN REFRESH (httpOnly cookie)
 // ============================================================
 async function testTokenRefresh() {
   console.log('\n🔄 CAPA 5: Token Refresh')
 
-  let refreshToken = ''
+  let refreshCookie = ''
 
-  await test('Login returns accessToken + refreshToken', async () => {
-    const { status, data } = await api('POST', '/api/auth/login', {
-      email: process.env.ADMIN_EMAIL || 'admin@hostalcofee.com', password: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
+  await test('Login returns accessToken + httpOnly refresh cookie', async () => {
+    const { status, data, headers } = await api('POST', '/api/auth/login', {
+      email: process.env.ADMIN_EMAIL || 'admin@hostalcofee.com',
+      password: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
     })
     assert(status === 200, `Expected 200, got: ${status}`)
     assert(!!data?.data?.accessToken, 'Missing accessToken')
-    assert(!!data?.data?.refreshToken, 'Missing refreshToken')
-    refreshToken = data.data.refreshToken
+    assert(data?.data?.refreshToken === undefined, 'refreshToken should not be in the body')
+    refreshCookie = getRefreshCookie(headers)
+    assert(!!refreshCookie, 'Missing refresh cookie')
   })
 
-  await test('Refresh endpoint issues new tokens', async () => {
-    const { status, data } = await api('POST', '/api/auth/refresh', { refreshToken })
+  await test('Refresh endpoint issues a new access token from the cookie', async () => {
+    const { status, data } = await api(
+      'POST',
+      '/api/auth/refresh',
+      undefined,
+      withCookie(refreshCookie),
+    )
     assert(status === 200, `Expected 200, got: ${status}`)
     assert(!!data?.data?.accessToken, 'Missing new accessToken')
-    assert(!!data?.data?.refreshToken, 'Missing new refreshToken')
   })
 
   await test('Old refresh token revoked after use', async () => {
-    const { status } = await api('POST', '/api/auth/refresh', { refreshToken })
+    const { status } = await api('POST', '/api/auth/refresh', undefined, withCookie(refreshCookie))
     assert(status === 401, `Expected 401 (revoked), got: ${status}`)
   })
 
   await test('Invalid refresh token rejected', async () => {
-    const { status } = await api('POST', '/api/auth/refresh', {
-      refreshToken: '00000000-0000-0000-0000-000000000000',
-    })
+    const { status } = await api(
+      'POST',
+      '/api/auth/refresh',
+      undefined,
+      withCookie('00000000-0000-0000-0000-000000000000'),
+    )
     assert(status === 401, `Expected 401, got: ${status}`)
   })
 
   await test('Logout revokes refresh token', async () => {
     const loginRes = await api('POST', '/api/auth/login', {
-      email: process.env.ADMIN_EMAIL || 'admin@hostalcofee.com', password: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
+      email: process.env.ADMIN_EMAIL || 'admin@hostalcofee.com',
+      password: process.env.ADMIN_PASSWORD || 'ChangeMe!2026',
     })
-    const rt = loginRes.data?.data?.refreshToken
-    const { status } = await api('POST', '/api/auth/logout', { refreshToken: rt })
+    const rt = getRefreshCookie(loginRes.headers)
+    const { status } = await api('POST', '/api/auth/logout', undefined, withCookie(rt))
     assert(status === 200, `Expected 200, got: ${status}`)
 
-    const refreshStatus = await api('POST', '/api/auth/refresh', { refreshToken: rt })
+    const refreshStatus = await api('POST', '/api/auth/refresh', undefined, withCookie(rt))
     assert(refreshStatus.status === 401, 'Revoked refresh token should be rejected')
   })
 }
@@ -191,7 +239,9 @@ async function testAccountLockout() {
 
   await test('Create user for lockout test', async () => {
     await api('POST', '/api/auth/register', {
-      name: 'Lockout Test', email: testEmail, password: 'Lockout!1Test',
+      name: 'Lockout Test',
+      email: testEmail,
+      password: 'Lockout!1Test',
     })
   })
 
@@ -199,9 +249,15 @@ async function testAccountLockout() {
     for (let i = 0; i < 5; i++) {
       await api('POST', '/api/auth/login', { email: testEmail, password: 'WrongPass!1' })
     }
-    const { status, data } = await api('POST', '/api/auth/login', { email: testEmail, password: 'WrongPass!1' })
+    const { status, data } = await api('POST', '/api/auth/login', {
+      email: testEmail,
+      password: 'WrongPass!1',
+    })
     assert(status === 429, `Expected 429 (locked), got: ${status}`)
-    assert(data?.error?.includes('locked') || data?.error?.includes('Too many'), `Expected lockout message`)
+    assert(
+      data?.error?.includes('locked') || data?.error?.includes('Too many'),
+      `Expected lockout message`,
+    )
   })
 }
 
@@ -216,19 +272,27 @@ async function testPasswordChange() {
 
   await test('Setup: register and login', async () => {
     await api('POST', '/api/auth/register', {
-      name: 'PW Change', email: testEmail, password: 'Initial!1Pass',
+      name: 'PW Change',
+      email: testEmail,
+      password: 'Initial!1Pass',
     })
     const { data } = await api('POST', '/api/auth/login', {
-      email: testEmail, password: 'Initial!1Pass',
+      email: testEmail,
+      password: 'Initial!1Pass',
     })
     token = data?.data?.accessToken
   })
 
   await test('Change password invalidates old sessions', async () => {
-    const { status } = await api('POST', '/api/auth/change-password', {
-      currentPassword: 'Initial!1Pass',
-      newPassword: 'NewSecure!1Pass',
-    }, { Authorization: `Bearer ${token}` })
+    const { status } = await api(
+      'POST',
+      '/api/auth/change-password',
+      {
+        currentPassword: 'Initial!1Pass',
+        newPassword: 'NewSecure!1Pass',
+      },
+      { Authorization: `Bearer ${token}` },
+    )
     assert(status === 200, `Expected 200, got: ${status}`)
 
     const meRes = await api('GET', '/api/auth/me', undefined, { Authorization: `Bearer ${token}` })
@@ -285,32 +349,50 @@ async function testInputValidation() {
   console.log('\n✅ CAPA 3: Input Validation')
 
   await test('Order status rejects invalid enum', async () => {
-    const { status } = await api('PATCH', '/api/orders/fake-id/status', {
-      status: 'hacked_status',
-    }, { Authorization: 'Bearer fake-token' })
+    const { status } = await api(
+      'PATCH',
+      '/api/orders/fake-id/status',
+      {
+        status: 'hacked_status',
+      },
+      { Authorization: 'Bearer fake-token' },
+    )
     assert(status === 400 || status === 401, `Expected 400/401, got: ${status}`)
   })
 
   await test('Reservation time rejects invalid format', async () => {
     const { status } = await api('POST', '/api/reservations', {
-      name: 'Test', phone: '123', date: '2026-12-31',
-      time: 'invalid-time', guests: 2,
+      name: 'Test',
+      phone: '123',
+      date: '2026-12-31',
+      time: 'invalid-time',
+      guests: 2,
     })
     assert(status === 400, `Expected 400, got: ${status}`)
   })
 
   await test('Reservation guests > 50 rejected', async () => {
     const { status } = await api('POST', '/api/reservations', {
-      name: 'Test', phone: '123', date: '2026-12-31',
-      time: '20:00', guests: 999,
+      name: 'Test',
+      phone: '123',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 999,
     })
     assert(status === 400, `Expected 400, got: ${status}`)
   })
 
   await test('Menu category rejects invalid value', async () => {
-    const { status } = await api('POST', '/api/menu', {
-      name: 'Test', price: 10, category: 'invalid_category',
-    }, { Authorization: 'Bearer fake-admin-token' })
+    const { status } = await api(
+      'POST',
+      '/api/menu',
+      {
+        name: 'Test',
+        price: 10,
+        category: 'invalid_category',
+      },
+      { Authorization: 'Bearer fake-admin-token' },
+    )
     assert(status === 400 || status === 401, `Expected 400/401, got: ${status}`)
   })
 
@@ -329,9 +411,13 @@ async function testJWTSecurity() {
 
   await test('Reject token with none algorithm', async () => {
     const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url')
-    const payload = Buffer.from(JSON.stringify({ id: '1', email: 'a@b.com', role: 'admin' })).toString('base64url')
+    const payload = Buffer.from(
+      JSON.stringify({ id: '1', email: 'a@b.com', role: 'admin' }),
+    ).toString('base64url')
     const fakeToken = `${header}.${payload}.`
-    const { status } = await api('GET', '/api/auth/me', undefined, { Authorization: `Bearer ${fakeToken}` })
+    const { status } = await api('GET', '/api/auth/me', undefined, {
+      Authorization: `Bearer ${fakeToken}`,
+    })
     assert(status === 401, `Expected 401 for none algo, got: ${status}`)
   })
 
@@ -347,6 +433,106 @@ async function testJWTSecurity() {
       Authorization: 'Bearer ',
     })
     assert(status === 401, `Expected 401 for empty, got: ${status}`)
+  })
+}
+
+// ============================================================
+// CAPA 5: 2FA TOTP
+// ============================================================
+async function testTwoFactor() {
+  console.log('\n🔐 CAPA 5: Two-Factor Authentication (TOTP)')
+
+  const { generateSync } = await import('otplib')
+  const testEmail = `2fa-${Date.now()}@mail.com`
+  const password = 'Secure!2FAPass1'
+  let accessToken = ''
+  let secret = ''
+
+  await test('2FA: register a dedicated user', async () => {
+    const { status } = await api('POST', '/api/auth/register', {
+      name: '2FA Test',
+      email: testEmail,
+      password,
+    })
+    assert(status === 201, `Expected 201, got: ${status}`)
+  })
+
+  await test('2FA: setup returns a secret and otpauth URL', async () => {
+    const login = await api('POST', '/api/auth/login', { email: testEmail, password })
+    accessToken = login.data?.data?.accessToken
+    assert(!!accessToken, 'Missing accessToken')
+
+    const { status, data } = await api('GET', '/api/auth/2fa/setup', undefined, {
+      Authorization: `Bearer ${accessToken}`,
+    })
+    assert(status === 200, `Expected 200, got: ${status}`)
+    secret = data?.data?.secret
+    assert(!!secret, 'Missing secret')
+    assert((data?.data?.otpauthUrl || '').startsWith('otpauth://totp/'), 'Invalid otpauth URL')
+  })
+
+  await test('2FA: enable with a valid code', async () => {
+    const { status } = await api(
+      'POST',
+      '/api/auth/2fa/enable',
+      {
+        code: generateSync({ secret }),
+      },
+      { Authorization: `Bearer ${accessToken}` },
+    )
+    assert(status === 200, `Expected 200, got: ${status}`)
+  })
+
+  await test('2FA: login now requires a second step', async () => {
+    const { status, data } = await api('POST', '/api/auth/login', { email: testEmail, password })
+    assert(status === 200, `Expected 200, got: ${status}`)
+    assert(data?.requiresTwoFactor === true, 'Expected requiresTwoFactor')
+    assert(!!data?.data?.pendingToken, 'Missing pendingToken')
+    assert(!data?.data?.accessToken, 'Should not issue an accessToken before 2FA')
+  })
+
+  await test('2FA: verify completes the login', async () => {
+    const login = await api('POST', '/api/auth/login', { email: testEmail, password })
+    const pendingToken = login.data?.data?.pendingToken
+
+    const { status, data, headers } = await api('POST', '/api/auth/2fa/verify', {
+      pendingToken,
+      code: generateSync({ secret }),
+    })
+    assert(status === 200, `Expected 200, got: ${status}`)
+    assert(!!data?.data?.accessToken, 'Missing accessToken after 2FA')
+    assert(!!getRefreshCookie(headers), 'Missing refresh cookie after 2FA')
+  })
+
+  await test('2FA: rejects an invalid code', async () => {
+    const login = await api('POST', '/api/auth/login', { email: testEmail, password })
+    const pendingToken = login.data?.data?.pendingToken
+
+    const { status } = await api('POST', '/api/auth/2fa/verify', {
+      pendingToken,
+      code: '000000',
+    })
+    assert(status === 401, `Expected 401, got: ${status}`)
+  })
+
+  await test('2FA: disable with password + valid code', async () => {
+    const { status } = await api(
+      'POST',
+      '/api/auth/2fa/disable',
+      {
+        password,
+        code: generateSync({ secret }),
+      },
+      { Authorization: `Bearer ${accessToken}` },
+    )
+    assert(status === 200, `Expected 200, got: ${status}`)
+  })
+
+  await test('2FA: login works normally after disabling', async () => {
+    const { status, data } = await api('POST', '/api/auth/login', { email: testEmail, password })
+    assert(status === 200, `Expected 200, got: ${status}`)
+    assert(data?.requiresTwoFactor !== true, 'Should not require 2FA after disabling')
+    assert(!!data?.data?.accessToken, 'Missing accessToken')
   })
 }
 
@@ -372,6 +558,7 @@ async function run() {
   await testTokenRefresh()
   await testAccountLockout()
   await testPasswordChange()
+  await testTwoFactor()
   await testXSSSanitization()
   await testInputValidation()
   await testJWTSecurity()

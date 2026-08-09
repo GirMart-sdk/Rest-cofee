@@ -1,6 +1,7 @@
 import { Router, Response } from 'express'
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
+import { auditMiddleware } from '../services/audit.service.js'
 import { ReservationService } from '../services/reservation.service.js'
 import { whatsappService } from '../services/whatsapp.service.js'
 import { config } from '../config/index.js'
@@ -87,6 +88,10 @@ router.patch(
   '/:id/status',
   authenticate,
   requireAdmin,
+  auditMiddleware('reservation.status', 'reservation', {
+    getResourceId: (req) => req.params.id,
+    getDetails: (req) => ({ status: req.body.status }),
+  }),
   validate(updateStatusSchema),
   async (req: AuthRequest, res: Response) => {
     const reservation = await ReservationService.updateStatus(req.params.id, req.body.status)

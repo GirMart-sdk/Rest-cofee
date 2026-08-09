@@ -5,6 +5,8 @@ import { OrderService } from '../services/order.service.js'
 import { DeliveryService } from '../services/delivery.service.js'
 import { whatsappService } from '../services/whatsapp.service.js'
 import { config } from '../config/index.js'
+import { eventBus } from '../utils/events.js'
+import { auditMiddleware } from '../services/audit.service.js'
 import { z } from 'zod'
 
 const router = Router()
@@ -66,6 +68,26 @@ router.get('/zones', (_req, res: Response) => {
   res.json({ success: true, data: zones })
 })
 
+router.get('/events', authenticate, requireAdmin, (req: AuthRequest, res: Response) => {
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+  res.setHeader('X-Accel-Buffering', 'no')
+  res.flushHeaders()
+
+  eventBus.addClient(res)
+  res.write('event: hello\ndata: {"action":"connected"}\n\n')
+
+  const heartbeat = setInterval(() => {
+    res.write(': ping\n\n')
+  }, 30000)
+
+  req.on('close', () => {
+    clearInterval(heartbeat)
+    eventBus.removeClient(res)
+  })
+})
+
 const orderItemSchema = z.object({
   menuItemId: z.string().cuid(),
   quantity: z.number().int().positive().max(100),
@@ -120,6 +142,7 @@ router.post(
       shiftId,
     })
     notifyNewOrder(order)
+    eventBus.broadcast('order.created', order)
     res.status(201).json({ success: true, data: order })
   },
 )
@@ -161,6 +184,7 @@ router.post(
       shiftId,
     })
     notifyNewOrder(order)
+    eventBus.broadcast('order.created', order)
     res.status(201).json({ success: true, data: order })
   },
 )
@@ -176,9 +200,14 @@ router.patch(
   '/:id/status',
   authenticate,
   requireAdmin,
+  auditMiddleware('order.status', 'order', {
+    getResourceId: (req) => req.params.id,
+    getDetails: (req) => ({ status: req.body.status }),
+  }),
   validate(updateStatusSchema),
   async (req: AuthRequest, res: Response) => {
     const order = await OrderService.updateStatus(req.params.id, req.body.status)
+    eventBus.broadcast('order.updated', order)
     res.json({ success: true, data: order })
   },
 )
@@ -195,6 +224,10 @@ router.patch(
   '/:id/payment',
   authenticate,
   requireAdmin,
+  auditMiddleware('order.payment', 'order', {
+    getResourceId: (req) => req.params.id,
+    getDetails: (req) => ({ paymentStatus: req.body.paymentStatus }),
+  }),
   validate(updatePaymentSchema),
   async (req: AuthRequest, res: Response) => {
     const order = await OrderService.updatePayment(
@@ -202,6 +235,7 @@ router.patch(
       req.body.paymentStatus,
       req.body.paymentId,
     )
+    eventBus.broadcast('order.updated', order)
     res.json({ success: true, data: order })
   },
 )
