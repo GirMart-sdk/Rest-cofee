@@ -204,7 +204,7 @@ describe('AdminOrders', () => {
 
     const card = screen
       .getByRole('button', { name: 'Iniciar Preparación' })
-      .closest('div.bg-white')!
+      .closest('div.bg-white') as HTMLElement
     fireEvent.click(within(card).getByRole('button', { name: 'Cancelar' }))
 
     await waitFor(() =>

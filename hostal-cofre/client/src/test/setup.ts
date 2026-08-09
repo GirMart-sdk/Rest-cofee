@@ -30,8 +30,9 @@ if (!('ResizeObserver' in globalThis)) {
   globalThis.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver
 }
 
-if (!('matchMedia' in window)) {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -40,8 +41,8 @@ if (!('matchMedia' in window)) {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
-  })) as unknown as typeof window.matchMedia
-}
+  })),
+})
 
 afterEach(() => {
   cleanup()

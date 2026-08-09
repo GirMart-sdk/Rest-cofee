@@ -202,7 +202,7 @@ describe('subscribeOrders', () => {
   it('aborts the connection on cleanup', async () => {
     let capturedSignal: AbortSignal | undefined
     fetchMock.mockImplementation((_url: string, init: RequestInit) => {
-      capturedSignal = init.signal
+      capturedSignal = init.signal ?? undefined
       return Promise.resolve(okResponse(['data: {"a":1}\n\n']))
     })
     const unsubscribe = subscribeOrders(vi.fn())

@@ -14,25 +14,29 @@ const mock = vi.hoisted(() => {
 
   const mockRefreshPost = vi.fn()
 
-  const apiCallable = vi.fn(() => Promise.resolve({ data: {} }))
-  apiCallable.get = vi.fn(() => Promise.resolve({ data: {} }))
-  apiCallable.post = vi.fn(() => Promise.resolve({ data: {} }))
-  apiCallable.patch = vi.fn(() => Promise.resolve({ data: {} }))
-  apiCallable.delete = vi.fn(() => Promise.resolve({ data: {} }))
-  apiCallable.interceptors = {
-    request: {
-      use: vi.fn((fn: typeof state.requestHandler) => {
-        state.requestHandler = fn
-      }),
+  const apiCallable = Object.assign(
+    vi.fn(() => Promise.resolve({ data: {} })),
+    {
+      get: vi.fn(() => Promise.resolve({ data: {} })),
+      post: vi.fn(() => Promise.resolve({ data: {} })),
+      patch: vi.fn(() => Promise.resolve({ data: {} })),
+      delete: vi.fn(() => Promise.resolve({ data: {} })),
+      interceptors: {
+        request: {
+          use: vi.fn((fn: typeof state.requestHandler) => {
+            state.requestHandler = fn
+          }),
+        },
+        response: {
+          use: vi.fn((onOk: typeof state.onFulfilled, onErr: typeof state.onRejected) => {
+            state.onFulfilled = onOk
+            state.onRejected = onErr
+          }),
+        },
+      },
+      defaults: { headers: { common: {} } },
     },
-    response: {
-      use: vi.fn((onOk: typeof state.onFulfilled, onErr: typeof state.onRejected) => {
-        state.onFulfilled = onOk
-        state.onRejected = onErr
-      }),
-    },
-  }
-  apiCallable.defaults = { headers: { common: {} } }
+  )
 
   return { state, mockRefreshPost, apiCallable }
 })
@@ -120,8 +124,52 @@ describe('api client', () => {
     ).rejects.toBeDefined()
   })
 
+  it('redirects to login when the refresh fails to produce a token', async () => {
+    localStorage.setItem(TOKEN_KEY, 'old-token')
+    mock.mockRefreshPost.mockResolvedValue({ data: { data: {} } })
+
+    const originalConfig = { url: '/api/menu', headers: {}, _retry: undefined }
+    await expect(
+      mock.state.onRejected!({ response: { status: 401 }, config: originalConfig }),
+    ).rejects.toBeDefined()
+
+    expect(location.href).toBe('/login')
+  })
+
+  it('queues concurrent 401s and retries them after the refresh completes', async () => {
+    localStorage.setItem(TOKEN_KEY, 'old-token')
+
+    let resolveRefresh!: (value: unknown) => void
+    mock.mockRefreshPost.mockReturnValue(
+      new Promise((res) => {
+        resolveRefresh = res
+      }),
+    )
+
+    const originalConfig = { url: '/api/menu', headers: {}, _retry: undefined }
+    const first = mock.state.onRejected!({ response: { status: 401 }, config: originalConfig })
+
+    const queuedConfig = { url: '/api/orders', headers: {}, _retry: undefined }
+    const second = mock.state.onRejected!({ response: { status: 401 }, config: queuedConfig })
+
+    resolveRefresh({ data: { data: { accessToken: 'new-token' } } })
+    await Promise.all([first, second])
+
+    expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
+    expect(mock.apiCallable).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/menu' }))
+    expect(mock.apiCallable).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/orders' }))
+    expect(mock.apiCallable).toHaveBeenCalledWith(
+      expect.objectContaining({ headers: { Authorization: 'Bearer new-token' } }),
+    )
+  })
+
   it('is an axios instance with the /api base URL', () => {
     expect(api).toBeDefined()
+  })
+
+  it('returns successful responses unchanged through the response interceptor', () => {
+    const response = { data: { ok: true } }
+    expect(mock.state.onFulfilled!(response)).toBe(response)
   })
 
   it('clearTokens removes the stored access token', () => {

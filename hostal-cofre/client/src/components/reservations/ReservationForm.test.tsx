@@ -180,6 +180,20 @@ describe('ReservationForm', () => {
     )
   })
 
+  it('updates the email, guest count and notes fields', async () => {
+    renderForm()
+
+    fireEvent.change(screen.getByPlaceholderText('Tu email'), {
+      target: { value: 'nuevo@x.com' },
+    })
+    expect((screen.getByPlaceholderText('Tu email') as HTMLInputElement).value).toBe('nuevo@x.com')
+
+    fireEvent.click(screen.getByRole('button', { name: '-' }))
+    expect(screen.getByText('1')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '+' }))
+    expect(screen.getByText('2')).toBeInTheDocument()
+  })
+
   it('navigates back to the form with the Volver buttons', async () => {
     const { container } = renderForm()
     fillRequiredFields(container)

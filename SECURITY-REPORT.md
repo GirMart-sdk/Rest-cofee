@@ -1,6 +1,6 @@
 # INFORME DE BLINDAJE CYBERSECURITY — HOSTAL COFEE
 
-[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee-v2-brightgreen.svg)](README.md)
+[![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee--v2-brightgreen.svg)](README.md)
 ![Tipo](https://img.shields.io/badge/Tipo-Informe%20Técnico-informational.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 ![Fecha](https://img.shields.io/badge/Fecha-08%20Ago%202026-blue.svg)

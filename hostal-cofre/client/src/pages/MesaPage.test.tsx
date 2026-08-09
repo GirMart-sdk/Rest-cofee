@@ -114,6 +114,17 @@ describe('MesaPage', () => {
     expect(screen.getByText('Agrega platos del menú para ordenar')).toBeInTheDocument()
   })
 
+  it('filters the menu by category', async () => {
+    renderPage()
+    await screen.findByText('Pizza Margarita')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pizzas' }))
+    expect(screen.getByText('Pizza Margarita')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Todos' }))
+    expect(screen.getByText('Pizza Margarita')).toBeInTheDocument()
+  })
+
   it('sends an order to the kitchen and sends it by WhatsApp', async () => {
     apiMock.api.post.mockResolvedValue({ data: { data: {} } })
     renderPage()
