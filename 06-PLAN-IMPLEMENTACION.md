@@ -7,7 +7,7 @@
 
 ![Progreso General](https://img.shields.io/badge/Progreso-90%25-blue.svg)
 ![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-29%2F30-brightgreen.svg)
-![Tests Pasando](https://img.shields.io/badge/Tests-342%2F342-brightgreen.svg)
+![Tests Pasando](https://img.shields.io/badge/Tests-384%2F384-brightgreen.svg)
 ![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-8%20items-yellow.svg)
 ![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
 
@@ -60,8 +60,8 @@
 - Express async error handling (catchAsync middleware en todas las rutas)
 - Error handler global mejorado (statusCode custom, FK constraints, Prisma errors)
 - Rate limiting deshabilitado en test (NODE_ENV=test)
-- Tests: **164/164 backend** (auth: 16, orders: 16, reservations: 12, menu: 11, middleware: 23, payments: 6, reports: 6, services: 27, shifts: 12, tables: 18, validation: 9, whatsapp: 8) + **25 frontend** + **E2E Playwright**
-- Cobertura backend: **93.1% líneas** (umbral CI 80%)
+- Tests: **186/186 backend** (auth: 25, orders: 16, reservations: 12, menu: 11, middleware: 23, payments: 11, reports: 6, services: 27, shifts: 12, tables: 18, validation: 9, whatsapp: 8, audit: 5, events: 3) + **156 frontend** + **42 tests de seguridad** + **E2E Playwright**
+- Cobertura: **92% líneas servidor · 86% cliente** (umbral CI 80%)
 - Observabilidad: logs JSON, request ID, `GET /api/metrics`
 
 ### 1.3 Funcionalidades Implementadas al 100%
@@ -82,7 +82,7 @@
 | Observabilidad (logs JSON, request ID, métricas)      | COMPLETO             |
 | Despliegue bare-metal Windows (NSSM + Caddy)          | COMPLETO             |
 | E2E Playwright + capturas para docs                   | COMPLETO             |
-| Test suite                                            | COMPLETO (189 tests) |
+| Test suite                                            | COMPLETO (384 tests) |
 
 ---
 
@@ -239,7 +239,7 @@ Reportes:   ████████████████████ 100%
 Mesas:      ████████████████████ 100%
 Pagos:      ████████████████████ 100% (sandbox + producción)
 Notif:      ████████████████████ 100% (Business API + wa.me)
-Testing:    ████████████████████ 100% (164 + 25 + E2E)
+Testing:    ████████████████████ 100% (186 + 156 + 42 + E2E)
 Observab:   ████████████████████ 100% (logs JSON + métricas)
 Deploy:     ████████████████████ 100% (Windows bare-metal)
 UI/UX:      ████████████████░░░░  80% (sin design system adoptado)

@@ -9,7 +9,7 @@
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)](https://semver.org/lang/es/)
 ![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 [![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-342%20Passing-brightgreen.svg)](02-TRD.md)
+[![Tests](https://img.shields.io/badge/Tests-384%20Passing-brightgreen.svg)](02-TRD.md)
 
 ---
 
@@ -34,7 +34,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Changed
 
 - Cliente: subidos los umbrales de cobertura (statements/lines ≥ 52%, branches ≥ 70%)
-- Documentación: insignias actualizadas (342 tests, coverage server 92% / client 86%,
+- Documentación: insignias actualizadas (384 tests, coverage server 92% / client 86%,
   42 tests de seguridad)
 
 ### Fixed

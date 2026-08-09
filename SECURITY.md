@@ -23,7 +23,7 @@
 
 > - **Canal único de reportes**: `security@hostalcofee.com` — reportar en Issues/PR/redes es **BAN PERMANENTE**.
 > - **Respuestas**: Crítica 1 h (fix 24 h) · Alta 4 h · Media 24 h · Baja 48 h.
-> - **6 capas obligatorias**: Secrets, Autenticación, Validación, Headers, Sesiones y Testing (mínimo 34 tests de seguridad).
+> - **6 capas obligatorias**: Secrets, Autenticación, Validación, Headers, Sesiones y Testing (mínimo 42 tests de seguridad).
 > - **Prohibido**: hardcodear credenciales, HTTP en producción, loguear datos sensibles, deshabilitar helmet/rate-limit.
 > - **Recompensas**: hasta **$2,000 USD** por vulnerabilidades críticas reportadas responsablemente.
 
@@ -264,7 +264,7 @@ Una vulnerabilidad se **ESCALA** de nivel cuando:
 | Input Validation          | 100%      | Cada PR    |
 | JWT Security              | 100%      | Cada PR    |
 
-**MINIMO**: 34 tests de seguridad pasando antes de cada merge.
+**MINIMO**: 42 tests de seguridad pasando antes de cada merge.
 
 ---
 

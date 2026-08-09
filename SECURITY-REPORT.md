@@ -28,8 +28,8 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 
 ### Lo esencial
 
-> - **6 capas de protección** implementadas y verificadas con tests automatizados (34 tests de seguridad).
-> - **16 vulnerabilidades mitigadas**, 5 de severidad CRÍTICA/ALTA resueltas.
+> - **6 capas de protección** implementadas y verificadas con tests automatizados (42 tests de seguridad).
+> - **16 vulnerabilidades mitigadas**: 2 CRÍTICAS y 5 ALTAS resueltas.
 > - Todo integrado en CI: cada PR ejecuta `npm run test:coverage` (umbral 80%) y los tests de seguridad.
 > - Los pasos manuales originales (renombrado de carpetas, migraciones, JWT) ya fueron ejecutados.
 
@@ -37,13 +37,13 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 
 ## CAPA 1: GESTIÓN DE SECRETS
 
-| Componente         | Cambio                                 | Archivo                        |
-| ------------------ | -------------------------------------- | ------------------------------ |
-| `.gitignore`       | Excluye .env, node_modules, logs       | `.gitignore` (CREADO)          |
-| `.env.example`     | Plantilla segura con placeholders      | `server/.env.example` (CREADO) |
-| Config validation  | JWT_SECRET min 32 chars, fatal error   | `config/index.ts`              |
-| Seed seguro        | Passwords desde env vars, bcrypt 12    | `utils/seed.ts`                |
-| `.env` actualizado | Secret de alta entropía, DB renombrada | `server/.env`                  |
+| Componente               | Cambio                                         | Archivo                        |
+| ------------------------ | ---------------------------------------------- | ------------------------------ |
+| `.gitignore`             | Excluye .env, node_modules, logs               | `.gitignore` (CREADO)          |
+| `.env.example`           | Plantilla segura con placeholders              | `server/.env.example` (CREADO) |
+| Config validation        | JWT_SECRET min 32 chars, fatal error           | `config/index.ts`              |
+| Seed seguro              | Passwords desde env vars, bcrypt 12            | `utils/seed.ts`                |
+| Secrets de alta entropía | Generados y excluidos del control de versiones | local (gitignored)             |
 
 ---
 
@@ -141,7 +141,7 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 | Input Validation | Enum invalid, time format, guests max, category, payload size | 5        |
 | JWT Security     | none algorithm, malformed, empty bearer                       | 3        |
 
-**Total: 34 tests automatizados**
+**Total: 42 tests automatizados**
 
 ---
 
@@ -155,7 +155,7 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 | 4   | `server/src/middleware/requestId.ts`      | Request ID tracking                      |
 | 5   | `server/src/middleware/lockout.ts`        | Account lockout system                   |
 | 6   | `server/src/middleware/tokenBlacklist.ts` | Token revocation                         |
-| 7   | `server/tests/security.test.ts`           | 34 tests de seguridad automatizados      |
+| 7   | `server/tests/security.test.ts`           | 42 tests de seguridad automatizados      |
 
 ## ARCHIVOS MODIFICADOS (15)
 
@@ -171,7 +171,7 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 | 8   | `server/src/routes/reservations.ts` | Schemas reforzados                   |
 | 9   | `server/src/routes/menu.ts`         | Category enum                        |
 | 10  | `server/src/utils/seed.ts`          | Env-based passwords                  |
-| 11  | `server/.env`                       | Refresh token vars, lockout vars     |
+| 11  | (config local, gitignored)          | Refresh token y lockout vars         |
 | 12  | `server/package.json`               | Script test:security                 |
 | 13  | `index.html`                        | Renombrado                           |
 | 14  | `hostal-cofre/client/` (6 archivos) | Renombrado referencias               |
@@ -183,13 +183,13 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 
 | #   | Vulnerabilidad                       | Severidad | Capa |
 | --- | ------------------------------------ | --------- | ---- |
-| 1   | `.env` sin `.gitignore` en repo      | CRÍTICA   | 1    |
-| 2   | JWT secret predecible                | CRÍTICA   | 1    |
+| 1   | Secretos expuestos en el repositorio | CRÍTICA   | 1    |
+| 2   | Secret de firma JWT débil            | CRÍTICA   | 1    |
 | 3   | Credenciales hardcodeadas en seed    | ALTA      | 1    |
 | 4   | Sin `.gitignore`                     | ALTA      | 1    |
 | 5   | Orders status/payment sin Zod        | ALTA      | 3    |
 | 6   | Sin sanitización XSS                 | MEDIA     | 3    |
-| 7   | Error handler loguea info sensible   | MEDIA     | 3    |
+| 7   | Logs con datos sensibles             | MEDIA     | 3    |
 | 8   | JWT algorithm confusion              | MEDIA     | 2    |
 | 9   | Timing attacks en login              | MEDIA     | 2    |
 | 10  | Password policy débil                | MEDIA     | 2    |
@@ -208,8 +208,8 @@ automatizados. Total: **26 archivos modificados/creados**, **16 vulnerabilidades
 | --------------------------------------------------------------------------------- | -------- |
 | Carpetas renombradas a monorepo `hostal-cofre/{server,client}`                    | ✅ Hecho |
 | Migración de Prisma con los modelos de seguridad (`RefreshToken`, `LoginAttempt`) | ✅ Hecho |
-| `JWT_SECRET` fuerte generado (min 32 chars, validado en `config/index.ts`)        | ✅ Hecho |
-| Tests de seguridad ejecutados (`npm run test:security`)                           | ✅ 34/34 |
+| Secrets de firma de alta entropía generados y validados en `config/index.ts`      | ✅ Hecho |
+| Tests de seguridad ejecutados (`npm run test:security`)                           | ✅ 42/42 |
 | Cobertura en CI (`npm run test:coverage`) con umbral real de 80%                  | ✅ Hecho |
 
 ---
@@ -222,7 +222,7 @@ Capa 2: Auth         ███████████████████�
 Capa 3: Validation   ████████████████████ ✅
 Capa 4: Headers      ████████████████████ ✅
 Capa 5: Sessions     ████████████████████ ✅
-Capa 6: Testing      ████████████████████ ✅ (34 tests)
+Capa 6: Testing      ████████████████████ ✅ (42 tests)
 ```
 
 ---

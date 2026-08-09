@@ -7,8 +7,8 @@
 
 ![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
 ![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
-![Autenticación](https://img.shields.io/badge/Auth-JWT%20%26%20Refresh-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-342%20Pasando-brightgreen.svg)
+![Autenticación](https://img.shields.io/badge/Auth-JWT%20%2B%20httpOnly-blue.svg)
+![Tests](https://img.shields.io/badge/Tests-384%20Pasando-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
@@ -25,12 +25,12 @@
 > **Lo más importante en 30 segundos:**
 >
 > - **Arquitectura**: Monolito por capas (Routes → Services → Prisma) — React 18 + Vite en el frontend, Express 4 + TypeScript ESM en el backend, PostgreSQL 14 como base de datos.
-> - **Autenticación**: JWT HS256 (15 min) + refresh tokens rotados (7 días), lockout anti brute force y política de contraseñas fuerte.
+> - **Autenticación**: JWT HS256 (15 min) + refresh tokens rotados (7 días) entregados en cookie httpOnly, lockout anti brute force y política de contraseñas fuerte.
 > - **Seguridad**: 6 capas — secrets, auth hardening, validación Zod + sanitización XSS, headers Helmet/CSP, sesiones revocables y tests automatizados.
 > - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
 > - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
 > - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
-> - **Testing**: 164 tests backend + 25 frontend + suite E2E Playwright (cobertura 93% líneas).
+> - **Testing**: 186 tests backend + 156 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 86% líneas).
 
 ---
 
@@ -126,14 +126,14 @@
 
 ### 3.1 Autenticación y Autorización
 
-| Mecanismo           | Detalle                                                          |
-| ------------------- | ---------------------------------------------------------------- |
-| Access Token        | JWT HS256, expira en 15 minutos                                  |
-| Refresh Token       | UUID v4, almacenable en DB, expira en 7 días                     |
-| Rotación de refresh | El token old se revoca al usarlo (one-time use)                  |
-| Invalidación total  | Cambio de contraseña revoca TODOS los refresh tokens del usuario |
-| Roles               | `admin` y `client`, validados en middleware `requireAdmin`       |
-| Algoritmo whitelist | Solo HS256 aceptado (previene algorithm switching attacks)       |
+| Mecanismo           | Detalle                                                                           |
+| ------------------- | --------------------------------------------------------------------------------- |
+| Access Token        | JWT HS256, expira en 15 minutos                                                   |
+| Refresh Token       | UUID v4, hasheado (SHA-256) en DB, expira en 7 días, entregado en cookie httpOnly |
+| Rotación de refresh | El token old se revoca al usarlo (one-time use)                                   |
+| Invalidación total  | Cambio de contraseña revoca TODOS los refresh tokens del usuario                  |
+| Roles               | `admin` y `client`, validados en middleware `requireAdmin`                        |
+| Algoritmo whitelist | Solo HS256 aceptado (previene algorithm switching attacks)                        |
 
 ### 3.2 Protección de Endpoints
 
@@ -156,11 +156,11 @@
 
 ### 3.4 Validación
 
-| Mecanismo          | Detalle                                            |
-| ------------------ | -------------------------------------------------- |
-| Request validation | Zod schemas en middleware `validate()`             |
-| Parsed values      | Valores parseados reemplazan req.body/query/params |
-| Error format       | 400 con detalles de validación Zod                 |
+| Mecanismo          | Detalle                                               |
+| ------------------ | ----------------------------------------------------- |
+| Request validation | Zod schemas en middleware `validate()`                |
+| Parsed values      | Valores parseados reemplazan req.body/query/params    |
+| Error format       | 400 con mensaje de validación (sin exponer internals) |
 
 ---
 
@@ -258,44 +258,50 @@ VITE_WHATSAPP_PHONE   # Número de WhatsApp para deep links
 ### 6.2 Configuración
 
 ```typescript
-// vitest.config.ts
+// vitest.config.ts (resumen)
 export default defineConfig({
   test: {
-    globals: false,
+    globals: true,
     environment: "node",
-    singleThread: true, // Ejecución secuencial
-    singleFork: true, // Un solo fork
-    pool: "forks",
-    exclude: ["**/security.test.ts"], // Test runner custom
+    fileParallelism: false, // Ejecución secuencial
+    include: ["tests/**/*.test.ts", "src/**/*.test.ts"],
+    exclude: ["tests/security.test.ts"], // Suite de seguridad corre aparte
+    globalSetup: ["./tests/global-setup.ts"],
   },
 });
 ```
 
 ### 6.3 Cobertura Actual
 
-**Backend (Vitest + Supertest) — 164 tests:**
+**Backend (Vitest + Supertest) — 186 tests:**
 
 | Suite                | Tests   | Estado           |
 | -------------------- | ------- | ---------------- |
-| auth.test.ts         | 16      | Todos pasando    |
+| auth.test.ts         | 25      | Todos pasando    |
 | orders.test.ts       | 16      | Todos pasando    |
 | reservations.test.ts | 12      | Todos pasando    |
 | menu.test.ts         | 11      | Todos pasando    |
 | middleware.test.ts   | 23      | Todos pasando    |
-| payments.test.ts     | 6       | Todos pasando    |
+| payments.test.ts     | 11      | Todos pasando    |
 | reports.test.ts      | 6       | Todos pasando    |
 | services.test.ts     | 27      | Todos pasando    |
 | shifts.test.ts       | 12      | Todos pasando    |
 | tables.test.ts       | 18      | Todos pasando    |
 | validation.test.ts   | 9       | Todos pasando    |
 | whatsapp.test.ts     | 8       | Todos pasando    |
-| **Total backend**    | **164** | **100% pasando** |
+| audit.test.ts        | 5       | Todos pasando    |
+| events.test.ts       | 3       | Todos pasando    |
+| **Total backend**    | **186** | **100% pasando** |
 
-**Cobertura (v8, umbral en CI):** Statements **93.1%** · Branches **81.9%** ·
-Functions **95.7%** · Lines **93.1%** (thresholds: 80/65/80/80)
+**Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **86%** cliente
+(thresholds: 80/65/80/80).
 
-**Frontend (Vitest + Testing Library) — 25 tests:** App (3), AuthContext (4),
-CartContext (8), api client (7), MenuGrid (3).
+**Frontend (Vitest + Testing Library) — 156 tests:**
+Layout y routing (12), Menú y reservas (11), Contexts (13), Hooks (14),
+Admin (65), Páginas (13), Services (25), App (3).
+
+**Seguridad (suite aparte, `npm run test:security`) — 42 tests:** secrets,
+auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.
 
 **E2E (Playwright):** home, menú, auth, carrito + capturas para documentación
 (`npm run test:e2e:docs`).
