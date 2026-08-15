@@ -70,6 +70,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Removed
 
+- Documentación: eliminado `06-PLAN-IMPLEMENTACION.md` (plan de implementación y
+  seguimiento: bugs, roadmap, RICE, métricas). La estructura y funciones quedan en
+  `02-TRD.md` y `README.md`; eliminada también la sección de deuda técnica del TRD y
+  el bloque de estado real de CONTRIBUTING
 - Cliente: hooks muertos `useApi`, `useMenu`, `useOrders`, `useReservations` y su archivo
   de test (`src/hooks/useApi.*`), solo usados entre sí
 - Servidor: modelo `DailyReport` del schema Prisma (nunca escrito) — migración

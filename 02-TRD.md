@@ -8,7 +8,7 @@
 ![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
 ![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
 ![Autenticación](https://img.shields.io/badge/Auth-JWT%20%2B%20httpOnly-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-428%20Pasando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-436%20Pasando-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2099%25-brightgreen.svg)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
@@ -358,23 +358,6 @@ auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.
 | Dominio          | DNS + Let's Encrypt (Caddy)                              | Cloudflare + SSL                 |
 
 Ver [deploy/README.md](deploy/README.md) para la guía completa de despliegue.
-
----
-
-## 9. Technical Debt Conocido
-
-| #   | Deuda                                                                               | Prioridad | Esfuerzo |
-| --- | ----------------------------------------------------------------------------------- | --------- | -------- |
-| 1   | Hooks no usados (useMenu, useOrders, useReservations, useLocalStorage, useDebounce) | Baja      | 1h       |
-| 2   | Componentes UI definidos pero no adoptados (ui/index.tsx)                           | Media     | 4h       |
-| 3   | CartContext duplicado en MesaPage (MesaCartContext separado)                        | Baja      | 2h       |
-| 4   | Modelo DailyReport sin uso (nunca se escribe)                                       | Baja      | 15min    |
-| 5   | ~~Wompi solo como label~~ — resuelto: modo producción + proxy de transacciones      | ~~Alta~~  | ✅       |
-| 6   | ~~WhatsApp solo deep links~~ — resuelto: Business API con fallback a wa.me          | ~~Alta~~  | ✅       |
-| 7   | Social links stub (href="#")                                                        | Baja      | 30min    |
-| 8   | Charts CSS puros en reportes (sin librería)                                         | Media     | 4h       |
-| 9   | cleanupExpiredTokens() nunca llamado                                                | Media     | 1h       |
-| 10  | Sin paginación en listas (pedidos, reservas)                                        | Media     | 6h       |
 
 ---
 

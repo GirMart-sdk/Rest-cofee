@@ -432,11 +432,8 @@ npm audit fix
 | Integration | 60%              | `npm run test:integration` |
 | Security    | 100%             | `npm run test:security`    |
 
-> **Estado real (Agosto 2026)**: 436 tests pasando (189 backend + 205 frontend + 42 seguridad) —
-> cobertura servidor **92% líneas** / cliente **99% líneas**.
-> Los thresholds se aplican en `hostal-cofre/server/vitest.config.ts` y
-> `hostal-cofre/client/vitest.config.ts` y se verifican en CI (`npm run test:coverage`).
-> Además: suite E2E Playwright (`npm run test:e2e`).
+Los thresholds se aplican en `hostal-cofre/server/vitest.config.ts` y
+`hostal-cofre/client/vitest.config.ts` y se verifican en CI (`npm run test:coverage`).
 
 ### 8.2 Estructura de Tests
 
