@@ -1,8 +1,17 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
-  FiGrid, FiShoppingCart, FiClipboard, FiUsers, FiCalendar,
-  FiBarChart2, FiHome, FiX, FiLogOut, FiExternalLink, FiCoffee
+  FiGrid,
+  FiShoppingCart,
+  FiClipboard,
+  FiUsers,
+  FiCalendar,
+  FiBarChart2,
+  FiHome,
+  FiX,
+  FiLogOut,
+  FiExternalLink,
+  FiCoffee,
 } from 'react-icons/fi'
 
 const NAV_ITEMS = [
@@ -31,16 +40,13 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
   return (
     <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />}
 
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
-        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
           <Link to="/admin" className="flex items-center gap-2" onClick={onClose}>
             <span className="text-2xl font-display text-primary font-bold">Hostal</span>
@@ -56,7 +62,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
         <nav className="flex-1 overflow-y-auto py-4 px-3">
           <div className="space-y-1">
-            {NAV_ITEMS.map(item => {
+            {NAV_ITEMS.map((item) => {
               const Icon = item.icon
               const active = isActive(item.to, item.exact)
               return (

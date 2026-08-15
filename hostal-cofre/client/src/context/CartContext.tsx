@@ -57,12 +57,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addItem = useCallback((item: MenuItem) => {
-    setItems(prev => {
-      const existing = prev.find(ci => ci.menuItem.id === item.id)
+    setItems((prev) => {
+      const existing = prev.find((ci) => ci.menuItem.id === item.id)
       let newItems: CartItem[]
       if (existing) {
-        newItems = prev.map(ci =>
-          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
+        newItems = prev.map((ci) =>
+          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci,
         )
       } else {
         newItems = [...prev, { menuItem: item, quantity: 1 }]
@@ -74,26 +74,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const removeItem = useCallback((itemId: string) => {
-    setItems(prev => {
-      const newItems = prev.filter(ci => ci.menuItem.id !== itemId)
+    setItems((prev) => {
+      const newItems = prev.filter((ci) => ci.menuItem.id !== itemId)
       localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
       return newItems
     })
   }, [])
 
-  const updateQuantity = useCallback((itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(itemId)
-      return
-    }
-    setItems(prev => {
-      const newItems = prev.map(ci =>
-        ci.menuItem.id === itemId ? { ...ci, quantity } : ci
-      )
-      localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
-      return newItems
-    })
-  }, [removeItem])
+  const updateQuantity = useCallback(
+    (itemId: string, quantity: number) => {
+      if (quantity <= 0) {
+        removeItem(itemId)
+        return
+      }
+      setItems((prev) => {
+        const newItems = prev.map((ci) => (ci.menuItem.id === itemId ? { ...ci, quantity } : ci))
+        localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
+        return newItems
+      })
+    },
+    [removeItem],
+  )
 
   const clearCart = useCallback(() => {
     saveCart([])
@@ -105,7 +106,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const subtotal = items.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0)
   const itemCount = items.reduce((sum, ci) => sum + ci.quantity, 0)
-  const deliveryFeeValue = orderType === 'domicilio' && deliveryZone ? DELIVERY_FEES[deliveryZone] : 0
+  const deliveryFeeValue =
+    orderType === 'domicilio' && deliveryZone ? DELIVERY_FEES[deliveryZone] : 0
   const grandTotal = parseFloat((subtotal + deliveryFeeValue).toFixed(2))
 
   const handleSetOrderType = useCallback((type: OrderType) => {
@@ -114,13 +116,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <CartContext.Provider value={{
-      items, addItem, removeItem, updateQuantity, clearCart,
-      total: subtotal, itemCount,
-      orderType, setOrderType: handleSetOrderType,
-      deliveryZone, setDeliveryZone,
-      deliveryFee: deliveryFeeValue, grandTotal,
-    }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        total: subtotal,
+        itemCount,
+        orderType,
+        setOrderType: handleSetOrderType,
+        deliveryZone,
+        setDeliveryZone,
+        deliveryFee: deliveryFeeValue,
+        grandTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   )

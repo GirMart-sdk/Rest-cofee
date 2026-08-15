@@ -5,7 +5,13 @@ import { api } from '../../services/api'
 import { useCart } from '../../context/CartContext'
 import { FiMapPin, FiClock } from 'react-icons/fi'
 
-export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+export default function DeliveryForm({
+  onNext,
+  onBack,
+}: {
+  onNext: () => void
+  onBack: () => void
+}) {
   const { deliveryZone, setDeliveryZone } = useCart()
   const [zones, setZones] = useState<DeliveryZoneConfig[]>([])
   const [address, setAddress] = useState('')
@@ -13,8 +19,9 @@ export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; o
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/orders/zones')
-      .then(res => setZones(res.data.data))
+    api
+      .get('/orders/zones')
+      .then((res) => setZones(res.data.data))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -34,7 +41,11 @@ export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; o
   }
 
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="space-y-6"
+    >
       <div>
         <h3 className="text-xl font-display mb-4 flex items-center gap-2">
           <FiMapPin className="text-primary" /> Dirección de entrega
@@ -43,13 +54,13 @@ export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; o
           type="text"
           placeholder="Calle, número, barrio, referencias..."
           value={address}
-          onChange={e => setAddress(e.target.value)}
+          onChange={(e) => setAddress(e.target.value)}
           className="input-field"
         />
         <textarea
           placeholder="Indicaciones adicionales (optional): apartamento, punto de referencia, etc."
           value={deliveryNotes}
-          onChange={e => setDeliveryNotes(e.target.value)}
+          onChange={(e) => setDeliveryNotes(e.target.value)}
           className="input-field h-20 resize-none mt-3"
         />
       </div>
@@ -57,7 +68,7 @@ export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; o
       <div>
         <h3 className="text-xl font-display mb-4">Zona de entrega</h3>
         <div className="grid grid-cols-1 gap-3">
-          {zones.map(zone => (
+          {zones.map((zone) => (
             <button
               key={zone.name}
               onClick={() => setDeliveryZone(zone.name as DeliveryZoneType)}
@@ -68,9 +79,13 @@ export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; o
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  deliveryZone === zone.name ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
-                }`}>
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    deliveryZone === zone.name
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 text-gray-500'
+                  }`}
+                >
                   <FiMapPin size={18} />
                 </div>
                 <div>
@@ -90,7 +105,9 @@ export default function DeliveryForm({ onNext, onBack }: { onNext: () => void; o
       </div>
 
       <div className="flex gap-4 pt-4">
-        <button onClick={onBack} className="btn-outline flex-1">Volver</button>
+        <button onClick={onBack} className="btn-outline flex-1">
+          Volver
+        </button>
         <button
           onClick={handleContinue}
           disabled={!deliveryZone || !address.trim()}

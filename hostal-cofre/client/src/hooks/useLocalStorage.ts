@@ -10,11 +10,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     }
   })
 
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    const valueToStore = value instanceof Function ? value(storedValue) : value
-    setStoredValue(valueToStore)
-    window.localStorage.setItem(key, JSON.stringify(valueToStore))
-  }, [key, storedValue])
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      const valueToStore = value instanceof Function ? value(storedValue) : value
+      setStoredValue(valueToStore)
+      window.localStorage.setItem(key, JSON.stringify(valueToStore))
+    },
+    [key, storedValue],
+  )
 
   return [storedValue, setValue] as const
 }

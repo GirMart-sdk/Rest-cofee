@@ -42,23 +42,56 @@ export default function LoginPage() {
       >
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-display mb-2">{isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}</h1>
-            <p className="text-gray-500">{isRegister ? 'Regístrate para hacer pedidos' : 'Accede a tu cuenta'}</p>
+            <h1 className="text-3xl font-display mb-2">
+              {isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}
+            </h1>
+            <p className="text-gray-500">
+              {isRegister ? 'Regístrate para hacer pedidos' : 'Accede a tu cuenta'}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegister && (
-              <input type="text" placeholder="Nombre completo" value={name} onChange={e => setName(e.target.value)} className="input-field" required />
+              <input
+                type="text"
+                placeholder="Nombre completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input-field"
+                required
+              />
             )}
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="input-field" required />
-            <input type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)} className="input-field" required minLength={6} />
-            <button type="submit" disabled={loading} className="btn-primary w-full text-lg disabled:opacity-50">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-field"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input-field"
+              required
+              minLength={6}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full text-lg disabled:opacity-50"
+            >
               {loading ? 'Procesando...' : isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}
             </button>
           </form>
 
           <div className="text-center mt-6">
-            <button onClick={() => setIsRegister(!isRegister)} className="text-primary hover:underline font-semibold">
+            <button
+              onClick={() => setIsRegister(!isRegister)}
+              className="text-primary hover:underline font-semibold"
+            >
               {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
             </button>
           </div>

@@ -27,9 +27,8 @@ test.describe('Carrito', () => {
 
     await addButton.click()
 
-    await expect(
-      card.getByRole('button', { name: 'Añadido', exact: true })
-    ).toBeVisible()
+    const cartBadge = page.locator('nav').getByText('1', { exact: true }).first()
+    await expect(cartBadge).toBeVisible()
 
     await page.goto('/carrito')
     await expect(page.getByRole('heading', { name: /Tu Carrito/ })).toBeVisible()

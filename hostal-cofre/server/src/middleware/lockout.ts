@@ -16,7 +16,7 @@ export async function checkLockout(req: Request, res: Response, next: NextFuncti
     orderBy: { createdAt: 'desc' },
   })
 
-  const failedAttempts = recentAttempts.filter(a => !a.success)
+  const failedAttempts = recentAttempts.filter((a) => !a.success)
 
   if (failedAttempts.length >= config.lockout.maxAttempts) {
     const lastFailed = failedAttempts[0]

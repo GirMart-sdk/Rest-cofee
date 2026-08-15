@@ -19,9 +19,11 @@ test.describe('HomePage', () => {
     ).toBeVisible()
 
     const nav = page.locator('nav')
-    await expect(nav.getByRole('link', { name: 'Inicio', exact: true })).toBeVisible()
-    await expect(nav.getByRole('link', { name: 'Menú', exact: true })).toBeVisible()
-    await expect(nav.getByRole('link', { name: 'Reservas', exact: true })).toBeVisible()
+    const navLink = (name: string) =>
+      nav.getByRole('link', { name, exact: true }).filter({ visible: true }).first()
+    await expect(navLink('Inicio')).toBeVisible()
+    await expect(navLink('Menú')).toBeVisible()
+    await expect(navLink('Reservas')).toBeVisible()
 
     await expect(page.getByRole('link', { name: 'Ver Menú', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Reservar Mesa', exact: true })).toBeVisible()

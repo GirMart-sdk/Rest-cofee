@@ -15,16 +15,22 @@ export class ShiftService {
       orderBy: { openedAt: 'desc' },
     })
 
-    const shiftsLive = await Promise.all(shifts.map(async (shift) => {
-      const orders = await prisma.order.findMany({
-        where: { shiftId: shift.id, status: { not: 'cancelled' } },
-      })
-      const totalSales = orders.reduce((sum, o) => sum + o.total, 0)
-      const totalOrders = orders.length
-      const cashReceived = orders.filter(o => o.paymentMethod === 'cash').reduce((sum, o) => sum + o.total, 0)
-      const digitalTotal = orders.filter(o => o.paymentMethod !== 'cash').reduce((sum, o) => sum + o.total, 0)
-      return { ...shift, totalSales, totalOrders, cashReceived, digitalTotal }
-    }))
+    const shiftsLive = await Promise.all(
+      shifts.map(async (shift) => {
+        const orders = await prisma.order.findMany({
+          where: { shiftId: shift.id, status: { not: 'cancelled' } },
+        })
+        const totalSales = orders.reduce((sum, o) => sum + o.total, 0)
+        const totalOrders = orders.length
+        const cashReceived = orders
+          .filter((o) => o.paymentMethod === 'cash')
+          .reduce((sum, o) => sum + o.total, 0)
+        const digitalTotal = orders
+          .filter((o) => o.paymentMethod !== 'cash')
+          .reduce((sum, o) => sum + o.total, 0)
+        return { ...shift, totalSales, totalOrders, cashReceived, digitalTotal }
+      }),
+    )
 
     return shiftsLive
   }
@@ -38,7 +44,13 @@ export class ShiftService {
     return shift
   }
 
-  static async open(data: { userId: string; cashierName: string; shiftPeriod: string; openingCash: number; notes?: string }) {
+  static async open(data: {
+    userId: string
+    cashierName: string
+    shiftPeriod: string
+    openingCash: number
+    notes?: string
+  }) {
     return prisma.shift.create({
       data: {
         userId: data.userId,
@@ -63,8 +75,12 @@ export class ShiftService {
     })
 
     const totalSales = orders.reduce((sum, o) => sum + o.total, 0)
-    const cashReceived = orders.filter(o => o.paymentMethod === 'cash').reduce((sum, o) => sum + o.total, 0)
-    const digitalTotal = orders.filter(o => o.paymentMethod !== 'cash').reduce((sum, o) => sum + o.total, 0)
+    const cashReceived = orders
+      .filter((o) => o.paymentMethod === 'cash')
+      .reduce((sum, o) => sum + o.total, 0)
+    const digitalTotal = orders
+      .filter((o) => o.paymentMethod !== 'cash')
+      .reduce((sum, o) => sum + o.total, 0)
 
     return prisma.shift.update({
       where: { id },

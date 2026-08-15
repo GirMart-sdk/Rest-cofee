@@ -48,11 +48,17 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = []
 }
 
+const isAuthEndpoint = (url?: string) => !!url && url.includes('/auth/')
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint(originalRequest.url)
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })

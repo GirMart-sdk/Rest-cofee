@@ -28,18 +28,29 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   token se renueva vía `POST /api/auth/refresh` sin exponer el refresh token en `localStorage`
 - Cliente: pedidos en tiempo real vía SSE (`src/services/events.ts`) con indicador de
   conexión en el panel de gestión de pedidos
-- Suite de tests del cliente con Vitest (156 tests) y workflow de CI (lint + tests +
+- Suite de tests del cliente con Vitest (196 tests) y workflow de CI (lint + tests +
   coverage para server y cliente)
+- CI: `npm audit --audit-level=high` en lint-server y lint-client, acciones fijadas por SHA,
+  Node 22 y timeouts por job
 
 ### Changed
 
-- Cliente: subidos los umbrales de cobertura (statements/lines ≥ 52%, branches ≥ 70%)
-- Documentación: insignias actualizadas (384 tests, coverage server 92% / client 86%,
+- Cliente: subidos los umbrales de cobertura (statements/lines ≥ 95%, branches ≥ 90%,
+  functions ≥ 90%)
+- Dependencias: react-router-dom 6 → 7, Vite 5 → 6, Vitest 2 → 3, Express 4.19 → 4.22,
+  Prisma → 5.22 (server y cliente)
+- Servidor: el rate limiter global solo aplica a rutas `/api/`, dejando de contar las
+  peticiones de assets del dev server de Vite y de estáticos
+- Documentación: insignias actualizadas (384 tests, coverage server 92% / client 98%,
   42 tests de seguridad)
 
 ### Fixed
 
-- N/A
+- Cliente: el interceptor de `api` ya no intenta refrescar/redirigir en un 401 de
+  `/auth/login` (o `/auth/register`), evitando la recarga completa que ocultaba el toast
+  de "Credenciales incorrectas"
+- E2E: `home.spec.ts` resuelve el nav duplicado (escritorio + móvil) y `cart.spec.ts`
+  ya no depende del estado transitorio "Añadido", evitando flakiness bajo carga
 
 ---
 

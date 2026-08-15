@@ -47,7 +47,8 @@ export interface Table {
 
 export type OrderType = 'domicilio' | 'tienda' | 'mesa'
 export type DeliveryZoneType = 'centro' | 'periurbano' | 'lejano'
-export type OrderStatusType = 'pending' | 'preparing' | 'ready' | 'out_for_delivery' | 'delivered' | 'cancelled'
+export type OrderStatusType =
+  'pending' | 'preparing' | 'ready' | 'out_for_delivery' | 'delivered' | 'cancelled'
 
 export interface DeliveryZoneConfig {
   name: string
@@ -80,7 +81,10 @@ export interface Order {
 
 export type ShiftPeriod = 'manana' | 'medio_dia' | 'tarde' | 'noche'
 
-export const SHIFT_PERIOD_LABELS: Record<ShiftPeriod, { label: string; hours: string; color: string }> = {
+export const SHIFT_PERIOD_LABELS: Record<
+  ShiftPeriod,
+  { label: string; hours: string; color: string }
+> = {
   manana: { label: 'Mañana', hours: '6:00 - 12:00', color: 'bg-yellow-100 text-yellow-700' },
   medio_dia: { label: 'Medio Día', hours: '12:00 - 16:00', color: 'bg-orange-100 text-orange-700' },
   tarde: { label: 'Tarde', hours: '16:00 - 20:00', color: 'bg-blue-100 text-blue-700' },

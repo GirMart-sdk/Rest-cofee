@@ -32,20 +32,32 @@ export function useMenu() {
   const { data: items, loading, execute } = useApi<any[]>()
 
   const fetchMenu = useCallback(() => {
-    return execute(() => api.get('/menu').then(res => res.data.data))
+    return execute(() => api.get('/menu').then((res) => res.data.data))
   }, [execute])
 
-  const createItem = useCallback((item: any) => {
-    return execute(() => api.post('/menu', item).then(res => res.data.data), 'Item created')
-  }, [execute])
+  const createItem = useCallback(
+    (item: any) => {
+      return execute(() => api.post('/menu', item).then((res) => res.data.data), 'Item created')
+    },
+    [execute],
+  )
 
-  const updateItem = useCallback((id: string, item: any) => {
-    return execute(() => api.put(`/menu/${id}`, item).then(res => res.data.data), 'Item updated')
-  }, [execute])
+  const updateItem = useCallback(
+    (id: string, item: any) => {
+      return execute(
+        () => api.put(`/menu/${id}`, item).then((res) => res.data.data),
+        'Item updated',
+      )
+    },
+    [execute],
+  )
 
-  const deleteItem = useCallback((id: string) => {
-    return execute(() => api.delete(`/menu/${id}`).then(res => res.data.data), 'Item deleted')
-  }, [execute])
+  const deleteItem = useCallback(
+    (id: string) => {
+      return execute(() => api.delete(`/menu/${id}`).then((res) => res.data.data), 'Item deleted')
+    },
+    [execute],
+  )
 
   return { items, loading, fetchMenu, createItem, updateItem, deleteItem }
 }
@@ -54,20 +66,35 @@ export function useOrders() {
   const { data: orders, loading, execute } = useApi<any[]>()
 
   const fetchOrders = useCallback(() => {
-    return execute(() => api.get('/orders').then(res => res.data.data))
+    return execute(() => api.get('/orders').then((res) => res.data.data))
   }, [execute])
 
-  const createOrder = useCallback((order: any) => {
-    return execute(() => api.post('/orders', order).then(res => res.data.data), 'Order placed')
-  }, [execute])
+  const createOrder = useCallback(
+    (order: any) => {
+      return execute(() => api.post('/orders', order).then((res) => res.data.data), 'Order placed')
+    },
+    [execute],
+  )
 
-  const updateStatus = useCallback((id: string, status: string) => {
-    return execute(() => api.patch(`/orders/${id}/status`, { status }).then(res => res.data.data), 'Status updated')
-  }, [execute])
+  const updateStatus = useCallback(
+    (id: string, status: string) => {
+      return execute(
+        () => api.patch(`/orders/${id}/status`, { status }).then((res) => res.data.data),
+        'Status updated',
+      )
+    },
+    [execute],
+  )
 
-  const updatePayment = useCallback((id: string, paymentStatus: string) => {
-    return execute(() => api.patch(`/orders/${id}/payment`, { paymentStatus }).then(res => res.data.data), 'Payment updated')
-  }, [execute])
+  const updatePayment = useCallback(
+    (id: string, paymentStatus: string) => {
+      return execute(
+        () => api.patch(`/orders/${id}/payment`, { paymentStatus }).then((res) => res.data.data),
+        'Payment updated',
+      )
+    },
+    [execute],
+  )
 
   return { orders, loading, fetchOrders, createOrder, updateStatus, updatePayment }
 }
@@ -76,16 +103,28 @@ export function useReservations() {
   const { data: reservations, loading, execute } = useApi<any[]>()
 
   const fetchReservations = useCallback(() => {
-    return execute(() => api.get('/reservations').then(res => res.data.data))
+    return execute(() => api.get('/reservations').then((res) => res.data.data))
   }, [execute])
 
-  const createReservation = useCallback((reservation: any) => {
-    return execute(() => api.post('/reservations', reservation).then(res => res.data.data), 'Reservation created')
-  }, [execute])
+  const createReservation = useCallback(
+    (reservation: any) => {
+      return execute(
+        () => api.post('/reservations', reservation).then((res) => res.data.data),
+        'Reservation created',
+      )
+    },
+    [execute],
+  )
 
-  const updateStatus = useCallback((id: string, status: string) => {
-    return execute(() => api.patch(`/reservations/${id}/status`, { status }).then(res => res.data.data), 'Status updated')
-  }, [execute])
+  const updateStatus = useCallback(
+    (id: string, status: string) => {
+      return execute(
+        () => api.patch(`/reservations/${id}/status`, { status }).then((res) => res.data.data),
+        'Status updated',
+      )
+    },
+    [execute],
+  )
 
   return { reservations, loading, fetchReservations, createReservation, updateStatus }
 }

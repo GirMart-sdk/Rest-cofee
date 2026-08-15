@@ -23,21 +23,27 @@ function MesaCartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
 
   const addItem = (item: MenuItem) => {
-    setItems(prev => {
-      const existing = prev.find(ci => ci.menuItem.id === item.id)
-      if (existing) return prev.map(ci => ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci)
+    setItems((prev) => {
+      const existing = prev.find((ci) => ci.menuItem.id === item.id)
+      if (existing)
+        return prev.map((ci) =>
+          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci,
+        )
       return [...prev, { menuItem: item, quantity: 1 }]
     })
     toast.success(`${item.name} añadido`)
   }
 
   const removeItem = (itemId: string) => {
-    setItems(prev => prev.filter(ci => ci.menuItem.id !== itemId))
+    setItems((prev) => prev.filter((ci) => ci.menuItem.id !== itemId))
   }
 
   const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) { removeItem(itemId); return }
-    setItems(prev => prev.map(ci => ci.menuItem.id === itemId ? { ...ci, quantity } : ci))
+    if (quantity <= 0) {
+      removeItem(itemId)
+      return
+    }
+    setItems((prev) => prev.map((ci) => (ci.menuItem.id === itemId ? { ...ci, quantity } : ci)))
   }
 
   const clearCart = () => setItems([])
@@ -45,7 +51,9 @@ function MesaCartProvider({ children }: { children: ReactNode }) {
   const itemCount = items.reduce((sum, ci) => sum + ci.quantity, 0)
 
   return (
-    <MesaCartContext.Provider value={{ items, addItem, removeItem, updateQuantity, total, itemCount, clearCart }}>
+    <MesaCartContext.Provider
+      value={{ items, addItem, removeItem, updateQuantity, total, itemCount, clearCart }}
+    >
       {children}
     </MesaCartContext.Provider>
   )
@@ -73,13 +81,15 @@ function MesaMenuGrid() {
   const { addItem } = useMesaCart()
 
   useEffect(() => {
-    api.get('/menu')
-      .then(res => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
+    api
+      .get('/menu')
+      .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = activeCategory === 'all' ? menuItems : menuItems.filter(m => m.category === activeCategory)
+  const filtered =
+    activeCategory === 'all' ? menuItems : menuItems.filter((m) => m.category === activeCategory)
 
   if (loading) {
     return (
@@ -93,12 +103,14 @@ function MesaMenuGrid() {
   return (
     <div>
       <div className="flex flex-wrap justify-center gap-2 mb-6">
-        {CATEGORIES.map(c => (
+        {CATEGORIES.map((c) => (
           <button
             key={c.key}
             onClick={() => setActiveCategory(c.key)}
             className={`px-4 py-2 rounded-full font-semibold text-sm transition-all ${
-              activeCategory === c.key ? 'bg-primary text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              activeCategory === c.key
+                ? 'bg-primary text-white shadow-lg'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {c.label}
@@ -107,8 +119,12 @@ function MesaMenuGrid() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {filtered.map(item => (
-          <motion.div key={item.id} layout className="bg-white rounded-xl shadow-md overflow-hidden">
+        {filtered.map((item) => (
+          <motion.div
+            key={item.id}
+            layout
+            className="bg-white rounded-xl shadow-md overflow-hidden"
+          >
             <img src={item.image} alt={item.name} className="w-full h-28 object-cover" />
             <div className="p-3">
               <h3 className="font-semibold text-sm mb-1 line-clamp-1">{item.name}</h3>
@@ -149,14 +165,22 @@ function MesaCart() {
       await api.post('/orders/table', {
         customerName: user?.name || `Mesa ${tableNumber}`,
         customerPhone: user?.email || '',
-        items: items.map(i => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
+        items: items.map((i) => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
         paymentMethod: 'cash',
         tableNumber,
       })
 
-      const summary = items.map(i => `${i.quantity}x ${i.menuItem.name} - $${(i.menuItem.price * i.quantity).toFixed(0)}`).join('\n')
+      const summary = items
+        .map(
+          (i) =>
+            `${i.quantity}x ${i.menuItem.name} - $${(i.menuItem.price * i.quantity).toFixed(0)}`,
+        )
+        .join('\n')
       const whatsappPhone = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
-      whatsappService.sendOrder(whatsappPhone, `Mesa #${tableNumber}\n\n${summary}\n\n*Total: $${total.toFixed(2)}*`)
+      whatsappService.sendOrder(
+        whatsappPhone,
+        `Mesa #${tableNumber}\n\n${summary}\n\n*Total: $${total.toFixed(2)}*`,
+      )
 
       toast.success('Pedido enviado a la cocina')
       clearCart()
@@ -172,27 +196,40 @@ function MesaCart() {
     <div className="bg-white rounded-xl shadow-md p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-display text-lg">Tu Pedido</h3>
-        <span className="bg-primary text-white text-xs px-2 py-1 rounded-full font-bold">{itemCount}</span>
+        <span className="bg-primary text-white text-xs px-2 py-1 rounded-full font-bold">
+          {itemCount}
+        </span>
       </div>
 
       <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-        {items.map(ci => (
+        {items.map((ci) => (
           <div key={ci.menuItem.id} className="flex items-center gap-3">
             <div className="flex-1">
               <p className="font-semibold text-sm">{ci.menuItem.name}</p>
               <p className="text-primary text-xs font-bold">${ci.menuItem.price} c/u</p>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => updateQuantity(ci.menuItem.id, ci.quantity - 1)} className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+              <button
+                onClick={() => updateQuantity(ci.menuItem.id, ci.quantity - 1)}
+                className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center"
+              >
                 <FiMinus size={10} />
               </button>
               <span className="w-6 text-center text-sm font-bold">{ci.quantity}</span>
-              <button onClick={() => updateQuantity(ci.menuItem.id, ci.quantity + 1)} className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+              <button
+                onClick={() => updateQuantity(ci.menuItem.id, ci.quantity + 1)}
+                className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center"
+              >
                 <FiPlus size={10} />
               </button>
             </div>
-            <p className="font-bold text-sm w-16 text-right">${(ci.menuItem.price * ci.quantity).toFixed(0)}</p>
-            <button onClick={() => removeItem(ci.menuItem.id)} className="text-gray-400 hover:text-red-500">
+            <p className="font-bold text-sm w-16 text-right">
+              ${(ci.menuItem.price * ci.quantity).toFixed(0)}
+            </p>
+            <button
+              onClick={() => removeItem(ci.menuItem.id)}
+              className="text-gray-400 hover:text-red-500"
+            >
               <FiTrash2 size={14} />
             </button>
           </div>
@@ -207,16 +244,40 @@ function MesaCart() {
       </div>
 
       {!showConfirm ? (
-        <button onClick={() => setShowConfirm(true)} className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+        <button
+          onClick={() => setShowConfirm(true)}
+          className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+        >
           Enviar Pedido a Cocina
         </button>
       ) : (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-green-50 rounded-lg p-4">
-          <p className="text-sm text-green-700 mb-3 text-center">¿Confirmar pedido para Mesa #{tableNumber}?</p>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-green-50 rounded-lg p-4"
+        >
+          <p className="text-sm text-green-700 mb-3 text-center">
+            ¿Confirmar pedido para Mesa #{tableNumber}?
+          </p>
           <div className="flex gap-2">
-            <button onClick={() => setShowConfirm(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-semibold">Cancelar</button>
-            <button onClick={handleOrder} disabled={submitting} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-1">
-              {submitting ? 'Enviando...' : <><FiCheck size={14} /> Confirmar</>}
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-semibold"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleOrder}
+              disabled={submitting}
+              className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-1"
+            >
+              {submitting ? (
+                'Enviando...'
+              ) : (
+                <>
+                  <FiCheck size={14} /> Confirmar
+                </>
+              )}
             </button>
           </div>
         </motion.div>

@@ -20,7 +20,12 @@ export default function AdminLayout() {
           </button>
           <div className="flex-1" />
           <div className="text-sm text-gray-500 hidden sm:block">
-            {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {new Date().toLocaleDateString('es-CO', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </div>
         </header>
 

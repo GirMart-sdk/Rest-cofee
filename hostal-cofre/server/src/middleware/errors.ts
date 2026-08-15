@@ -32,13 +32,11 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
       message: err.message,
       details: err.details,
     })
-    return res
-      .status(err.statusCode)
-      .json({
-        success: false,
-        error: err.message,
-        ...(err.details ? { details: err.details } : {}),
-      })
+    return res.status(err.statusCode).json({
+      success: false,
+      error: err.message,
+      ...(err.details ? { details: err.details } : {}),
+    })
   }
 
   logger.error('unhandled error', {

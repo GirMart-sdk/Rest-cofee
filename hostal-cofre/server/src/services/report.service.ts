@@ -21,11 +21,15 @@ export class ReportService {
 
     const totalSales = orders.reduce((sum, o) => sum + o.total, 0)
     const totalOrders = orders.length
-    const cashSales = orders.filter(o => o.paymentMethod === 'cash').reduce((sum, o) => sum + o.total, 0)
-    const digitalSales = orders.filter(o => o.paymentMethod !== 'cash').reduce((sum, o) => sum + o.total, 0)
-    const deliveryOrders = orders.filter(o => o.orderType === 'domicilio').length
-    const dineInOrders = orders.filter(o => o.orderType === 'mesa').length
-    const posOrders = orders.filter(o => o.orderType === 'tienda').length
+    const cashSales = orders
+      .filter((o) => o.paymentMethod === 'cash')
+      .reduce((sum, o) => sum + o.total, 0)
+    const digitalSales = orders
+      .filter((o) => o.paymentMethod !== 'cash')
+      .reduce((sum, o) => sum + o.total, 0)
+    const deliveryOrders = orders.filter((o) => o.orderType === 'domicilio').length
+    const dineInOrders = orders.filter((o) => o.orderType === 'mesa').length
+    const posOrders = orders.filter((o) => o.orderType === 'tienda').length
 
     const itemCounts: Record<string, { name: string; count: number; revenue: number }> = {}
     for (const order of orders) {
@@ -54,27 +58,33 @@ export class ReportService {
       },
     })
 
-    const shiftsLive = await Promise.all(shifts.map(async (s) => {
-      const shiftOrders = orders.filter(o => o.shiftId === s.id)
-      const totalSales = shiftOrders.reduce((sum, o) => sum + o.total, 0)
-      const totalOrders = shiftOrders.length
-      const cashReceived = shiftOrders.filter(o => o.paymentMethod === 'cash').reduce((sum, o) => sum + o.total, 0)
-      const digitalTotal = shiftOrders.filter(o => o.paymentMethod !== 'cash').reduce((sum, o) => sum + o.total, 0)
-      return {
-        id: s.id,
-        cashier: s.cashierName,
-        shiftPeriod: s.shiftPeriod,
-        openingCash: s.openingCash,
-        closingCash: s.closingCash,
-        totalSales: s.status === 'closed' ? s.totalSales : totalSales,
-        totalOrders: s.status === 'closed' ? s.totalOrders : totalOrders,
-        cashReceived: s.status === 'closed' ? s.cashReceived : cashReceived,
-        digitalTotal: s.status === 'closed' ? s.digitalTotal : digitalTotal,
-        status: s.status,
-        openedAt: s.openedAt,
-        closedAt: s.closedAt,
-      }
-    }))
+    const shiftsLive = await Promise.all(
+      shifts.map(async (s) => {
+        const shiftOrders = orders.filter((o) => o.shiftId === s.id)
+        const totalSales = shiftOrders.reduce((sum, o) => sum + o.total, 0)
+        const totalOrders = shiftOrders.length
+        const cashReceived = shiftOrders
+          .filter((o) => o.paymentMethod === 'cash')
+          .reduce((sum, o) => sum + o.total, 0)
+        const digitalTotal = shiftOrders
+          .filter((o) => o.paymentMethod !== 'cash')
+          .reduce((sum, o) => sum + o.total, 0)
+        return {
+          id: s.id,
+          cashier: s.cashierName,
+          shiftPeriod: s.shiftPeriod,
+          openingCash: s.openingCash,
+          closingCash: s.closingCash,
+          totalSales: s.status === 'closed' ? s.totalSales : totalSales,
+          totalOrders: s.status === 'closed' ? s.totalOrders : totalOrders,
+          cashReceived: s.status === 'closed' ? s.cashReceived : cashReceived,
+          digitalTotal: s.status === 'closed' ? s.digitalTotal : digitalTotal,
+          status: s.status,
+          openedAt: s.openedAt,
+          closedAt: s.closedAt,
+        }
+      }),
+    )
 
     return {
       date: start.toISOString().split('T')[0],
@@ -89,10 +99,12 @@ export class ReportService {
         averageTicket: totalOrders > 0 ? parseFloat((totalSales / totalOrders).toFixed(2)) : 0,
       },
       topItems,
-      hourlySales: Object.entries(hourlySales).map(([hour, sales]) => ({
-        hour: parseInt(hour),
-        sales: parseFloat((sales as number).toFixed(2)),
-      })).sort((a, b) => a.hour - b.hour),
+      hourlySales: Object.entries(hourlySales)
+        .map(([hour, sales]) => ({
+          hour: parseInt(hour),
+          sales: parseFloat((sales as number).toFixed(2)),
+        }))
+        .sort((a, b) => a.hour - b.hour),
       shifts: shiftsLive,
     }
   }
@@ -119,11 +131,13 @@ export class ReportService {
     return {
       totalSales: orders.reduce((sum, o) => sum + o.total, 0),
       totalOrders: orders.length,
-      dailyBreakdown: Object.entries(dailyData).map(([date, data]) => ({
-        date,
-        sales: parseFloat((data.sales as number).toFixed(2)),
-        count: data.count as number,
-      })).sort((a, b) => a.date.localeCompare(b.date)),
+      dailyBreakdown: Object.entries(dailyData)
+        .map(([date, data]) => ({
+          date,
+          sales: parseFloat((data.sales as number).toFixed(2)),
+          count: data.count as number,
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date)),
     }
   }
 }

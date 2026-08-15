@@ -27,7 +27,7 @@ export class TableService {
       },
     })
 
-    return tables.map(table => ({
+    return tables.map((table) => ({
       ...table,
       isOccupied: table.orders.length > 0,
       activeOrderCount: table.orders.length,
@@ -62,13 +62,17 @@ export class TableService {
     })
   }
 
-  static async update(id: string, data: Partial<{ number: number; capacity: number; zone: string }>) {
+  static async update(
+    id: string,
+    data: Partial<{ number: number; capacity: number; zone: string }>,
+  ) {
     const table = await prisma.table.findUnique({ where: { id } })
     if (!table) throw Object.assign(new Error('Table not found'), { statusCode: 404 })
 
     if (data.number && data.number !== table.number) {
       const existing = await prisma.table.findUnique({ where: { number: data.number } })
-      if (existing) throw Object.assign(new Error('Table number already exists'), { statusCode: 400 })
+      if (existing)
+        throw Object.assign(new Error('Table number already exists'), { statusCode: 400 })
     }
 
     return prisma.table.update({
@@ -90,8 +94,12 @@ export class TableService {
       },
     })
     if (!table) throw Object.assign(new Error('Table not found'), { statusCode: 404 })
-    if (table.orders.length > 0) throw Object.assign(new Error('Cannot delete table with active orders'), { statusCode: 400 })
-    if (table.reservations.length > 0) throw Object.assign(new Error('Cannot delete table with active reservations'), { statusCode: 400 })
+    if (table.orders.length > 0)
+      throw Object.assign(new Error('Cannot delete table with active orders'), { statusCode: 400 })
+    if (table.reservations.length > 0)
+      throw Object.assign(new Error('Cannot delete table with active reservations'), {
+        statusCode: 400,
+      })
 
     return prisma.table.delete({ where: { id } })
   }

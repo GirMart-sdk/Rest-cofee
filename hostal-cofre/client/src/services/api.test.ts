@@ -124,6 +124,15 @@ describe('api client', () => {
     ).rejects.toBeDefined()
   })
 
+  it('does not trigger the refresh flow for auth endpoint 401s (e.g. failed login)', async () => {
+    const originalConfig = { url: '/api/auth/login', headers: {} }
+    await expect(
+      mock.state.onRejected!({ response: { status: 401 }, config: originalConfig }),
+    ).rejects.toBeDefined()
+    expect(mock.mockRefreshPost).not.toHaveBeenCalled()
+    expect(location.href).toBe('')
+  })
+
   it('redirects to login when the refresh fails to produce a token', async () => {
     localStorage.setItem(TOKEN_KEY, 'old-token')
     mock.mockRefreshPost.mockResolvedValue({ data: { data: {} } })

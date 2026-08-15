@@ -35,6 +35,7 @@ async function main() {
     max: config.nodeEnv === 'production' ? 100 : 1000,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => !req.path.startsWith('/api/'),
   })
 
   if (config.nodeEnv === 'production') {

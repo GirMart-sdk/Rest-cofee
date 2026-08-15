@@ -26,7 +26,9 @@ function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => { setIsOpen(false) }, [location])
+  useEffect(() => {
+    setIsOpen(false)
+  }, [location])
 
   const links = [
     { to: '/', label: 'Inicio' },
@@ -35,7 +37,9 @@ function Navbar() {
   ]
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md shadow-xl' : 'bg-transparent'}`}>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md shadow-xl' : 'bg-transparent'}`}
+    >
       <div className="container-main flex items-center justify-between h-20">
         <Link to="/" className="flex items-center gap-2">
           <span className="text-3xl font-display text-primary font-bold">Hostal</span>
@@ -43,9 +47,12 @@ function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {links.map(l => (
-            <Link key={l.to} to={l.to}
-              className={`text-white/80 hover:text-white font-semibold transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 ${location.pathname === l.to ? 'text-white after:w-full' : 'after:w-0 hover:after:w-full'}`}>
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className={`text-white/80 hover:text-white font-semibold transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 ${location.pathname === l.to ? 'text-white after:w-full' : 'after:w-0 hover:after:w-full'}`}
+            >
               {l.label}
             </Link>
           ))}
@@ -63,7 +70,10 @@ function Navbar() {
           {user ? (
             <div className="flex items-center gap-3">
               {isAdmin && (
-                <Link to="/admin" className="text-white/80 hover:text-gold transition-colors text-sm font-semibold">
+                <Link
+                  to="/admin"
+                  className="text-white/80 hover:text-gold transition-colors text-sm font-semibold"
+                >
                   Panel Admin
                 </Link>
               )}
@@ -93,21 +103,34 @@ function Navbar() {
         </div>
       </div>
 
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
         <div className="bg-black/95 backdrop-blur-md border-t border-white/10 px-4 py-6 flex flex-col gap-4">
-          {links.map(l => (
-            <Link key={l.to} to={l.to}
-              className={`text-white/80 hover:text-white font-semibold py-2 transition-colors ${location.pathname === l.to ? 'text-white' : ''}`}>
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className={`text-white/80 hover:text-white font-semibold py-2 transition-colors ${location.pathname === l.to ? 'text-white' : ''}`}
+            >
               {l.label}
             </Link>
           ))}
           {user ? (
             <>
-              {isAdmin && <Link to="/admin" className="text-gold font-semibold py-2">Panel Admin</Link>}
-              <button onClick={logout} className="text-white/60 hover:text-white text-left py-2">Cerrar Sesión</button>
+              {isAdmin && (
+                <Link to="/admin" className="text-gold font-semibold py-2">
+                  Panel Admin
+                </Link>
+              )}
+              <button onClick={logout} className="text-white/60 hover:text-white text-left py-2">
+                Cerrar Sesión
+              </button>
             </>
           ) : (
-            <Link to="/login" className="text-white/80 hover:text-white font-semibold py-2">Iniciar Sesión</Link>
+            <Link to="/login" className="text-white/80 hover:text-white font-semibold py-2">
+              Iniciar Sesión
+            </Link>
           )}
         </div>
       </div>

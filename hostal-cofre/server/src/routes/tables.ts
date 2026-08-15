@@ -24,10 +24,16 @@ const createTableSchema = z.object({
   }),
 })
 
-router.post('/', authenticate, requireAdmin, validate(createTableSchema), async (req: AuthRequest, res: Response) => {
-  const table = await TableService.create(req.body)
-  res.status(201).json({ success: true, data: table })
-})
+router.post(
+  '/',
+  authenticate,
+  requireAdmin,
+  validate(createTableSchema),
+  async (req: AuthRequest, res: Response) => {
+    const table = await TableService.create(req.body)
+    res.status(201).json({ success: true, data: table })
+  },
+)
 
 const updateTableSchema = z.object({
   params: z.object({ id: z.string().cuid('Invalid table ID') }),
@@ -38,19 +44,31 @@ const updateTableSchema = z.object({
   }),
 })
 
-router.put('/:id', authenticate, requireAdmin, validate(updateTableSchema), async (req: AuthRequest, res: Response) => {
-  const table = await TableService.update(req.params.id, req.body)
-  res.json({ success: true, data: table })
-})
+router.put(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  validate(updateTableSchema),
+  async (req: AuthRequest, res: Response) => {
+    const table = await TableService.update(req.params.id, req.body)
+    res.json({ success: true, data: table })
+  },
+)
 
 const deleteTableSchema = z.object({
   params: z.object({ id: z.string().cuid('Invalid table ID') }),
 })
 
-router.delete('/:id', authenticate, requireAdmin, validate(deleteTableSchema), async (req: AuthRequest, res: Response) => {
-  await TableService.delete(req.params.id)
-  res.status(204).send()
-})
+router.delete(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  validate(deleteTableSchema),
+  async (req: AuthRequest, res: Response) => {
+    await TableService.delete(req.params.id)
+    res.status(204).send()
+  },
+)
 
 router.get('/:number', async (req: AuthRequest, res: Response) => {
   const table = await TableService.getByNumber(parseInt(req.params.number))
