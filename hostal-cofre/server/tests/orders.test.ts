@@ -1,6 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import request from 'supertest'
-import { createTestApp, createUser, createMenuItem, createTable, generateToken, cleanupData, prisma } from './helpers.js'
+import {
+  createTestApp,
+  createUser,
+  createMenuItem,
+  createTable,
+  generateToken,
+  cleanupData,
+  prisma,
+} from './helpers.js'
 import { errorHandler } from '../src/middleware/errors.js'
 
 let app: ReturnType<typeof createTestApp>
@@ -58,14 +66,12 @@ describe('POST /api/orders', () => {
   })
 
   it('should reject empty items', async () => {
-    const res = await request(app)
-      .post('/api/orders')
-      .send({
-        customerName: 'John Doe',
-        customerPhone: '3001234567',
-        paymentMethod: 'cash',
-        items: [],
-      })
+    const res = await request(app).post('/api/orders').send({
+      customerName: 'John Doe',
+      customerPhone: '3001234567',
+      paymentMethod: 'cash',
+      items: [],
+    })
     expect(res.status).toBe(400)
   })
 
@@ -117,16 +123,54 @@ describe('GET /api/orders', () => {
   it('should return orders for authenticated user', async () => {
     const { user } = await createUser('admin')
     const token = generateToken(user)
-    const res = await request(app)
-      .get('/api/orders')
-      .set('Authorization', `Bearer ${token}`)
+    const res = await request(app).get('/api/orders').set('Authorization', `Bearer ${token}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.data)).toBe(true)
+    expect(res.body.pagination).toMatchObject({ page: 1, limit: 50, totalPages: 1 })
   })
 
   it('should reject without auth', async () => {
     const res = await request(app).get('/api/orders')
     expect(res.status).toBe(401)
+  })
+
+  it('should paginate orders', async () => {
+    const { user } = await createUser('admin')
+    const token = generateToken(user)
+    const menuItem = await createMenuItem()
+    for (let i = 0; i < 3; i++) {
+      await request(app)
+        .post('/api/orders')
+        .send({
+          customerName: `Cliente ${i}`,
+          customerPhone: '3001234567',
+          paymentMethod: 'cash',
+          items: [{ menuItemId: menuItem.id, quantity: 1 }],
+        })
+    }
+    const res = await request(app)
+      .get('/api/orders?page=1&limit=2')
+      .set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(200)
+    expect(res.body.data).toHaveLength(2)
+    expect(res.body.pagination).toMatchObject({ page: 1, limit: 2, total: 3, totalPages: 2 })
+
+    const page2 = await request(app)
+      .get('/api/orders?page=2&limit=2')
+      .set('Authorization', `Bearer ${token}`)
+    expect(page2.status).toBe(200)
+    expect(page2.body.data).toHaveLength(1)
+    expect(page2.body.pagination.page).toBe(2)
+  })
+
+  it('should cap the limit at 100', async () => {
+    const { user } = await createUser('admin')
+    const token = generateToken(user)
+    const res = await request(app)
+      .get('/api/orders?limit=9999')
+      .set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(200)
+    expect(res.body.pagination.limit).toBe(100)
   })
 })
 

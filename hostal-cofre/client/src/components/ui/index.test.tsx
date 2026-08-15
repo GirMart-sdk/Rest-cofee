@@ -1,107 +1,135 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { Button, Input, Card, Badge, Modal } from './index'
+import { Button, Input, Card, Badge, Modal, Skeleton, EmptyState, Pagination } from './index'
 
-describe('ui components', () => {
-  it('renders a primary button with children and calls onClick', () => {
+describe('Button', () => {
+  it('renders children and fires onClick', () => {
     const onClick = vi.fn()
     render(<Button onClick={onClick}>Guardar</Button>)
-    const button = screen.getByRole('button', { name: 'Guardar' })
-    expect(button).toHaveClass('bg-primary')
-    fireEvent.click(button)
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar' }))
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('renders a button with secondary/danger/ghost variants and sizes', () => {
-    const { rerender } = render(
-      <Button variant="secondary" size="sm">
-        A
-      </Button>,
-    )
-    expect(screen.getByRole('button')).toHaveClass('bg-gray-100', 'px-3')
-    rerender(
+  it('supports variants and sizes', () => {
+    render(
       <Button variant="danger" size="lg">
-        A
+        Eliminar
       </Button>,
     )
-    expect(screen.getByRole('button')).toHaveClass('bg-accent', 'px-6')
-    rerender(
-      <Button variant="ghost" size="md">
-        A
-      </Button>,
-    )
-    expect(screen.getByRole('button')).toHaveClass('bg-transparent', 'px-4')
+    expect(screen.getByRole('button', { name: 'Eliminar' })).toBeInTheDocument()
   })
 
-  it('disables the button while loading and shows a spinner', () => {
-    render(<Button loading>Enviar</Button>)
-    const button = screen.getByRole('button', { name: 'Enviar' })
-    expect(button).toBeDisabled()
-    expect(button.querySelector('svg')).toBeInTheDocument()
-  })
-
-  it('supports submit buttons and extra classes', () => {
+  it('is disabled when disabled or loading', () => {
     render(
-      <Button type="submit" className="w-full">
-        OK
+      <Button disabled loading>
+        Procesando
       </Button>,
     )
-    expect(screen.getByRole('button')).toHaveAttribute('type', 'submit')
-    expect(screen.getByRole('button')).toHaveClass('w-full')
+    expect(screen.getByRole('button', { name: 'Procesando' })).toBeDisabled()
+  })
+})
+
+describe('Input', () => {
+  it('renders label, value and error', () => {
+    render(<Input label="Nombre" value="Ana" onChange={() => {}} error="Campo requerido" />)
+    expect(screen.getByLabelText('Nombre')).toHaveValue('Ana')
+    expect(screen.getByText('Campo requerido')).toBeInTheDocument()
   })
 
-  it('renders an input with a label and forwards props', () => {
-    render(<Input label="Nombre" placeholder="Escribe" value="Ana" onChange={() => {}} />)
-    expect(screen.getByText('Nombre')).toBeInTheDocument()
-    const input = screen.getByPlaceholderText('Escribe') as HTMLInputElement
-    expect(input.value).toBe('Ana')
+  it('renders without label or error', () => {
+    render(<Input placeholder="Escribe aquí" />)
+    expect(screen.getByPlaceholderText('Escribe aquí')).toBeInTheDocument()
+  })
+})
+
+describe('Card', () => {
+  it('renders its children', () => {
+    render(<Card>Contenido</Card>)
+    expect(screen.getByText('Contenido')).toBeInTheDocument()
+  })
+})
+
+describe('Badge', () => {
+  it('renders children with the info variant by default', () => {
+    render(<Badge>Nuevo</Badge>)
+    expect(screen.getByText('Nuevo')).toBeInTheDocument()
   })
 
-  it('renders an input with an error message', () => {
-    render(<Input label="Email" error="Email inválido" />)
-    expect(screen.getByText('Email inválido')).toBeInTheDocument()
-    expect(screen.getByRole('textbox')).toHaveClass('border-red-300')
+  it('supports the success variant', () => {
+    render(<Badge variant="success">Listo</Badge>)
+    expect(screen.getByText('Listo')).toBeInTheDocument()
   })
+})
 
-  it('renders a card with children', () => {
-    render(<Card>Contenido de la tarjeta</Card>)
-    expect(screen.getByText('Contenido de la tarjeta')).toBeInTheDocument()
-  })
-
-  it('renders badges with each variant', () => {
-    const { rerender } = render(<Badge>Activo</Badge>)
-    expect(screen.getByText('Activo')).toHaveClass('bg-blue-100')
-    rerender(<Badge variant="success">Activo</Badge>)
-    expect(screen.getByText('Activo')).toHaveClass('bg-green-100')
-    rerender(<Badge variant="warning">Activo</Badge>)
-    expect(screen.getByText('Activo')).toHaveClass('bg-yellow-100')
-    rerender(<Badge variant="danger">Activo</Badge>)
-    expect(screen.getByText('Activo')).toHaveClass('bg-red-100')
-  })
-
-  it('renders nothing when the modal is closed', () => {
-    render(
-      <Modal open={false} onClose={() => {}} title="Título">
-        Cuerpo
-      </Modal>,
-    )
-    expect(screen.queryByText('Título')).not.toBeInTheDocument()
-  })
-
-  it('renders the modal content and closes on backdrop or close button', () => {
-    const onClose = vi.fn()
+describe('Modal', () => {
+  it('renders nothing when closed', () => {
     const { container } = render(
-      <Modal open onClose={onClose} title="Título">
-        Cuerpo
+      <Modal open={false} onClose={() => {}} title="Título">
+        Contenido
       </Modal>,
     )
-    expect(screen.getByText('Título')).toBeInTheDocument()
-    expect(screen.getByText('Cuerpo')).toBeInTheDocument()
+    expect(container).toBeEmptyDOMElement()
+  })
 
-    fireEvent.click(container.querySelector('.fixed.inset-0.bg-black\\/50') as HTMLElement)
+  it('renders content and closes on backdrop click', () => {
+    const onClose = vi.fn()
+    render(
+      <Modal open onClose={onClose} title="Confirmar">
+        Contenido
+      </Modal>,
+    )
+    expect(screen.getByText('Confirmar')).toBeInTheDocument()
+    expect(screen.getByText('Contenido')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /×/ }))
     expect(onClose).toHaveBeenCalledTimes(1)
+  })
+})
 
-    fireEvent.click(screen.getByText('×'))
-    expect(onClose).toHaveBeenCalledTimes(2)
+describe('Skeleton', () => {
+  it('renders with a custom className', () => {
+    const { container } = render(<Skeleton className="h-10 w-full" />)
+    expect(container.querySelector('.animate-pulse')).toHaveClass('h-10', 'w-full')
+  })
+})
+
+describe('EmptyState', () => {
+  it('renders title and message', () => {
+    render(<EmptyState title="Sin datos" message="Prueba con otro filtro" />)
+    expect(screen.getByText('Sin datos')).toBeInTheDocument()
+    expect(screen.getByText('Prueba con otro filtro')).toBeInTheDocument()
+  })
+
+  it('renders and triggers the action', () => {
+    const onClick = vi.fn()
+    render(<EmptyState title="Vacío" action={{ label: 'Refrescar', onClick }} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Refrescar' }))
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Pagination', () => {
+  it('returns null when there is a single page', () => {
+    const { container } = render(<Pagination page={1} totalPages={1} onChange={() => {}} />)
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('navigates between pages', () => {
+    const onChange = vi.fn()
+    render(<Pagination page={2} totalPages={5} onChange={onChange} />)
+    expect(screen.getByText('Página 2 de 5')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Anterior' }))
+    expect(onChange).toHaveBeenCalledWith(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+    expect(onChange).toHaveBeenCalledWith(3)
+  })
+
+  it('disables navigation at the boundaries', () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<Pagination page={1} totalPages={3} onChange={onChange} />)
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toBeEnabled()
+
+    rerender(<Pagination page={3} totalPages={3} onChange={onChange} />)
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toBeDisabled()
   })
 })

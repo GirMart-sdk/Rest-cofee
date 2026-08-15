@@ -219,21 +219,6 @@ enum ShiftStatus {
   closed
 }
 
-model DailyReport {
-  id             String   @id @default(cuid())
-  date           DateTime @unique
-  totalSales     Float    @default(0)
-  totalOrders    Int      @default(0)
-  cashSales      Float    @default(0)
-  digitalSales   Float    @default(0)
-  deliveryOrders Int      @default(0)
-  dineInOrders   Int      @default(0)
-  posOrders      Int      @default(0)
-  averageTicket  Float    @default(0)
-  topItems       Json?
-  createdAt      DateTime @default(now())
-}
-
 model AuditLog {
   id         String   @id @default(cuid())
   userId     String

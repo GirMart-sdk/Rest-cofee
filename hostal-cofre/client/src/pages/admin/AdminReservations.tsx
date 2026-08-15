@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Reservation } from '../../types'
+import { Reservation, PaginationMeta } from '../../types'
 import { api } from '../../services/api'
 import { FiRefreshCw } from 'react-icons/fi'
+import { Skeleton, EmptyState, Pagination } from '../../components/ui'
 import toast from 'react-hot-toast'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,22 +22,26 @@ export default function AdminReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null)
 
-  const fetchReservations = async () => {
+  const fetchReservations = useCallback(async (targetPage: number = 1) => {
     try {
       setLoading(true)
-      const res = await api.get('/reservations')
+      const res = await api.get(`/reservations?page=${targetPage}&limit=100`)
       setReservations(res.data.data)
+      setPagination(res.data.pagination ?? null)
+      setPage(targetPage)
     } catch {
       toast.error('Error al cargar reservas')
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchReservations()
-  }, [])
+  }, [fetchReservations])
 
   const filtered = filter === 'all' ? reservations : reservations.filter((r) => r.status === filter)
 
@@ -54,7 +59,10 @@ export default function AdminReservations() {
     <div className="container-main">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-display">Gestionar Reservas</h1>
-        <button onClick={fetchReservations} className="btn-outline flex items-center gap-2">
+        <button
+          onClick={() => fetchReservations(page)}
+          className="btn-outline flex items-center gap-2"
+        >
           <FiRefreshCw /> Actualizar
         </button>
       </div>
@@ -73,9 +81,13 @@ export default function AdminReservations() {
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-gray-400">
-          <FiRefreshCw className="animate-spin mx-auto text-4xl mb-4" />
-          <p>Cargando reservas...</p>
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+          <div className="p-6 space-y-3">
+            <Skeleton className="h-5 w-1/3" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-2/5" />
+            <Skeleton className="h-4 w-3/5" />
+          </div>
         </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-md overflow-hidden">
@@ -145,11 +157,18 @@ export default function AdminReservations() {
       )}
 
       {!loading && filtered.length === 0 && (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-xl">
-            No hay reservas {filter !== 'all' ? `con estado "${STATUS_LABELS[filter]}"` : ''}
-          </p>
-        </div>
+        <EmptyState
+          title={`No hay reservas${filter !== 'all' ? ` con estado "${STATUS_LABELS[filter]}"` : ''}`}
+          action={{ label: 'Refrescar', onClick: () => fetchReservations(page) }}
+        />
+      )}
+
+      {!loading && pagination && (
+        <Pagination
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          onChange={fetchReservations}
+        />
       )}
     </div>
   )

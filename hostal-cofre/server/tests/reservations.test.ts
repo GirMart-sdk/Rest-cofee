@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import request from 'supertest'
-import { createTestApp, createUser, createTable, generateToken, cleanupData, prisma } from './helpers.js'
+import {
+  createTestApp,
+  createUser,
+  createTable,
+  generateToken,
+  cleanupData,
+  prisma,
+} from './helpers.js'
 import { errorHandler } from '../src/middleware/errors.js'
 
 let app: ReturnType<typeof createTestApp>
@@ -28,18 +35,16 @@ afterAll(async () => {
 describe('POST /api/reservations', () => {
   it('should create a reservation', async () => {
     const table = await createTable()
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'John Doe',
-        phone: '3001234567',
-        email: 'john@test.com',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 4,
-        tableId: table.id,
-        notes: 'Ventana por favor',
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'John Doe',
+      phone: '3001234567',
+      email: 'john@test.com',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 4,
+      tableId: table.id,
+      notes: 'Ventana por favor',
+    })
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
     expect(res.body.data.name).toBe('John Doe')
@@ -47,68 +52,58 @@ describe('POST /api/reservations', () => {
   })
 
   it('should reject invalid time format', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Test',
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: 'invalid',
-        guests: 2,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Test',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: 'invalid',
+      guests: 2,
+    })
     expect(res.status).toBe(400)
   })
 
   it('should reject guests > 50', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Test',
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 999,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Test',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 999,
+    })
     expect(res.status).toBe(400)
   })
 
   it('should reject missing name', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 2,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+    })
     expect(res.status).toBe(400)
   })
 
   it('should create reservation without table', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Walk In',
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: '19:30',
-        guests: 2,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Walk In',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '19:30',
+      guests: 2,
+    })
     expect(res.status).toBe(201)
     expect(res.body.data.tableId).toBeNull()
   })
 
   it('should create reservation with notes', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Notes Test',
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: '21:00',
-        guests: 3,
-        notes: 'Alergia al maní',
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Notes Test',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '21:00',
+      guests: 3,
+      notes: 'Alergia al maní',
+    })
     expect(res.status).toBe(201)
     expect(res.body.data.notes).toBe('Alergia al maní')
   })
@@ -118,16 +113,37 @@ describe('GET /api/reservations', () => {
   it('should return reservations for authenticated user', async () => {
     const { user } = await createUser('admin')
     const token = generateToken(user)
-    const res = await request(app)
-      .get('/api/reservations')
-      .set('Authorization', `Bearer ${token}`)
+    const res = await request(app).get('/api/reservations').set('Authorization', `Bearer ${token}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.data)).toBe(true)
+    expect(res.body.pagination).toMatchObject({ page: 1, limit: 100, totalPages: 1 })
   })
 
   it('should reject without auth', async () => {
     const res = await request(app).get('/api/reservations')
     expect(res.status).toBe(401)
+  })
+
+  it('should paginate reservations', async () => {
+    const { user } = await createUser('admin')
+    const token = generateToken(user)
+    for (let i = 0; i < 3; i++) {
+      await request(app)
+        .post('/api/reservations')
+        .send({
+          name: `Cliente ${i}`,
+          phone: '3001234567',
+          date: '2026-12-31',
+          time: '20:00',
+          guests: 2,
+        })
+    }
+    const res = await request(app)
+      .get('/api/reservations?page=1&limit=2')
+      .set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(200)
+    expect(res.body.data).toHaveLength(2)
+    expect(res.body.pagination).toMatchObject({ page: 1, limit: 2, total: 3, totalPages: 2 })
   })
 })
 
@@ -146,16 +162,14 @@ describe('PATCH /api/reservations/:id/status', () => {
     const { user } = await createUser('admin')
     const token = generateToken(user)
     const table = await createTable()
-    const createRes = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Confirm Test',
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 2,
-        tableId: table.id,
-      })
+    const createRes = await request(app).post('/api/reservations').send({
+      name: 'Confirm Test',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+      tableId: table.id,
+    })
     const resId = createRes.body.data.id
 
     const res = await request(app)
@@ -170,16 +184,14 @@ describe('PATCH /api/reservations/:id/status', () => {
     const { user } = await createUser('admin')
     const token = generateToken(user)
     const table = await createTable()
-    const createRes = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Cancel Test',
-        phone: '3001234567',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 2,
-        tableId: table.id,
-      })
+    const createRes = await request(app).post('/api/reservations').send({
+      name: 'Cancel Test',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+      tableId: table.id,
+    })
     const resId = createRes.body.data.id
 
     const res = await request(app)

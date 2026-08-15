@@ -23,6 +23,7 @@ import { requestLogger } from './middleware/requestLogger.js'
 import { authenticate, requireAdmin, AuthRequest } from './middleware/auth.js'
 import { metrics } from './utils/metrics.js'
 import { logger } from './utils/logger.js'
+import { cleanupExpiredTokens } from './middleware/tokenBlacklist.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -128,6 +129,25 @@ async function main() {
       res.sendFile(path.join(__dirname, '../../client/dist/index.html'))
     })
   }
+
+  let cleanupRunning = false
+  const TOKEN_CLEANUP_INTERVAL_MS = 6 * 60 * 60 * 1000
+
+  async function runTokenCleanup() {
+    if (cleanupRunning) return
+    cleanupRunning = true
+    try {
+      await cleanupExpiredTokens()
+      logger.info('expired refresh tokens cleaned')
+    } catch (err) {
+      logger.error('token cleanup failed', err as Record<string, unknown>)
+    } finally {
+      cleanupRunning = false
+    }
+  }
+
+  void runTokenCleanup()
+  setInterval(() => void runTokenCleanup(), TOKEN_CLEANUP_INTERVAL_MS)
 
   httpServer.listen(config.port, () => {
     logger.info('server started', {

@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 interface ButtonProps {
   children: React.ReactNode
   onClick?: () => void
@@ -70,10 +72,16 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Input({ label, error, className = '', ...props }: InputProps) {
+  const id = useId()
   return (
     <div className="space-y-1">
-      {label && <label className="block text-sm font-medium text-gray-700">{label}</label>}
+      {label && (
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+          {label}
+        </label>
+      )}
       <input
+        id={id}
         className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors
           focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
           ${error ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'}
@@ -141,6 +149,68 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         </div>
         {children}
       </div>
+    </div>
+  )
+}
+
+interface SkeletonProps {
+  className?: string
+}
+
+export function Skeleton({ className = '' }: SkeletonProps) {
+  return <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`} />
+}
+
+interface EmptyStateProps {
+  title: string
+  message?: string
+  action?: { label: string; onClick: () => void }
+}
+
+export function EmptyState({ title, message, action }: EmptyStateProps) {
+  return (
+    <div className="text-center py-16 text-gray-400">
+      <p className="text-xl">{title}</p>
+      {message && <p className="mt-1 text-sm text-gray-500">{message}</p>}
+      {action && (
+        <button
+          onClick={action.onClick}
+          className="mt-4 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors"
+        >
+          {action.label}
+        </button>
+      )}
+    </div>
+  )
+}
+
+interface PaginationProps {
+  page: number
+  totalPages: number
+  onChange: (page: number) => void
+}
+
+export function Pagination({ page, totalPages, onChange }: PaginationProps) {
+  if (totalPages <= 1) return null
+  return (
+    <div className="flex items-center justify-center gap-4 mt-6">
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page <= 1}
+        className="px-4 py-2 rounded-lg bg-white text-gray-700 font-semibold text-sm hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        Anterior
+      </button>
+      <span className="text-sm text-gray-600 font-medium">
+        Página {page} de {totalPages}
+      </span>
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page >= totalPages}
+        className="px-4 py-2 rounded-lg bg-white text-gray-700 font-semibold text-sm hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        Siguiente
+      </button>
     </div>
   )
 }

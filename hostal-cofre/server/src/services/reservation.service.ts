@@ -1,13 +1,25 @@
 import prisma from '../db.js'
 
 export class ReservationService {
-  static async getAll(userId?: string, role?: string) {
+  static async getAll(
+    userId?: string,
+    role?: string,
+    pagination?: { page?: number; limit?: number },
+  ) {
     const where = role === 'admin' ? {} : { userId }
-    return prisma.reservation.findMany({
-      where,
-      include: { table: true },
-      orderBy: { date: 'asc' },
-    })
+    const page = Math.max(1, pagination?.page ?? 1)
+    const limit = Math.min(100, Math.max(1, pagination?.limit ?? 100))
+    const [items, total] = await Promise.all([
+      prisma.reservation.findMany({
+        where,
+        include: { table: true },
+        orderBy: { date: 'asc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.reservation.count({ where }),
+    ])
+    return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) }
   }
 
   static async getById(id: string) {

@@ -8,8 +8,8 @@
 ![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
 ![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
 ![Autenticación](https://img.shields.io/badge/Auth-JWT%20%2B%20httpOnly-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-384%20Pasando-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-428%20Pasando-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2099%25-brightgreen.svg)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
 ---
@@ -30,7 +30,7 @@
 > - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
 > - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
 > - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
-> - **Testing**: 186 tests backend + 156 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 86% líneas).
+> - **Testing**: 189 tests backend + 197 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
 
 ---
 
@@ -39,7 +39,7 @@
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                      Cliente (Browser)                   │
-│  React 18 + Vite 5 + TailwindCSS 3 + React Router 6    │
+│  React 18 + Vite 6 + TailwindCSS 3 + React Router 7    │
 │  Puerto: 5173                                           │
 └──────────────────────┬──────────────────────────────────┘
                        │ HTTP (proxy /api → :3001)
@@ -273,13 +273,13 @@ export default defineConfig({
 
 ### 6.3 Cobertura Actual
 
-**Backend (Vitest + Supertest) — 186 tests:**
+**Backend (Vitest + Supertest) — 189 tests:**
 
 | Suite                | Tests   | Estado           |
 | -------------------- | ------- | ---------------- |
 | auth.test.ts         | 25      | Todos pasando    |
-| orders.test.ts       | 16      | Todos pasando    |
-| reservations.test.ts | 12      | Todos pasando    |
+| orders.test.ts       | 18      | Todos pasando    |
+| reservations.test.ts | 13      | Todos pasando    |
 | menu.test.ts         | 11      | Todos pasando    |
 | middleware.test.ts   | 23      | Todos pasando    |
 | payments.test.ts     | 11      | Todos pasando    |
@@ -291,14 +291,14 @@ export default defineConfig({
 | whatsapp.test.ts     | 8       | Todos pasando    |
 | audit.test.ts        | 5       | Todos pasando    |
 | events.test.ts       | 3       | Todos pasando    |
-| **Total backend**    | **186** | **100% pasando** |
+| **Total backend**    | **189** | **100% pasando** |
 
-**Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **86%** cliente
-(thresholds: 80/65/80/80).
+**Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **99%** cliente
+(thresholds server: 80/65/80/80 · client: 95/90/90/95).
 
-**Frontend (Vitest + Testing Library) — 156 tests:**
-Layout y routing (12), Menú y reservas (11), Contexts (13), Hooks (14),
-Admin (65), Páginas (13), Services (25), App (3).
+**Frontend (Vitest + Testing Library) — 197 tests:**
+Layout (13), Routing (9), Menú (14), Reservas (10), Carrito (20), Auth (16),
+Admin (57), Mesa (7), UI design system (16), Hooks (6), Services (29).
 
 **Seguridad (suite aparte, `npm run test:security`) — 42 tests:** secrets,
 auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.

@@ -9,7 +9,7 @@
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)](https://semver.org/lang/es/)
 ![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 [![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-384%20Passing-brightgreen.svg)](02-TRD.md)
+[![Tests](https://img.shields.io/badge/Tests-428%20Passing-brightgreen.svg)](02-TRD.md)
 
 ---
 
@@ -32,6 +32,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   coverage para server y cliente)
 - CI: `npm audit --audit-level=high` en lint-server y lint-client, acciones fijadas por SHA,
   Node 22 y timeouts por job
+- Cliente: página 404 con ruta catch-all (`pages/NotFound.tsx`) y test dedicado
+- Cliente: componentes de design system `Skeleton`, `EmptyState` y `Pagination`
+  (`components/ui`) con suite de tests propia
+- Servidor: paginación server-side en `GET /api/orders` (default 50) y
+  `GET /api/reservations` (default 100) con metadatos `pagination` y controles en el
+  panel admin
+- Servidor: cron de limpieza de refresh tokens expirados (`cleanupExpiredTokens()`) cada
+  6 horas y al arranque
 
 ### Changed
 
@@ -41,8 +49,20 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   Prisma → 5.22 (server y cliente)
 - Servidor: el rate limiter global solo aplica a rutas `/api/`, dejando de contar las
   peticiones de assets del dev server de Vite y de estáticos
-- Documentación: insignias actualizadas (384 tests, coverage server 92% / client 98%,
-  42 tests de seguridad)
+- Documentación: insignias actualizadas (428 tests, coverage server 92% / client 99%,
+  42 tests de seguridad) y plan de implementación con la deuda cerrada
+- Cliente: `Footer` reemplaza los enlaces sociales stub (`href="#"`) por WhatsApp
+  (`wa.me`, configurable vía `VITE_WHATSAPP_PHONE`) y `tel:`
+- Cliente: `Input` del design system asocia `label` ↔ `input` con `useId` (accesibilidad)
+- Cliente: paneles admin de pedidos y reservas con loading skeletons, empty states con
+  acción de refresco y paginación
+
+### Removed
+
+- Cliente: hooks muertos `useApi`, `useMenu`, `useOrders`, `useReservations` y su archivo
+  de test (`src/hooks/useApi.*`), solo usados entre sí
+- Servidor: modelo `DailyReport` del schema Prisma (nunca escrito) — migración
+  `20260815100000_remove_daily_report`
 
 ### Fixed
 
@@ -51,6 +71,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   de "Credenciales incorrectas"
 - E2E: `home.spec.ts` resuelve el nav duplicado (escritorio + móvil) y `cart.spec.ts`
   ya no depende del estado transitorio "Añadido", evitando flakiness bajo carga
+- Documentación: contaba 384 tests y 86% de cobertura cliente; ahora refleja 428 tests
+  y 99% (métricas reales)
 
 ---
 

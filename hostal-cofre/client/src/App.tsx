@@ -11,6 +11,7 @@ const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const CartPage = lazy(() => import('./pages/CartPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const MesaPage = lazy(() => import('./pages/MesaPage'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminMenu = lazy(() => import('./pages/admin/AdminMenu'))
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'))
@@ -63,6 +64,8 @@ export default function App() {
             <Route path="/admin/reportes" element={<AdminReports />} />
             <Route path="/admin/mesas" element={<AdminTables />} />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </>

@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
-import { FiFacebook, FiInstagram, FiPhone } from 'react-icons/fi'
+import { FiMessageCircle, FiPhone } from 'react-icons/fi'
+
+const WHATSAPP_PHONE = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent('Hola, quiero información sobre Hostal Cofee')}`
 
 export default function Footer() {
   return (
@@ -34,24 +37,31 @@ export default function Footer() {
           <div>
             <h4 className="font-display text-xl mb-4">Contacto</h4>
             <div className="space-y-3 text-white/60">
-              <p className="flex items-center gap-2">
+              <a
+                href="tel:+576012345678"
+                className="flex items-center gap-2 hover:text-primary transition-colors"
+              >
                 <FiPhone /> (601) 234-5678
-              </p>
+              </a>
               <p>Av. Principal 123, Bogotá</p>
               <p>Lun-Dom 12pm - 11pm</p>
             </div>
             <div className="flex gap-4 mt-4">
               <a
-                href="#"
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Escríbenos por WhatsApp"
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
               >
-                <FiFacebook size={18} />
+                <FiMessageCircle size={18} />
               </a>
               <a
-                href="#"
+                href="tel:+576012345678"
+                aria-label="Llámanos"
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
               >
-                <FiInstagram size={18} />
+                <FiPhone size={18} />
               </a>
             </div>
           </div>

@@ -240,4 +240,42 @@ describe('AdminOrders', () => {
 
     expect(await screen.findByText('No hay pedidos')).toBeInTheDocument()
   })
+
+  it('paginates orders and skips SSE prepends off page 1', async () => {
+    let sseCallback: ((event: { action: string; data: unknown }) => void) | undefined
+    eventsMock.subscribeOrders.mockImplementation((cb) => {
+      sseCallback = cb
+      return () => {}
+    })
+    apiMock.api.get.mockResolvedValue({
+      data: { data: orders, pagination: { page: 1, limit: 50, total: 120, totalPages: 3 } },
+    })
+    renderPage()
+    await screen.findByText('#A-001')
+    expect(screen.getByText('Página 1 de 3')).toBeInTheDocument()
+
+    apiMock.api.get.mockResolvedValue({
+      data: { data: orders, pagination: { page: 2, limit: 50, total: 120, totalPages: 3 } },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+    await waitFor(() => expect(apiMock.api.get).toHaveBeenCalledWith('/orders?page=2&limit=50'))
+
+    const newOrder = {
+      id: 'o9',
+      receiptNumber: 'A-099',
+      status: 'pending',
+      orderType: 'tienda',
+      customerName: 'X',
+      customerPhone: '1',
+      total: 1,
+      deliveryFee: 0,
+      items: [],
+    }
+    await act(async () => {
+      sseCallback!({ action: 'order.created', data: newOrder })
+    })
+    expect(screen.queryByText('#A-099')).not.toBeInTheDocument()
+    expect(toastMock.toast.success).toHaveBeenCalledWith('Nuevo pedido A-099')
+  })
 })

@@ -41,8 +41,21 @@ function notifyReservation(reservation: Parameters<typeof buildReservationSummar
 }
 
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
-  const reservations = await ReservationService.getAll(req.user!.id, req.user!.role)
-  res.json({ success: true, data: reservations })
+  const { page, limit } = req.query
+  const result = await ReservationService.getAll(req.user!.id, req.user!.role, {
+    page: page ? parseInt(page as string, 10) : undefined,
+    limit: limit ? parseInt(limit as string, 10) : undefined,
+  })
+  res.json({
+    success: true,
+    data: result.items,
+    pagination: {
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages,
+    },
+  })
 })
 
 router.get('/tables', async (_req, res: Response) => {

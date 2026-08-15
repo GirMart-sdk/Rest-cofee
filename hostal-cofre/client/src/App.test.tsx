@@ -45,4 +45,11 @@ describe('App routing', () => {
     renderApp('/login')
     expect(await screen.findByRole('heading', { name: /Iniciar Sesión/i })).toBeInTheDocument()
   })
+
+  it('renders the 404 page for unknown routes', async () => {
+    renderApp('/ruta-inexistente')
+    expect(await screen.findByText('404')).toBeInTheDocument()
+    expect(screen.getByText('Página no encontrada')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Volver al inicio/i })).toHaveAttribute('href', '/')
+  })
 })

@@ -5,10 +5,10 @@
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 
-![Progreso General](https://img.shields.io/badge/Progreso-90%25-blue.svg)
-![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-29%2F30-brightgreen.svg)
-![Tests Pasando](https://img.shields.io/badge/Tests-384%2F384-brightgreen.svg)
-![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-8%20items-yellow.svg)
+![Progreso General](https://img.shields.io/badge/Progreso-93%25-blue.svg)
+![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-30%2F30-brightgreen.svg)
+![Tests Pasando](https://img.shields.io/badge/Tests-428%2F428-brightgreen.svg)
+![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-3%20items-yellow.svg)
 ![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
 
 ---
@@ -20,39 +20,39 @@
 
 ## 1. Estado Actual — Lo que ya está hecho
 
-### 1.1 Bugs Corregidos (29/30)
+### 1.1 Bugs Corregidos (30/30)
 
-| #   | Severidad | Descripción                                             | Archivos                                                 |
-| --- | --------- | ------------------------------------------------------- | -------------------------------------------------------- |
-| 1   | CRÍTICO   | Zod parse no escribía valores de vuelta a req           | `middleware/validation.ts`                               |
-| 2   | CRÍTICO   | generateRefreshToken no era async                       | `routes/auth.ts`                                         |
-| 3   | CRÍTICO   | Reservar no se podía ver desde admin (userId filter)    | `services/reservation.service.ts`                        |
-| 4   | CRÍTICO   | Estados de pedido sin validación (cualquier transición) | `services/order.service.ts`                              |
-| 5   | CRÍTICO   | Cancelar pedido no revertía totales del turno           | `services/order.service.ts`                              |
-| 6   | CRÍTICO   | Se podían abrir múltiples turnos simultáneos            | `services/shift.service.ts`                              |
-| 7   | CRÍTICO   | UTC/Local timezone mixing en queries de turno           | `services/order.service.ts`, `services/shift.service.ts` |
-| 8   | CRÍTICO   | Borrar menú con pedidos activos cascateaba              | `services/menu.service.ts`, `middleware/errors.ts`       |
-| 9   | CRÍTICO   | localStorage crash si JSON corrupto                     | `context/CartContext.tsx`                                |
-| 10  | CRÍTICO   | Admin reservas mostraba UUID en vez de #mesa            | `AdminReservations.tsx`                                  |
-| 11  | CRÍTICO   | POS crasheaba con receipt null fields                   | `AdminPOS.tsx`                                           |
-| 12  | ALTO      | Pedidos aceptaban items agotados                        | `services/order.service.ts`                              |
-| 13  | ALTO      | Pedidos fuera de turno activo                           | `services/order.service.ts`                              |
-| 14  | ALTO      | Receipt number predecible (secuencial)                  | `services/order.service.ts`                              |
-| 15  | ALTO      | Errores Wompi no retornaban status                      | `routes/payments.ts`                                     |
-| 16  | ALTO      | Dashboard duplicaba tarjeta "Ingresos Totales"          | `AdminDashboard.tsx`                                     |
-| 17  | ALTO      | Filtro de pedidos no incluía "cancelled"                | `AdminOrders.tsx`                                        |
-| 18  | ALTO      | Pago en efectivo sin validación de monto                | `AdminPOS.tsx`                                           |
-| 19  | ALTO      | Pedidos no auto-actualizaban                            | `AdminOrders.tsx`                                        |
-| 20  | ALTO      | Catch blocks sin feedback al usuario                    | `AdminPOS.tsx`, `AdminDashboard.tsx`                     |
-| 21  | ALTO      | POS sin reloj en tiempo real                            | `AdminPOS.tsx`                                           |
-| 22  | MEDIO     | Reservar mesa sin check de capacidad                    | `services/reservation.service.ts`                        |
-| 23  | MEDIO     | Auth service muerto (dead code)                         | `services/auth.service.ts` (eliminado)                   |
-| 25  | MEDIO     | Sin página 404                                          | `App.tsx`                                                |
-| 26  | MEDIO     | Modales sin cerrar al hacer click afuera                | `AdminPOS.tsx`, `AdminShifts.tsx`, `AdminTables.tsx`     |
-| 27  | MEDIO     | clearCart reseteaba tipo de pedido y zona               | `CartContext.tsx`                                        |
-| 28  | MEDIO     | CartItem sin campo precio                               | `types/index.ts`, `AdminOrders.tsx`                      |
-| 29  | MEDIO     | Reservar sin orden cronológico                          | `AdminReservations.tsx`                                  |
-| 30  | MEDIO     | Input precio sin restricciones                          | `AdminMenu.tsx`                                          |
+| #   | Severidad | Descripción                                                   | Archivos                                                 |
+| --- | --------- | ------------------------------------------------------------- | -------------------------------------------------------- |
+| 1   | CRÍTICO   | Zod parse no escribía valores de vuelta a req                 | `middleware/validation.ts`                               |
+| 2   | CRÍTICO   | generateRefreshToken no era async                             | `routes/auth.ts`                                         |
+| 3   | CRÍTICO   | Reservar no se podía ver desde admin (userId filter)          | `services/reservation.service.ts`                        |
+| 4   | CRÍTICO   | Estados de pedido sin validación (cualquier transición)       | `services/order.service.ts`                              |
+| 5   | CRÍTICO   | Cancelar pedido no revertía totales del turno                 | `services/order.service.ts`                              |
+| 6   | CRÍTICO   | Se podían abrir múltiples turnos simultáneos                  | `services/shift.service.ts`                              |
+| 7   | CRÍTICO   | UTC/Local timezone mixing en queries de turno                 | `services/order.service.ts`, `services/shift.service.ts` |
+| 8   | CRÍTICO   | Borrar menú con pedidos activos cascateaba                    | `services/menu.service.ts`, `middleware/errors.ts`       |
+| 9   | CRÍTICO   | localStorage crash si JSON corrupto                           | `context/CartContext.tsx`                                |
+| 10  | CRÍTICO   | Admin reservas mostraba UUID en vez de #mesa                  | `AdminReservations.tsx`                                  |
+| 11  | CRÍTICO   | POS crasheaba con receipt null fields                         | `AdminPOS.tsx`                                           |
+| 12  | ALTO      | Pedidos aceptaban items agotados                              | `services/order.service.ts`                              |
+| 13  | ALTO      | Pedidos fuera de turno activo                                 | `services/order.service.ts`                              |
+| 14  | ALTO      | Receipt number predecible (secuencial)                        | `services/order.service.ts`                              |
+| 15  | ALTO      | Errores Wompi no retornaban status                            | `routes/payments.ts`                                     |
+| 16  | ALTO      | Dashboard duplicaba tarjeta "Ingresos Totales"                | `AdminDashboard.tsx`                                     |
+| 17  | ALTO      | Filtro de pedidos no incluía "cancelled"                      | `AdminOrders.tsx`                                        |
+| 18  | ALTO      | Pago en efectivo sin validación de monto                      | `AdminPOS.tsx`                                           |
+| 19  | ALTO      | Pedidos no auto-actualizaban                                  | `AdminOrders.tsx`                                        |
+| 20  | ALTO      | Catch blocks sin feedback al usuario                          | `AdminPOS.tsx`, `AdminDashboard.tsx`                     |
+| 21  | ALTO      | POS sin reloj en tiempo real                                  | `AdminPOS.tsx`                                           |
+| 22  | MEDIO     | Reservar mesa sin check de capacidad                          | `services/reservation.service.ts`                        |
+| 23  | MEDIO     | Auth service muerto (dead code)                               | `services/auth.service.ts` (eliminado)                   |
+| 25  | MEDIO     | Sin página 404 — ✅ resuelto: ruta `*` + `pages/NotFound.tsx` | `App.tsx`, `pages/NotFound.tsx`                          |
+| 26  | MEDIO     | Modales sin cerrar al hacer click afuera                      | `AdminPOS.tsx`, `AdminShifts.tsx`, `AdminTables.tsx`     |
+| 27  | MEDIO     | clearCart reseteaba tipo de pedido y zona                     | `CartContext.tsx`                                        |
+| 28  | MEDIO     | CartItem sin campo precio                                     | `types/index.ts`, `AdminOrders.tsx`                      |
+| 29  | MEDIO     | Reservar sin orden cronológico                                | `AdminReservations.tsx`                                  |
+| 30  | MEDIO     | Input precio sin restricciones                                | `AdminMenu.tsx`                                          |
 
 ### 1.2 Infraestructura Corregida
 
@@ -60,8 +60,10 @@
 - Express async error handling (catchAsync middleware en todas las rutas)
 - Error handler global mejorado (statusCode custom, FK constraints, Prisma errors)
 - Rate limiting deshabilitado en test (NODE_ENV=test)
-- Tests: **186/186 backend** (auth: 25, orders: 16, reservations: 12, menu: 11, middleware: 23, payments: 11, reports: 6, services: 27, shifts: 12, tables: 18, validation: 9, whatsapp: 8, audit: 5, events: 3) + **156 frontend** + **42 tests de seguridad** + **E2E Playwright**
-- Cobertura: **92% líneas servidor · 86% cliente** (umbral CI 80%)
+- Tests: **189/189 backend** (auth: 25, orders: 18, reservations: 13, menu: 11, middleware: 23, payments: 11, reports: 6, services: 27, shifts: 12, tables: 18, validation: 9, whatsapp: 8, audit: 5, events: 3) + **197 frontend** + **42 tests de seguridad** + **E2E Playwright** (12, 1 skip controlado con menú vacío)
+- Cobertura: **92% líneas servidor · 99% cliente** (umbrales CI: server stmts ≥ 80%, client stmts/lines ≥ 95%)
+- Paginación server-side en `GET /api/orders` (default 50) y `GET /api/reservations` (default 100) con metadatos `pagination` y controles en el panel admin
+- Cron de limpieza de refresh tokens expirados (`cleanupExpiredTokens()`) cada 6h + ejecución al arranque
 - Observabilidad: logs JSON, request ID, `GET /api/metrics`
 
 ### 1.3 Funcionalidades Implementadas al 100%
@@ -82,63 +84,66 @@
 | Observabilidad (logs JSON, request ID, métricas)      | COMPLETO             |
 | Despliegue bare-metal Windows (NSSM + Caddy)          | COMPLETO             |
 | E2E Playwright + capturas para docs                   | COMPLETO             |
-| Test suite                                            | COMPLETO (384 tests) |
+| Paginación en pedidos y reservas (server + admin)     | COMPLETO             |
+| Página 404 (ruta catch-all)                           | COMPLETO             |
+| Test suite                                            | COMPLETO (428 tests) |
 
 ---
 
 ## 2. Tech Debt — Lo que necesita limpieza
 
-| #   | Prioridad | Deuda                                                                                        | Esfuerzo | Impacto                    |
-| --- | --------- | -------------------------------------------------------------------------------------------- | -------- | -------------------------- |
-| 1   | Baja      | Hooks no usados: `useMenu`, `useOrders`, `useReservations`, `useLocalStorage`, `useDebounce` | 1h       | Limpieza de código         |
-| 2   | Media     | UI Library definida (`ui/index.tsx`) pero no adoptada — cada página construye UI inline      | 4h       | Consistencia visual        |
-| 3   | Baja      | CartContext duplicado en MesaPage (`MesaCartContext` separado)                               | 2h       | Mantenibilidad             |
-| 4   | Baja      | Modelo `DailyReport` en Prisma schema pero nunca escrito                                     | 15min    | Schema limpio              |
-| 5   | ~~Alta~~  | ~~Wompi solo como label~~ — ✅ resuelto: modo producción + proxy de transacciones            | —        | Pagos reales               |
-| 6   | ~~Alta~~  | ~~WhatsApp solo deep links~~ — ✅ resuelto: Business API con fallback a wa.me                | —        | Notificaciones automáticas |
-| 7   | Baja      | Social links stub (`href="#"` en Footer)                                                     | 30min    | UX                         |
-| 8   | Media     | Charts CSS puros en reportes — sin librería de gráficos                                      | 4h       | Visualización              |
-| 9   | Media     | `cleanupExpiredTokens()` definido pero nunca llamado                                         | 1h       | Seguridad                  |
-| 10  | Media     | Sin paginación en listas de pedidos y reservas                                               | 6h       | Performance                |
+| #   | Prioridad | Deuda                                                                                       | Esfuerzo | Impacto                    |
+| --- | --------- | ------------------------------------------------------------------------------------------- | -------- | -------------------------- |
+| 1   | Baja      | ~~Hooks no usados~~ — ✅ resuelto: `useApi.ts` y su test eliminados                         | 1h       | Limpieza de código         |
+| 2   | Media     | UI Library (`ui/index.tsx`) adoptada parcialmente — Skeleton/EmptyState/Pagination en admin | 2h rest. | Consistencia visual        |
+| 3   | Baja      | CartContext duplicado en MesaPage (`MesaCartContext` separado)                              | 2h       | Mantenibilidad             |
+| 4   | Baja      | ~~Modelo `DailyReport`~~ — ✅ resuelto: eliminado + migración `remove_daily_report`         | 15min    | Schema limpio              |
+| 5   | ~~Alta~~  | ~~Wompi solo como label~~ — ✅ resuelto: modo producción + proxy de transacciones           | —        | Pagos reales               |
+| 6   | ~~Alta~~  | ~~WhatsApp solo deep links~~ — ✅ resuelto: Business API con fallback a wa.me               | —        | Notificaciones automáticas |
+| 7   | Baja      | ~~Social links stub~~ — ✅ resuelto: WhatsApp (`wa.me`) + `tel:` en Footer                  | 30min    | UX                         |
+| 8   | Media     | Charts CSS puros en reportes — sin librería de gráficos (Recharts, Fase 2)                  | 4h       | Visualización              |
+| 9   | Media     | ~~`cleanupExpiredTokens()` sin llamar~~ — ✅ resuelto: cron cada 6h en `index.ts`           | 1h       | Seguridad                  |
+| 10  | Media     | ~~Sin paginación en pedidos y reservas~~ — ✅ resuelto: `page`/`limit` + UI admin           | 6h       | Performance                |
 
 ---
 
 ## 3. Roadmap de Implementación
 
-### Fase 1 — Corto Plazo (1-2 semanas)
+### Fase 1 — Corto Plazo (1-2 semanas) ✅ completada
 
 **Objetivo:** Consolidar lo existente y cerrar deuda técnica
 
-| Tarea                                                                | Esfuerzo | Dependencias         |
-| -------------------------------------------------------------------- | -------- | -------------------- |
-| Adoptar `ui/index.tsx` como design system en páginas admin           | 4h       | Ninguna              |
-| Eliminar hooks no usados del directorio `hooks/`                     | 1h       | Ninguna              |
-| Eliminar modelo `DailyReport` del schema (o habilitar escritura)     | 15min    | Decisión de producto |
-| Conectar `cleanupExpiredTokens()` a un cron o middleware             | 1h       | Ninguna              |
-| ~~Integrar Wompi modo producción~~ — ✅ hecho (backend + WOMPI_MODE) | —        | —                    |
-| ~~Agregar tests E2E (Playwright)~~ — ✅ hecho (suite + capturas)     | —        | —                    |
-| ~~WhatsApp Business API~~ — ✅ hecho (envío server-side + fallback)  | —        | —                    |
-| Agregar paginación a `GET /api/orders` y `GET /api/reservations`     | 6h       | Frontend update      |
-| Configurar ESLint rules para evitar imports no usados                | 30min    | Ninguna              |
+| Tarea                                                                | Esfuerzo | Dependencias         | Estado                       |
+| -------------------------------------------------------------------- | -------- | -------------------- | ---------------------------- |
+| Adoptar `ui/index.tsx` como design system en páginas admin           | 4h       | Ninguna              | ✅ Parcial (ver Fase 2)      |
+| Eliminar hooks no usados del directorio `hooks/`                     | 1h       | Ninguna              | ✅ Hecho (useApi.ts borrado) |
+| Eliminar modelo `DailyReport` del schema (o habilitar escritura)     | 15min    | Decisión de producto | ✅ Hecho (migración)         |
+| Conectar `cleanupExpiredTokens()` a un cron o middleware             | 1h       | Ninguna              | ✅ Hecho (cron 6h)           |
+| ~~Integrar Wompi modo producción~~ — ✅ hecho (backend + WOMPI_MODE) | —        | —                    | —                            |
+| ~~Agregar tests E2E (Playwright)~~ — ✅ hecho (suite + capturas)     | —        | —                    | —                            |
+| ~~WhatsApp Business API~~ — ✅ hecho (envío server-side + fallback)  | —        | —                    | —                            |
+| Agregar paginación a `GET /api/orders` y `GET /api/reservations`     | 6h       | Frontend update      | ✅ Hecho (server + admin UI) |
+| Configurar ESLint rules para evitar imports no usados                | 30min    | Ninguna              | ✅ Ya configurado (error)    |
 
-**Total estimado:** ~29h
+**Total estimado:** ~29h — cerrada en su totalidad
 
 ### Fase 2 — Mediano Plazo (1 mes)
 
 **Objetivo:** Real-time updates y mejores integraciones
 
-| Tarea                                                                  | Esfuerzo | Dependencias                       |
-| ---------------------------------------------------------------------- | -------- | ---------------------------------- |
-| WebSocket (Socket.io) para updates de estado de pedidos en tiempo real | 16h      | Instancia Socket.io en backend     |
-| WhatsApp Business API (envío server-side automático)                   | 16h      | Cuenta WhatsApp Business + API key |
-| PWA (service worker, manifest.json, offline menu)                      | 12h      | Configuración Vite + assets        |
-| Reemplazar CSS charts con Recharts o similar                           | 4h       | npm install recharts               |
-| Loading skeletons para todas las páginas                               | 8h       | Design system adoptado             |
-| Empty states ilustrados (SVG)                                          | 4h       | Assets SVG                         |
-| Búsqueda/filtro avanzado en pedidos y reservas                         | 6h       | Paginación previa                  |
-| Toast messages consistentes (position, duration, variant)              | 2h       | Ninguna                            |
+| Tarea                                                                  | Esfuerzo | Dependencias                       | Estado                              |
+| ---------------------------------------------------------------------- | -------- | ---------------------------------- | ----------------------------------- |
+| WebSocket (Socket.io) para updates de estado de pedidos en tiempo real | 16h      | Instancia Socket.io en backend     | Pendiente (hoy: SSE en orders)      |
+| WhatsApp Business API (envío server-side automático)                   | 16h      | Cuenta WhatsApp Business + API key | ✅ Hecho (fallback wa.me)           |
+| PWA (service worker, manifest.json, offline menu)                      | 12h      | Configuración Vite + assets        | Pendiente                           |
+| Reemplazar CSS charts con Recharts o similar                           | 4h       | npm install recharts               | Pendiente                           |
+| Loading skeletons para todas las páginas                               | 8h       | Design system adoptado             | ✅ Parcial (admin pedidos/reservas) |
+| Empty states ilustrados (SVG)                                          | 4h       | Assets SVG                         | ✅ Parcial (componente EmptyState)  |
+| Búsqueda/filtro avanzado en pedidos y reservas                         | 6h       | Paginación previa                  | Pendiente (filtros hoy por página)  |
+| Toast messages consistentes (position, duration, variant)              | 2h       | Ninguna                            | ✅ Ya consistente (Toaster central) |
+| Adoptar `ui/index.tsx` en el resto de páginas admin                    | 2h       | Ninguna                            | Pendiente                           |
 
-**Total estimado:** ~68h
+**Total estimado:** ~68h (restante ~46h)
 
 ### Fase 3 — Largo Plazo (2-3 meses)
 
@@ -239,10 +244,11 @@ Reportes:   ████████████████████ 100%
 Mesas:      ████████████████████ 100%
 Pagos:      ████████████████████ 100% (sandbox + producción)
 Notif:      ████████████████████ 100% (Business API + wa.me)
-Testing:    ████████████████████ 100% (186 + 156 + 42 + E2E)
+Testing:    ████████████████████ 100% (189 + 197 + 42 + E2E)
 Observab:   ████████████████████ 100% (logs JSON + métricas)
 Deploy:     ████████████████████ 100% (Windows bare-metal)
-UI/UX:      ████████████████░░░░  80% (sin design system adoptado)
+UI/UX:      ██████████████████░░  88% (design system parcial + 404)
+Paginación: ████████████████████ 100% (orders + reservations)
 ```
 
 ### 6.2 Progreso General
@@ -250,15 +256,15 @@ UI/UX:      ████████████████░░░░  80% (s
 | Categoría                  | Progreso                      |
 | -------------------------- | ----------------------------- |
 | Funcionalidad backend      | 100%                          |
-| Funcionalidad frontend     | 95%                           |
+| Funcionalidad frontend     | 97%                           |
 | Testing                    | 100% (unit + cobertura + E2E) |
 | Integración pagos          | 100% (sandbox + producción)   |
 | Integración notificaciones | 100% (Business API + wa.me)   |
 | Observabilidad             | 100%                          |
 | Despliegue                 | 100% (Windows bare-metal)     |
-| Design system              | 30% (definido, no adoptado)   |
+| Design system              | 40% (parcialmente adoptado)   |
 | PWA                        | 0%                            |
-| **General**                | **~90%**                      |
+| **General**                | **~93%**                      |
 
 ---
 

@@ -6,13 +6,13 @@
 ![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 
 [![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://react.dev)
-[![Node.js](https://img.shields.io/badge/Node.js-18-green?logo=nodedotjs)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-22-green?logo=nodedotjs)](https://nodejs.org)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
 ![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 [![Security](https://img.shields.io/badge/Security-6%20Layers-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-384%20Passing-brightgreen.svg)](02-TRD.md)
-[![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2086%25-brightgreen.svg)](02-TRD.md)
+[![Tests](https://img.shields.io/badge/Tests-428%20Passing-brightgreen.svg)](02-TRD.md)
+[![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2099%25-brightgreen.svg)](02-TRD.md)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 [![Deploy](https://img.shields.io/badge/Deploy-Windows%20Bare--Metal-blue.svg)](deploy/README.md)
 
@@ -26,8 +26,8 @@ notificaciones WhatsApp. Desplegable en un solo servidor Windows (servicio Node 
 
 | Capa          | Tecnología                                            |
 | ------------- | ----------------------------------------------------- |
-| Frontend      | React 18 + Vite 5 + TypeScript + TailwindCSS          |
-| Backend       | Node.js 18 + Express + Prisma ORM + Zod               |
+| Frontend      | React 18 + Vite 6 + TypeScript + TailwindCSS          |
+| Backend       | Node.js 22 + Express + Prisma ORM + Zod               |
 | Base de datos | PostgreSQL 14                                         |
 | Pagos         | Wompi (sandbox y producción)                          |
 | WhatsApp      | Deep links `wa.me` + WhatsApp Business API (opcional) |
@@ -35,14 +35,14 @@ notificaciones WhatsApp. Desplegable en un solo servidor Windows (servicio Node 
 
 ## Seguridad (6 Capas)
 
-| Capa        | Protección                                                                                                          |
-| ----------- | ------------------------------------------------------------------------------------------------------------------- |
-| 1. Secrets  | `.gitignore`, `.env.example`, `JWT_SECRET` validado (min 32 chars), seed con contraseñas desde variables de entorno |
-| 2. Auth     | JWT HS256 (algorithm locking), password policy, bcrypt 12 rounds, timing attack protection, account lockout         |
-| 3. Input    | Zod en todas las rutas, XSS sanitization, error handler sin stack trace en producción, payload limit                |
-| 4. Headers  | Helmet + CSP, HSTS, CORS restringido, Request ID tracking                                                           |
-| 5. Sesiones | Refresh tokens rotados, revocación en DB, cambio de contraseña invalida todas las sesiones                          |
-| 6. Testing  | 186 tests backend + 156 tests frontend + 42 tests de seguridad + suite E2E Playwright, umbral de cobertura 80%      |
+| Capa        | Protección                                                                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Secrets  | `.gitignore`, `.env.example`, `JWT_SECRET` validado (min 32 chars), seed con contraseñas desde variables de entorno                    |
+| 2. Auth     | JWT HS256 (algorithm locking), password policy, bcrypt 12 rounds, timing attack protection, account lockout                            |
+| 3. Input    | Zod en todas las rutas, XSS sanitization, error handler sin stack trace en producción, payload limit                                   |
+| 4. Headers  | Helmet + CSP, HSTS, CORS restringido, Request ID tracking                                                                              |
+| 5. Sesiones | Refresh tokens rotados, revocación en DB, cambio de contraseña invalida todas las sesiones                                             |
+| 6. Testing  | 189 tests backend + 197 tests frontend + 42 tests de seguridad + suite E2E Playwright, umbral de cobertura server ≥ 80% · client ≥ 95% |
 
 Ver [SECURITY.md](SECURITY.md) y [SECURITY-REPORT.md](SECURITY-REPORT.md).
 
@@ -51,14 +51,14 @@ Ver [SECURITY.md](SECURITY.md) y [SECURITY-REPORT.md](SECURITY-REPORT.md).
 - **Backend**: API REST monolítica Express + Prisma (rutas: auth, menu, orders, reservations, payments, shifts, tables, reports).
 - **Frontend**: SPA React + Vite + Tailwind con menú digital, carrito persistente, reservas, checkout WhatsApp/Wompi y panel admin.
 - **Observabilidad**: logs estructurados (JSON), request ID por petición, `/api/metrics` para monitoreo.
-- **Tests**: Vitest (186 backend / 156 frontend) + 42 tests de seguridad + Playwright E2E con capturas para documentación.
+- **Tests**: Vitest (189 backend / 197 frontend) + 42 tests de seguridad + Playwright E2E con capturas para documentación.
 - **Despliegue**: scripts PowerShell para Windows (NSSM + Caddy) en `deploy/`.
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js 22+
 - PostgreSQL 14+
-- npm 9+
+- npm 10+
 
 ## Instalación Rápida
 
@@ -128,9 +128,9 @@ npm run start:all    # backend en :3001 + frontend Vite en :5173
 ## Tests
 
 ```bash
-npm run test            # server (Vitest, 186 tests)
+npm run test            # server (Vitest, 189 tests)
 npm run test:coverage   # server con cobertura (threshold 80%)
-npm run test --prefix hostal-cofre/client   # frontend (Vitest, 156 tests)
+npm run test --prefix hostal-cofre/client   # frontend (Vitest, 197 tests)
 npm run test:e2e        # E2E Playwright (requiere servidor en :3001)
 npm run test:e2e:docs   # genera capturas en docs/screenshots
 ```
@@ -174,7 +174,7 @@ npm run test:e2e:docs   # genera capturas en docs/screenshots
 │       │   ├── services/
 │       │   └── utils/       # logger, metrics, seed
 │       ├── prisma/
-│       ├── tests/           # 186 tests (Vitest) + 42 de seguridad
+│       ├── tests/           # 189 tests (Vitest) + 42 de seguridad
 │       └── package.json
 ├── deploy/                  # Scripts de despliegue Windows (NSSM + Caddy)
 ├── e2e/                     # Tests E2E Playwright + capturas

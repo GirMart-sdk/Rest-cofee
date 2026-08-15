@@ -16,15 +16,24 @@ export class OrderService {
     userId?: string,
     role?: string,
     filters?: { orderType?: string; status?: string },
+    pagination?: { page?: number; limit?: number },
   ) {
     const where: any = role === 'admin' ? {} : { userId }
     if (filters?.orderType) where.orderType = filters.orderType
     if (filters?.status) where.status = filters.status
-    return prisma.order.findMany({
-      where,
-      include: { items: { include: { menuItem: true } }, table: true, shift: true },
-      orderBy: { createdAt: 'desc' },
-    })
+    const page = Math.max(1, pagination?.page ?? 1)
+    const limit = Math.min(100, Math.max(1, pagination?.limit ?? 50))
+    const [items, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: { items: { include: { menuItem: true } }, table: true, shift: true },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.order.count({ where }),
+    ])
+    return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) }
   }
 
   static async getById(id: string) {

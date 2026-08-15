@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Order } from '../../types'
+import { Order, PaginationMeta } from '../../types'
 import { api } from '../../services/api'
 import { subscribeOrders, SseEvent } from '../../services/events'
 import { FiRefreshCw, FiTruck, FiHome, FiGrid } from 'react-icons/fi'
+import { Skeleton, EmptyState, Pagination } from '../../components/ui'
 import toast from 'react-hot-toast'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -36,12 +37,18 @@ export default function AdminOrders() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null)
+  const pageRef = useRef(page)
+  pageRef.current = page
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (targetPage: number = 1) => {
     try {
       setLoading(true)
-      const res = await api.get('/orders')
+      const res = await api.get(`/orders?page=${targetPage}&limit=50`)
       setOrders(res.data.data)
+      setPagination(res.data.pagination ?? null)
+      setPage(targetPage)
     } catch {
       toast.error('Error al cargar pedidos')
     } finally {
@@ -50,12 +57,12 @@ export default function AdminOrders() {
   }, [])
 
   useEffect(() => {
-    void fetchOrders()
+    void fetchOrders(1)
     const unsubscribe = subscribeOrders((event: SseEvent) => {
       setConnected(true)
       if (event.action === 'order.created') {
         const order = event.data as Order
-        setOrders((prev) => [order, ...prev])
+        if (pageRef.current === 1) setOrders((prev) => [order, ...prev])
         toast.success(`Nuevo pedido ${order.receiptNumber || ''}`.trim())
       } else if (event.action === 'order.updated') {
         const updated = event.data as Order
@@ -103,7 +110,7 @@ export default function AdminOrders() {
             />
             {connected ? 'Tiempo real' : 'Reconectando...'}
           </span>
-          <button onClick={fetchOrders} className="btn-outline flex items-center gap-2">
+          <button onClick={() => fetchOrders(page)} className="btn-outline flex items-center gap-2">
             <FiRefreshCw /> Actualizar
           </button>
         </div>
@@ -143,9 +150,14 @@ export default function AdminOrders() {
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-gray-400">
-          <FiRefreshCw className="animate-spin mx-auto text-4xl mb-4" />
-          <p>Cargando pedidos...</p>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-6 shadow-md">
+              <Skeleton className="h-5 w-40 mb-3" />
+              <Skeleton className="h-4 w-64 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="space-y-4">
@@ -248,11 +260,18 @@ export default function AdminOrders() {
       )}
 
       {!loading && filtered.length === 0 && (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-xl">
-            No hay pedidos {filter !== 'all' ? `con estado "${STATUS_LABELS[filter]}"` : ''}
-          </p>
-        </div>
+        <EmptyState
+          title={`No hay pedidos${filter !== 'all' ? ` con estado "${STATUS_LABELS[filter]}"` : ''}`}
+          action={{ label: 'Refrescar', onClick: () => fetchOrders(page) }}
+        />
+      )}
+
+      {!loading && pagination && (
+        <Pagination
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          onChange={fetchOrders}
+        />
       )}
     </div>
   )

@@ -139,4 +139,28 @@ describe('AdminReservations', () => {
 
     expect(await screen.findByText('No hay reservas')).toBeInTheDocument()
   })
+
+  it('paginates reservations', async () => {
+    apiMock.api.get.mockResolvedValue({
+      data: {
+        data: reservations,
+        pagination: { page: 1, limit: 100, total: 230, totalPages: 3 },
+      },
+    })
+    renderPage()
+    await screen.findByText('Ana')
+    expect(screen.getByText('Página 1 de 3')).toBeInTheDocument()
+
+    apiMock.api.get.mockResolvedValue({
+      data: {
+        data: reservations,
+        pagination: { page: 2, limit: 100, total: 230, totalPages: 3 },
+      },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+    await waitFor(() =>
+      expect(apiMock.api.get).toHaveBeenCalledWith('/reservations?page=2&limit=100'),
+    )
+  })
 })

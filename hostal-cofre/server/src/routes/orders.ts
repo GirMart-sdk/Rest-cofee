@@ -43,12 +43,29 @@ function notifyNewOrder(order: Parameters<typeof buildOrderSummary>[0]) {
 }
 
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
-  const { orderType, status } = req.query
-  const orders = await OrderService.getAll(req.user!.id, req.user!.role, {
-    orderType: orderType as string,
-    status: status as string,
+  const { orderType, status, page, limit } = req.query
+  const result = await OrderService.getAll(
+    req.user!.id,
+    req.user!.role,
+    {
+      orderType: orderType as string,
+      status: status as string,
+    },
+    {
+      page: page ? parseInt(page as string, 10) : undefined,
+      limit: limit ? parseInt(limit as string, 10) : undefined,
+    },
+  )
+  res.json({
+    success: true,
+    data: result.items,
+    pagination: {
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages,
+    },
   })
-  res.json({ success: true, data: orders })
 })
 
 router.get('/daily-sales', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
