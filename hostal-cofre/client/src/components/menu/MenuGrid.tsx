@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { MenuItem } from '../../types'
 import { api } from '../../services/api'
 import { useCart } from '../../context/CartContext'
+import { EmptyState } from '../ui'
 import { FiPlus, FiCheck } from 'react-icons/fi'
 
 const CATEGORIES = [
@@ -121,9 +122,7 @@ export default function MenuGrid() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-xl">No hay platillos disponibles en esta categoría</p>
-        </div>
+        <EmptyState title="No hay platillos disponibles en esta categoría" />
       )}
     </div>
   )

@@ -7,8 +7,8 @@
 
 ![Progreso General](https://img.shields.io/badge/Progreso-93%25-blue.svg)
 ![Bugs Corregidos](https://img.shields.io/badge/Bugs%20Corregidos-30%2F30-brightgreen.svg)
-![Tests Pasando](https://img.shields.io/badge/Tests-428%2F428-brightgreen.svg)
-![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-3%20items-yellow.svg)
+![Tests Pasando](https://img.shields.io/badge/Tests-436%2F436-brightgreen.svg)
+![Deuda Técnica](https://img.shields.io/badge/Deuda%20Técnica-1%20item-yellow.svg)
 ![Prioridad Máx (RICE)](<https://img.shields.io/badge/Prioridad%20Máx%20(RICE)-108-orange.svg>)
 
 ---
@@ -86,24 +86,24 @@
 | E2E Playwright + capturas para docs                   | COMPLETO             |
 | Paginación en pedidos y reservas (server + admin)     | COMPLETO             |
 | Página 404 (ruta catch-all)                           | COMPLETO             |
-| Test suite                                            | COMPLETO (428 tests) |
+| Test suite                                            | COMPLETO (436 tests) |
 
 ---
 
 ## 2. Tech Debt — Lo que necesita limpieza
 
-| #   | Prioridad | Deuda                                                                                       | Esfuerzo | Impacto                    |
-| --- | --------- | ------------------------------------------------------------------------------------------- | -------- | -------------------------- |
-| 1   | Baja      | ~~Hooks no usados~~ — ✅ resuelto: `useApi.ts` y su test eliminados                         | 1h       | Limpieza de código         |
-| 2   | Media     | UI Library (`ui/index.tsx`) adoptada parcialmente — Skeleton/EmptyState/Pagination en admin | 2h rest. | Consistencia visual        |
-| 3   | Baja      | CartContext duplicado en MesaPage (`MesaCartContext` separado)                              | 2h       | Mantenibilidad             |
-| 4   | Baja      | ~~Modelo `DailyReport`~~ — ✅ resuelto: eliminado + migración `remove_daily_report`         | 15min    | Schema limpio              |
-| 5   | ~~Alta~~  | ~~Wompi solo como label~~ — ✅ resuelto: modo producción + proxy de transacciones           | —        | Pagos reales               |
-| 6   | ~~Alta~~  | ~~WhatsApp solo deep links~~ — ✅ resuelto: Business API con fallback a wa.me               | —        | Notificaciones automáticas |
-| 7   | Baja      | ~~Social links stub~~ — ✅ resuelto: WhatsApp (`wa.me`) + `tel:` en Footer                  | 30min    | UX                         |
-| 8   | Media     | Charts CSS puros en reportes — sin librería de gráficos (Recharts, Fase 2)                  | 4h       | Visualización              |
-| 9   | Media     | ~~`cleanupExpiredTokens()` sin llamar~~ — ✅ resuelto: cron cada 6h en `index.ts`           | 1h       | Seguridad                  |
-| 10  | Media     | ~~Sin paginación en pedidos y reservas~~ — ✅ resuelto: `page`/`limit` + UI admin           | 6h       | Performance                |
+| #   | Prioridad | Deuda                                                                                                                                                                                                                                                 | Esfuerzo | Impacto                    |
+| --- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------- |
+| 1   | Baja      | ~~Hooks no usados~~ — ✅ resuelto: `useApi.ts` y su test eliminados                                                                                                                                                                                   | 1h       | Limpieza de código         |
+| 2   | Media     | ~~UI Library (`ui/index.tsx`) adoptada parcialmente~~ — ✅ resuelto: design system (Button/Input/Card/EmptyState/Modal/Skeleton/Pagination) en flujos clave: login, menú, carrito (checkout), reservas y formularios admin (menú, mesas, turnos, POS) | 2h rest. | Consistencia visual        |
+| 3   | Baja      | ~~CartContext duplicado en MesaPage (`MesaCartContext` separado)~~ — ✅ resuelto: hook compartido `useCartState` + contexto para el carrito del menú; el carrito de mesa usa instancia propia sin persistencia (lógica única, sin duplicación)        | 2h       | Mantenibilidad             |
+| 4   | Baja      | ~~Modelo `DailyReport`~~ — ✅ resuelto: eliminado + migración `remove_daily_report`                                                                                                                                                                   | 15min    | Schema limpio              |
+| 5   | ~~Alta~~  | ~~Wompi solo como label~~ — ✅ resuelto: modo producción + proxy de transacciones                                                                                                                                                                     | —        | Pagos reales               |
+| 6   | ~~Alta~~  | ~~WhatsApp solo deep links~~ — ✅ resuelto: Business API con fallback a wa.me                                                                                                                                                                         | —        | Notificaciones automáticas |
+| 7   | Baja      | ~~Social links stub~~ — ✅ resuelto: WhatsApp (`wa.me`) + `tel:` en Footer                                                                                                                                                                            | 30min    | UX                         |
+| 8   | Media     | Charts CSS puros en reportes — sin librería de gráficos (Recharts, Fase 2)                                                                                                                                                                            | 4h       | Visualización              |
+| 9   | Media     | ~~`cleanupExpiredTokens()` sin llamar~~ — ✅ resuelto: cron cada 6h en `index.ts`                                                                                                                                                                     | 1h       | Seguridad                  |
+| 10  | Media     | ~~Sin paginación en pedidos y reservas~~ — ✅ resuelto: `page`/`limit` + UI admin                                                                                                                                                                     | 6h       | Performance                |
 
 ---
 
@@ -113,17 +113,17 @@
 
 **Objetivo:** Consolidar lo existente y cerrar deuda técnica
 
-| Tarea                                                                | Esfuerzo | Dependencias         | Estado                       |
-| -------------------------------------------------------------------- | -------- | -------------------- | ---------------------------- |
-| Adoptar `ui/index.tsx` como design system en páginas admin           | 4h       | Ninguna              | ✅ Parcial (ver Fase 2)      |
-| Eliminar hooks no usados del directorio `hooks/`                     | 1h       | Ninguna              | ✅ Hecho (useApi.ts borrado) |
-| Eliminar modelo `DailyReport` del schema (o habilitar escritura)     | 15min    | Decisión de producto | ✅ Hecho (migración)         |
-| Conectar `cleanupExpiredTokens()` a un cron o middleware             | 1h       | Ninguna              | ✅ Hecho (cron 6h)           |
-| ~~Integrar Wompi modo producción~~ — ✅ hecho (backend + WOMPI_MODE) | —        | —                    | —                            |
-| ~~Agregar tests E2E (Playwright)~~ — ✅ hecho (suite + capturas)     | —        | —                    | —                            |
-| ~~WhatsApp Business API~~ — ✅ hecho (envío server-side + fallback)  | —        | —                    | —                            |
-| Agregar paginación a `GET /api/orders` y `GET /api/reservations`     | 6h       | Frontend update      | ✅ Hecho (server + admin UI) |
-| Configurar ESLint rules para evitar imports no usados                | 30min    | Ninguna              | ✅ Ya configurado (error)    |
+| Tarea                                                                | Esfuerzo | Dependencias         | Estado                                      |
+| -------------------------------------------------------------------- | -------- | -------------------- | ------------------------------------------- |
+| Adoptar `ui/index.tsx` como design system en páginas admin           | 4h       | Ninguna              | ✅ Hecho (flujos clave; restante en Fase 2) |
+| Eliminar hooks no usados del directorio `hooks/`                     | 1h       | Ninguna              | ✅ Hecho (useApi.ts borrado)                |
+| Eliminar modelo `DailyReport` del schema (o habilitar escritura)     | 15min    | Decisión de producto | ✅ Hecho (migración)                        |
+| Conectar `cleanupExpiredTokens()` a un cron o middleware             | 1h       | Ninguna              | ✅ Hecho (cron 6h)                          |
+| ~~Integrar Wompi modo producción~~ — ✅ hecho (backend + WOMPI_MODE) | —        | —                    | —                                           |
+| ~~Agregar tests E2E (Playwright)~~ — ✅ hecho (suite + capturas)     | —        | —                    | —                                           |
+| ~~WhatsApp Business API~~ — ✅ hecho (envío server-side + fallback)  | —        | —                    | —                                           |
+| Agregar paginación a `GET /api/orders` y `GET /api/reservations`     | 6h       | Frontend update      | ✅ Hecho (server + admin UI)                |
+| Configurar ESLint rules para evitar imports no usados                | 30min    | Ninguna              | ✅ Ya configurado (error)                   |
 
 **Total estimado:** ~29h — cerrada en su totalidad
 
@@ -244,27 +244,27 @@ Reportes:   ████████████████████ 100%
 Mesas:      ████████████████████ 100%
 Pagos:      ████████████████████ 100% (sandbox + producción)
 Notif:      ████████████████████ 100% (Business API + wa.me)
-Testing:    ████████████████████ 100% (189 + 197 + 42 + E2E)
+Testing:    ████████████████████ 100% (189 + 205 + 42 + E2E)
 Observab:   ████████████████████ 100% (logs JSON + métricas)
 Deploy:     ████████████████████ 100% (Windows bare-metal)
-UI/UX:      ██████████████████░░  88% (design system parcial + 404)
+UI/UX:      ████████████████████░ 94% (design system en flujos clave)
 Paginación: ████████████████████ 100% (orders + reservations)
 ```
 
 ### 6.2 Progreso General
 
-| Categoría                  | Progreso                      |
-| -------------------------- | ----------------------------- |
-| Funcionalidad backend      | 100%                          |
-| Funcionalidad frontend     | 97%                           |
-| Testing                    | 100% (unit + cobertura + E2E) |
-| Integración pagos          | 100% (sandbox + producción)   |
-| Integración notificaciones | 100% (Business API + wa.me)   |
-| Observabilidad             | 100%                          |
-| Despliegue                 | 100% (Windows bare-metal)     |
-| Design system              | 40% (parcialmente adoptado)   |
-| PWA                        | 0%                            |
-| **General**                | **~93%**                      |
+| Categoría                  | Progreso                                           |
+| -------------------------- | -------------------------------------------------- |
+| Funcionalidad backend      | 100%                                               |
+| Funcionalidad frontend     | 97%                                                |
+| Testing                    | 100% (unit + cobertura + E2E)                      |
+| Integración pagos          | 100% (sandbox + producción)                        |
+| Integración notificaciones | 100% (Business API + wa.me)                        |
+| Observabilidad             | 100%                                               |
+| Despliegue                 | 100% (Windows bare-metal)                          |
+| Design system              | 85% (flujos clave; queda skeleton global + charts) |
+| PWA                        | 0%                                                 |
+| **General**                | **~94%**                                           |
 
 ---
 

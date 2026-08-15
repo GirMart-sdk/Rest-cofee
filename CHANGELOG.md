@@ -9,7 +9,7 @@
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)](https://semver.org/lang/es/)
 ![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 [![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-428%20Passing-brightgreen.svg)](02-TRD.md)
+[![Tests](https://img.shields.io/badge/Tests-436%20Passing-brightgreen.svg)](02-TRD.md)
 
 ---
 
@@ -28,7 +28,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   token se renueva vía `POST /api/auth/refresh` sin exponer el refresh token en `localStorage`
 - Cliente: pedidos en tiempo real vía SSE (`src/services/events.ts`) con indicador de
   conexión en el panel de gestión de pedidos
-- Suite de tests del cliente con Vitest (196 tests) y workflow de CI (lint + tests +
+- Cliente: hook compartido `useCartState` (`src/hooks/useCartState.ts`) que centraliza la
+  lógica de carrito (items, add/remove/update, total, persistencia opcional en
+  `localStorage`) con suite de tests propia
+- Cliente: variantes `success` y `outline` en `Button` del design system
+- Cliente: design system (Button/Input/Card/EmptyState) adoptado en flujos clave —
+  login, grid de menú, checkout (carrito, dirección, reservas) y formularios admin
+  (menú, mesas, turnos, POS)
+- Suite de tests del cliente con Vitest (205 tests) y workflow de CI (lint + tests +
   coverage para server y cliente)
 - CI: `npm audit --audit-level=high` en lint-server y lint-client, acciones fijadas por SHA,
   Node 22 y timeouts por job
@@ -49,11 +56,15 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   Prisma → 5.22 (server y cliente)
 - Servidor: el rate limiter global solo aplica a rutas `/api/`, dejando de contar las
   peticiones de assets del dev server de Vite y de estáticos
-- Documentación: insignias actualizadas (428 tests, coverage server 92% / client 99%,
+- Documentación: insignias actualizadas (436 tests, coverage server 92% / client 99%,
   42 tests de seguridad) y plan de implementación con la deuda cerrada
 - Cliente: `Footer` reemplaza los enlaces sociales stub (`href="#"`) por WhatsApp
   (`wa.me`, configurable vía `VITE_WHATSAPP_PHONE`) y `tel:`
 - Cliente: `Input` del design system asocia `label` ↔ `input` con `useId` (accesibilidad)
+- Cliente: `CartContext` reconstruido sobre `useCartState('hostal-cofee-cart')`
+  (addItem con toast, clearCart limpia tipo de pedido y zona de entrega)
+- Cliente: `MesaPage` elimina la duplicación de carrito usando `useCartState` con
+  instancia propia sin persistencia (pedidos de mesa)
 - Cliente: paneles admin de pedidos y reservas con loading skeletons, empty states con
   acción de refresco y paginación
 
@@ -71,7 +82,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   de "Credenciales incorrectas"
 - E2E: `home.spec.ts` resuelve el nav duplicado (escritorio + móvil) y `cart.spec.ts`
   ya no depende del estado transitorio "Añadido", evitando flakiness bajo carga
-- Documentación: contaba 384 tests y 86% de cobertura cliente; ahora refleja 428 tests
+- Documentación: contaba 384 tests y 86% de cobertura cliente; ahora refleja 436 tests
   y 99% (métricas reales)
 
 ---

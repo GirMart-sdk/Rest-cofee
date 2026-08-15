@@ -14,6 +14,7 @@ import {
   FiGrid,
 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
+import { Button, Input } from '../ui'
 import DeliveryForm from './DeliveryForm'
 
 type CheckoutStep = 'cart' | 'type' | 'delivery' | 'details' | 'payment'
@@ -177,9 +178,9 @@ export default function CartDrawer() {
             </div>
           </div>
 
-          <button onClick={() => setStep('type')} className="btn-primary w-full text-lg">
+          <Button size="lg" className="w-full" onClick={() => setStep('type')}>
             Continuar al Checkout
-          </button>
+          </Button>
         </motion.div>
       )}
 
@@ -230,15 +231,15 @@ export default function CartDrawer() {
             ))}
           </div>
           <div className="flex gap-4">
-            <button onClick={() => setStep('cart')} className="btn-outline flex-1">
+            <Button variant="outline" className="flex-1" onClick={() => setStep('cart')}>
               Volver
-            </button>
-            <button
+            </Button>
+            <Button
+              className="flex-1"
               onClick={() => setStep(orderType === 'domicilio' ? 'delivery' : 'details')}
-              className="btn-primary flex-1"
             >
               Siguiente
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}
@@ -258,46 +259,44 @@ export default function CartDrawer() {
             </p>
           )}
           <div className="space-y-4 mb-8">
-            <input
+            <Input
               type="text"
               placeholder="Nombre completo *"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="input-field"
             />
-            <input
+            <Input
               type="tel"
               placeholder="Teléfono *"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
-              className="input-field"
             />
             {orderType !== 'mesa' && (
-              <input
+              <Input
                 type="email"
                 placeholder="Email"
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
-                className="input-field"
               />
             )}
           </div>
           <div className="flex gap-4">
-            <button
+            <Button
+              variant="outline"
+              className="flex-1"
               onClick={() => setStep(orderType === 'domicilio' ? 'delivery' : 'type')}
-              className="btn-outline flex-1"
             >
               Volver
-            </button>
-            <button
+            </Button>
+            <Button
+              className="flex-1"
               onClick={() => {
                 if (customerName && customerPhone) setStep('payment')
                 else toast.error('Nombre y teléfono son requeridos')
               }}
-              className="btn-primary flex-1"
             >
               Siguiente
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}
@@ -349,14 +348,10 @@ export default function CartDrawer() {
           </div>
 
           <div className="flex gap-4">
-            <button onClick={() => setStep('details')} className="btn-outline flex-1">
+            <Button variant="outline" className="flex-1" onClick={() => setStep('details')}>
               Volver
-            </button>
-            <button
-              onClick={handleOrder}
-              disabled={submitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50"
-            >
+            </Button>
+            <Button className="flex-1" onClick={handleOrder} disabled={submitting}>
               {submitting ? (
                 'Registrando...'
               ) : (
@@ -364,7 +359,7 @@ export default function CartDrawer() {
                   <FiMessageCircle size={20} /> Enviar Pedido
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}

@@ -30,7 +30,7 @@
 > - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
 > - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
 > - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
-> - **Testing**: 189 tests backend + 197 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
+> - **Testing**: 189 tests backend + 205 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
 
 ---
 
@@ -296,9 +296,9 @@ export default defineConfig({
 **Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **99%** cliente
 (thresholds server: 80/65/80/80 · client: 95/90/90/95).
 
-**Frontend (Vitest + Testing Library) — 197 tests:**
+**Frontend (Vitest + Testing Library) — 205 tests:**
 Layout (13), Routing (9), Menú (14), Reservas (10), Carrito (20), Auth (16),
-Admin (57), Mesa (7), UI design system (16), Hooks (6), Services (29).
+Admin (57), Mesa (7), UI design system (17), Hooks (13), Services (29).
 
 **Seguridad (suite aparte, `npm run test:security`) — 42 tests:** secrets,
 auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MenuItem } from '../../types'
 import { api } from '../../services/api'
-import { Modal } from '../../components/ui'
+import { Modal, Button, Input, EmptyState } from '../../components/ui'
 import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiRefreshCw } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -102,19 +102,19 @@ export default function AdminMenu() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-display">Gestionar Menú</h1>
         <div className="flex gap-2">
-          <button onClick={fetchMenu} className="btn-outline flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={fetchMenu}>
             <FiRefreshCw /> Actualizar
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
             onClick={() => {
               setShowForm(!showForm)
               setEditingId(null)
               setForm({ name: '', description: '', price: '', category: 'pasta', image: '' })
             }}
-            className="btn-primary flex items-center gap-2"
           >
             <FiPlus /> Nuevo Platillo
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -124,26 +124,23 @@ export default function AdminMenu() {
         title={editingId ? 'Editar Platillo' : 'Nuevo Platillo'}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
+          <Input
             type="text"
             placeholder="Nombre *"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="input-field"
           />
-          <input
+          <Input
             type="number"
             placeholder="Precio *"
             value={form.price}
             onChange={(e) => setForm({ ...form, price: e.target.value })}
-            className="input-field"
           />
-          <input
+          <Input
             type="text"
             placeholder="Descripción"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="input-field"
           />
           <select
             value={form.category}
@@ -156,21 +153,22 @@ export default function AdminMenu() {
             <option value="postre">Postre</option>
             <option value="bebida">Bebida</option>
           </select>
-          <input
-            type="text"
-            placeholder="URL de imagen"
-            value={form.image}
-            onChange={(e) => setForm({ ...form, image: e.target.value })}
-            className="input-field md:col-span-2"
-          />
+          <div className="md:col-span-2">
+            <Input
+              type="text"
+              placeholder="URL de imagen"
+              value={form.image}
+              onChange={(e) => setForm({ ...form, image: e.target.value })}
+            />
+          </div>
         </div>
         <div className="flex gap-4 mt-4">
-          <button onClick={handleSave} className="btn-primary flex items-center gap-2">
+          <Button onClick={handleSave}>
             <FiCheck /> Guardar
-          </button>
-          <button onClick={closeForm} className="btn-outline flex items-center gap-2">
+          </Button>
+          <Button variant="outline" onClick={closeForm}>
             <FiX /> Cancelar
-          </button>
+          </Button>
         </div>
       </Modal>
 
@@ -222,10 +220,10 @@ export default function AdminMenu() {
       )}
 
       {!loading && menu.length === 0 && (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-xl">No hay platillos en el menú</p>
-          <p className="mt-2">Agrega el primer platillo con el botón "Nuevo Platillo"</p>
-        </div>
+        <EmptyState
+          title="No hay platillos en el menú"
+          message={'Agrega el primer platillo con el botón "Nuevo Platillo"'}
+        />
       )}
     </div>
   )

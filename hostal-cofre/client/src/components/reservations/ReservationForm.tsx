@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Table } from '../../types'
 import { api, whatsappService } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
+import { Button, Input } from '../ui'
 import { FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -83,46 +84,34 @@ export default function ReservationForm() {
       {step === 'form' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre *</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="input-field"
-                placeholder="Tu nombre"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Teléfono *</label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="input-field"
-                placeholder="Tu teléfono"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="input-field"
-                placeholder="Tu email"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Fecha *</label>
-              <input
-                type="date"
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="input-field"
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
+            <Input
+              label="Nombre *"
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Tu nombre"
+            />
+            <Input
+              label="Teléfono *"
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              placeholder="Tu teléfono"
+            />
+            <Input
+              label="Email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="Tu email"
+            />
+            <Input
+              label="Fecha *"
+              type="date"
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
+            />
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Hora *</label>
               <select
@@ -168,15 +157,16 @@ export default function ReservationForm() {
               placeholder="Alergias, celebraciones, preferencias..."
             />
           </div>
-          <button
+          <Button
+            size="lg"
+            className="w-full"
             onClick={() => {
               if (form.name && form.phone && form.date && form.time) setStep('table')
               else toast.error('Completa nombre, teléfono, fecha y hora')
             }}
-            className="btn-primary w-full text-lg"
           >
             Seleccionar Mesa
-          </button>
+          </Button>
         </motion.div>
       )}
 
@@ -223,18 +213,18 @@ export default function ReservationForm() {
           )}
 
           <div className="flex gap-4">
-            <button onClick={() => setStep('form')} className="btn-outline flex-1">
+            <Button variant="outline" className="flex-1" onClick={() => setStep('form')}>
               Volver
-            </button>
-            <button
+            </Button>
+            <Button
+              className="flex-1"
               onClick={() => {
                 if (selectedTable) setStep('confirm')
                 else toast.error('Selecciona una mesa')
               }}
-              className="btn-primary flex-1"
             >
               Confirmar Reserva
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}
@@ -269,15 +259,12 @@ export default function ReservationForm() {
           </div>
           <p className="text-gray-500 mb-6">Se enviará tu reserva por WhatsApp para confirmación</p>
           <div className="flex gap-4 max-w-md mx-auto">
-            <button onClick={() => setStep('table')} className="btn-outline flex-1">
+            <Button variant="outline" className="flex-1" onClick={() => setStep('table')}>
               Volver
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-            >
+            </Button>
+            <Button variant="success" className="flex-1" onClick={handleSubmit}>
               Enviar por WhatsApp
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}

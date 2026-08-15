@@ -1,9 +1,11 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { MenuItem, CartItem } from '../types'
 import { api, whatsappService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { useCartState } from '../hooks/useCartState'
+import { Button, Card, EmptyState } from '../components/ui'
 import { FiPlus, FiMinus, FiTrash2, FiCheck, FiGrid } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -20,42 +22,18 @@ interface MesaCartContextType {
 const MesaCartContext = createContext<MesaCartContextType | null>(null)
 
 function MesaCartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
-
-  const addItem = (item: MenuItem) => {
-    setItems((prev) => {
-      const existing = prev.find((ci) => ci.menuItem.id === item.id)
-      if (existing)
-        return prev.map((ci) =>
-          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci,
-        )
-      return [...prev, { menuItem: item, quantity: 1 }]
-    })
-    toast.success(`${item.name} añadido`)
-  }
-
-  const removeItem = (itemId: string) => {
-    setItems((prev) => prev.filter((ci) => ci.menuItem.id !== itemId))
-  }
-
-  const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(itemId)
-      return
-    }
-    setItems((prev) => prev.map((ci) => (ci.menuItem.id === itemId ? { ...ci, quantity } : ci)))
-  }
-
-  const clearCart = () => setItems([])
-  const total = items.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0)
-  const itemCount = items.reduce((sum, ci) => sum + ci.quantity, 0)
+  const cart = useCartState()
+  const { addItem: addCartItem } = cart
+  const addItem = useCallback(
+    (item: MenuItem) => {
+      addCartItem(item)
+      toast.success(`${item.name} añadido`)
+    },
+    [addCartItem],
+  )
 
   return (
-    <MesaCartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, total, itemCount, clearCart }}
-    >
-      {children}
-    </MesaCartContext.Provider>
+    <MesaCartContext.Provider value={{ ...cart, addItem }}>{children}</MesaCartContext.Provider>
   )
 }
 
@@ -152,11 +130,7 @@ function MesaCart() {
   const tableNumber = parseInt(searchParams.get('t') || '0')
 
   if (items.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-400">
-        <p>Agrega platos del menú para ordenar</p>
-      </div>
-    )
+    return <EmptyState title="Agrega platos del menú para ordenar" />
   }
 
   const handleOrder = async () => {
@@ -193,7 +167,7 @@ function MesaCart() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4">
+    <Card className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-display text-lg">Tu Pedido</h3>
         <span className="bg-primary text-white text-xs px-2 py-1 rounded-full font-bold">
@@ -244,12 +218,9 @@ function MesaCart() {
       </div>
 
       {!showConfirm ? (
-        <button
-          onClick={() => setShowConfirm(true)}
-          className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-        >
+        <Button variant="success" size="lg" className="w-full" onClick={() => setShowConfirm(true)}>
           Enviar Pedido a Cocina
-        </button>
+        </Button>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -260,16 +231,14 @@ function MesaCart() {
             ¿Confirmar pedido para Mesa #{tableNumber}?
           </p>
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowConfirm(false)}
-              className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-semibold"
-            >
+            <Button variant="ghost" className="flex-1" onClick={() => setShowConfirm(false)}>
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="success"
+              className="flex-1"
               onClick={handleOrder}
               disabled={submitting}
-              className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-1"
             >
               {submitting ? (
                 'Enviando...'
@@ -278,11 +247,11 @@ function MesaCart() {
                   <FiCheck size={14} /> Confirmar
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}
-    </div>
+    </Card>
   )
 }
 

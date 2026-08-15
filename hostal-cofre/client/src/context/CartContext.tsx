@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 import { CartItem, MenuItem, OrderType, DeliveryZoneType } from '../types'
+import { useCartState } from '../hooks/useCartState'
 import toast from 'react-hot-toast'
 
 interface CartContextType {
@@ -27,12 +28,10 @@ const DELIVERY_FEES: Record<DeliveryZoneType, number> = {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('hostal-cofee-cart')
-    return saved ? JSON.parse(saved) : []
-  })
+  const cart = useCartState('hostal-cofee-cart')
+  const { addItem: addCartItem, clearCart: clearCartState, removeItem, updateQuantity } = cart
 
-  const [orderType, setOrderType] = useState<OrderType>(() => {
+  const [orderType, setOrderTypeState] = useState<OrderType>(() => {
     const saved = localStorage.getItem('hostal-cofee-orderType')
     return (saved as OrderType) || 'tienda'
   })
@@ -41,6 +40,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('hostal-cofee-deliveryZone')
     return (saved as DeliveryZoneType) || null
   })
+
+  const setOrderType = useCallback((type: OrderType) => {
+    setOrderTypeState(type)
+    localStorage.setItem('hostal-cofee-orderType', type)
+  }, [])
 
   const setDeliveryZone = useCallback((zone: DeliveryZoneType | null) => {
     setDeliveryZoneState(zone)
@@ -51,82 +55,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const saveCart = useCallback((newItems: CartItem[]) => {
-    setItems(newItems)
-    localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
-  }, [])
-
-  const addItem = useCallback((item: MenuItem) => {
-    setItems((prev) => {
-      const existing = prev.find((ci) => ci.menuItem.id === item.id)
-      let newItems: CartItem[]
-      if (existing) {
-        newItems = prev.map((ci) =>
-          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci,
-        )
-      } else {
-        newItems = [...prev, { menuItem: item, quantity: 1 }]
-      }
-      localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
-      return newItems
-    })
-    toast.success(`${item.name} añadido al carrito`)
-  }, [])
-
-  const removeItem = useCallback((itemId: string) => {
-    setItems((prev) => {
-      const newItems = prev.filter((ci) => ci.menuItem.id !== itemId)
-      localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
-      return newItems
-    })
-  }, [])
-
-  const updateQuantity = useCallback(
-    (itemId: string, quantity: number) => {
-      if (quantity <= 0) {
-        removeItem(itemId)
-        return
-      }
-      setItems((prev) => {
-        const newItems = prev.map((ci) => (ci.menuItem.id === itemId ? { ...ci, quantity } : ci))
-        localStorage.setItem('hostal-cofee-cart', JSON.stringify(newItems))
-        return newItems
-      })
-    },
-    [removeItem],
-  )
-
   const clearCart = useCallback(() => {
-    saveCart([])
+    clearCartState()
     localStorage.removeItem('hostal-cofee-orderType')
     localStorage.removeItem('hostal-cofee-deliveryZone')
-    setOrderType('tienda')
+    setOrderTypeState('tienda')
     setDeliveryZoneState(null)
-  }, [saveCart])
+  }, [clearCartState])
 
-  const subtotal = items.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0)
-  const itemCount = items.reduce((sum, ci) => sum + ci.quantity, 0)
+  const addItem = useCallback(
+    (item: MenuItem) => {
+      addCartItem(item)
+      toast.success(`${item.name} añadido al carrito`)
+    },
+    [addCartItem],
+  )
+
   const deliveryFeeValue =
     orderType === 'domicilio' && deliveryZone ? DELIVERY_FEES[deliveryZone] : 0
-  const grandTotal = parseFloat((subtotal + deliveryFeeValue).toFixed(2))
-
-  const handleSetOrderType = useCallback((type: OrderType) => {
-    setOrderType(type)
-    localStorage.setItem('hostal-cofee-orderType', type)
-  }, [])
+  const grandTotal = parseFloat((cart.total + deliveryFeeValue).toFixed(2))
 
   return (
     <CartContext.Provider
       value={{
-        items,
+        items: cart.items,
         addItem,
         removeItem,
         updateQuantity,
         clearCart,
-        total: subtotal,
-        itemCount,
+        total: cart.total,
+        itemCount: cart.itemCount,
         orderType,
-        setOrderType: handleSetOrderType,
+        setOrderType,
         deliveryZone,
         setDeliveryZone,
         deliveryFee: deliveryFeeValue,

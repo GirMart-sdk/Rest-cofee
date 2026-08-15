@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { DeliveryZoneConfig, DeliveryZoneType } from '../../types'
 import { api } from '../../services/api'
 import { useCart } from '../../context/CartContext'
+import { Button, Input } from '../ui'
 import { FiMapPin, FiClock } from 'react-icons/fi'
 
 export default function DeliveryForm({
@@ -50,12 +51,11 @@ export default function DeliveryForm({
         <h3 className="text-xl font-display mb-4 flex items-center gap-2">
           <FiMapPin className="text-primary" /> Dirección de entrega
         </h3>
-        <input
+        <Input
           type="text"
           placeholder="Calle, número, barrio, referencias..."
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className="input-field"
         />
         <textarea
           placeholder="Indicaciones adicionales (optional): apartamento, punto de referencia, etc."
@@ -105,16 +105,16 @@ export default function DeliveryForm({
       </div>
 
       <div className="flex gap-4 pt-4">
-        <button onClick={onBack} className="btn-outline flex-1">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
           Volver
-        </button>
-        <button
+        </Button>
+        <Button
+          className="flex-1"
           onClick={handleContinue}
           disabled={!deliveryZone || !address.trim()}
-          className="btn-primary flex-1 disabled:opacity-50"
         >
           Continuar
-        </button>
+        </Button>
       </div>
     </motion.div>
   )

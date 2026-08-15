@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Table } from '../../types'
 import { api } from '../../services/api'
 import { QRCodeSVG } from 'qrcode.react'
+import { Button, Input } from '../../components/ui'
 import { FiGrid, FiUsers, FiX, FiCopy, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -108,15 +109,12 @@ export default function AdminTables() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-display">Gestión de Mesas</h1>
         <div className="flex gap-2">
-          <button onClick={fetchTables} className="btn-outline text-sm px-3 py-2">
+          <Button variant="outline" size="sm" onClick={fetchTables}>
             Actualizar
-          </button>
-          <button
-            onClick={openCreateForm}
-            className="btn-primary text-sm px-3 py-2 flex items-center gap-1"
-          >
+          </Button>
+          <Button size="sm" onClick={openCreateForm}>
             <FiPlus size={16} /> Agregar Mesa
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -219,33 +217,23 @@ export default function AdminTables() {
             </div>
 
             <div className="space-y-4 mb-6">
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                  Número de mesa *
-                </label>
-                <input
-                  type="number"
-                  value={form.number}
-                  onChange={(e) => setForm({ ...form, number: e.target.value })}
-                  className="input-field"
-                  placeholder="Ej: 8"
-                  min="1"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                  Capacidad (personas) *
-                </label>
-                <input
-                  type="number"
-                  value={form.capacity}
-                  onChange={(e) => setForm({ ...form, capacity: e.target.value })}
-                  className="input-field"
-                  placeholder="Ej: 4"
-                  min="1"
-                  max="50"
-                />
-              </div>
+              <Input
+                label="Número de mesa *"
+                type="number"
+                value={form.number}
+                onChange={(e) => setForm({ ...form, number: e.target.value })}
+                placeholder="Ej: 8"
+                min="1"
+              />
+              <Input
+                label="Capacidad (personas) *"
+                type="number"
+                value={form.capacity}
+                onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+                placeholder="Ej: 4"
+                min="1"
+                max="50"
+              />
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">Zona</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -283,22 +271,19 @@ export default function AdminTables() {
             </div>
 
             <div className="flex gap-3">
-              <button
+              <Button
+                variant="ghost"
+                className="flex-1"
                 onClick={() => {
                   setShowForm(false)
                   setEditingTable(null)
                 }}
-                className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold"
               >
                 Cancelar
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark disabled:opacity-50"
-              >
+              </Button>
+              <Button className="flex-1" onClick={handleSubmit} disabled={submitting}>
                 {submitting ? 'Guardando...' : editingTable ? 'Actualizar' : 'Crear Mesa'}
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
@@ -380,21 +365,18 @@ export default function AdminTables() {
             )}
 
             <div className="flex gap-2 mt-4">
-              <button
+              <Button
+                className="flex-1"
                 onClick={() => {
                   setSelectedTable(null)
                   openEditForm(selectedTable)
                 }}
-                className="flex-1 py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 flex items-center justify-center gap-1"
               >
                 <FiEdit2 size={14} /> Editar
-              </button>
-              <button
-                onClick={() => setSelectedTable(null)}
-                className="flex-1 py-3 bg-gray-100 rounded-xl font-semibold"
-              >
+              </Button>
+              <Button variant="secondary" className="flex-1" onClick={() => setSelectedTable(null)}>
                 Cerrar
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>

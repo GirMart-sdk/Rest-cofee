@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { MenuItem } from '../../types'
 import { api } from '../../services/api'
 import { FiPlus, FiMinus, FiTrash2, FiShoppingBag, FiClock } from 'react-icons/fi'
+import { Button, Input } from '../../components/ui'
 import toast from 'react-hot-toast'
 
 interface POSCartItem {
@@ -229,12 +230,9 @@ export default function AdminPOS() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => setShowPayment(true)}
-                    className="w-full mt-4 py-3 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors"
-                  >
+                  <Button size="lg" className="w-full mt-4" onClick={() => setShowPayment(true)}>
                     Cobrar
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
@@ -252,14 +250,11 @@ export default function AdminPOS() {
             <h2 className="text-2xl font-display mb-6 text-center">Cobrar</h2>
 
             <div className="mb-4">
-              <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                Nombre del cliente (opcional)
-              </label>
-              <input
+              <Input
+                label="Nombre del cliente (opcional)"
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="input-field"
                 placeholder="Cliente"
               />
             </div>
@@ -286,15 +281,13 @@ export default function AdminPOS() {
 
             {paymentMethod === 'cash' && (
               <div className="mb-4">
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                  Efectivo recibido
-                </label>
-                <input
+                <Input
+                  label="Efectivo recibido"
                   type="number"
                   value={cashReceived}
                   onChange={(e) => setCashReceived(e.target.value)}
-                  className="input-field text-2xl font-bold text-center"
                   placeholder="0"
+                  className="text-2xl font-bold text-center"
                 />
                 {parseFloat(cashReceived) > 0 && (
                   <div className="text-center mt-2">
@@ -315,19 +308,12 @@ export default function AdminPOS() {
             </div>
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowPayment(false)}
-                className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold"
-              >
+              <Button variant="ghost" className="flex-1" onClick={() => setShowPayment(false)}>
                 Cancelar
-              </button>
-              <button
-                onClick={handlePayment}
-                disabled={submitting}
-                className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark disabled:opacity-50"
-              >
+              </Button>
+              <Button className="flex-1" onClick={handlePayment} disabled={submitting}>
                 {submitting ? 'Procesando...' : 'Confirmar Cobro'}
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
@@ -382,21 +368,18 @@ export default function AdminPOS() {
               <p className="text-xs text-gray-400">¡Gracias por su compra!</p>
             </div>
             <div className="flex gap-2 p-4">
-              <button
-                onClick={() => setShowReceipt(null)}
-                className="flex-1 py-2 border border-gray-300 rounded-lg text-sm font-semibold"
-              >
+              <Button variant="secondary" className="flex-1" onClick={() => setShowReceipt(null)}>
                 Cerrar
-              </button>
-              <button
+              </Button>
+              <Button
+                className="flex-1"
                 onClick={() => {
                   window.print()
                   setShowReceipt(null)
                 }}
-                className="flex-1 py-2 bg-primary text-white rounded-lg text-sm font-semibold"
               >
                 Imprimir
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>

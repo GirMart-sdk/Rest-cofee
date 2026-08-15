@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Shift, ShiftPeriod, SHIFT_PERIOD_LABELS } from '../../types'
 import { api } from '../../services/api'
 import { FiLock, FiUnlock, FiClock, FiUser, FiX } from 'react-icons/fi'
+import { Button, Input } from '../../components/ui'
 import toast from 'react-hot-toast'
 
 export default function AdminShifts() {
@@ -91,12 +92,9 @@ export default function AdminShifts() {
       <div className="container-main">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-display">Turnos</h1>
-          <button
-            onClick={() => setShowOpenModal(true)}
-            className="btn-primary text-sm px-4 py-2 flex items-center gap-1"
-          >
+          <Button size="sm" onClick={() => setShowOpenModal(true)}>
             <FiUnlock size={16} /> Abrir Turno
-          </button>
+          </Button>
         </div>
 
         {activeShifts.length > 0 && (
@@ -129,12 +127,9 @@ export default function AdminShifts() {
                           </span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setClosingShift(shift)}
-                        className="px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-semibold hover:bg-accent-dark flex items-center gap-1"
-                      >
+                      <Button variant="danger" size="sm" onClick={() => setClosingShift(shift)}>
                         <FiLock size={12} /> Cerrar
-                      </button>
+                      </Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       <div className="bg-white rounded-lg p-2 text-center">
@@ -245,18 +240,13 @@ export default function AdminShifts() {
             </div>
 
             <div className="space-y-4 mb-6">
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                  Nombre del cajero/encargado *
-                </label>
-                <input
-                  type="text"
-                  value={cashierName}
-                  onChange={(e) => setCashierName(e.target.value)}
-                  className="input-field"
-                  placeholder="Ej: María López"
-                />
-              </div>
+              <Input
+                label="Nombre del cajero/encargado *"
+                type="text"
+                value={cashierName}
+                onChange={(e) => setCashierName(e.target.value)}
+                placeholder="Ej: María López"
+              />
 
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">Turno *</label>
@@ -283,19 +273,15 @@ export default function AdminShifts() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                  Efectivo en caja inicial *
-                </label>
-                <input
-                  type="number"
-                  value={openingCash}
-                  onChange={(e) => setOpeningCash(e.target.value)}
-                  className="input-field text-xl font-bold text-center"
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
+              <Input
+                label="Efectivo en caja inicial *"
+                type="number"
+                value={openingCash}
+                onChange={(e) => setOpeningCash(e.target.value)}
+                placeholder="0"
+                min="0"
+                className="text-xl font-bold text-center"
+              />
 
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-1 block">
@@ -311,18 +297,12 @@ export default function AdminShifts() {
             </div>
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowOpenModal(false)}
-                className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold"
-              >
+              <Button variant="ghost" className="flex-1" onClick={() => setShowOpenModal(false)}>
                 Cancelar
-              </button>
-              <button
-                onClick={openShift}
-                className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark"
-              >
+              </Button>
+              <Button className="flex-1" onClick={openShift}>
                 Abrir Turno
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
@@ -378,19 +358,15 @@ export default function AdminShifts() {
             </div>
 
             <div className="space-y-4 mb-4">
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 block">
-                  Conteo de efectivo en caja *
-                </label>
-                <input
-                  type="number"
-                  value={closingCash}
-                  onChange={(e) => setClosingCash(e.target.value)}
-                  className="input-field text-xl font-bold text-center"
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
+              <Input
+                label="Conteo de efectivo en caja *"
+                type="number"
+                value={closingCash}
+                onChange={(e) => setClosingCash(e.target.value)}
+                placeholder="0"
+                min="0"
+                className="text-xl font-bold text-center"
+              />
               {parseFloat(closingCash) > 0 && (
                 <div
                   className={`text-center p-3 rounded-lg ${parseFloat(closingCash) >= closingShift.openingCash + closingShift.cashReceived ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}
@@ -422,18 +398,12 @@ export default function AdminShifts() {
             </div>
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setClosingShift(null)}
-                className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold"
-              >
+              <Button variant="ghost" className="flex-1" onClick={() => setClosingShift(null)}>
                 Cancelar
-              </button>
-              <button
-                onClick={closeShift}
-                className="flex-1 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-dark"
-              >
+              </Button>
+              <Button variant="danger" className="flex-1" onClick={closeShift}>
                 Cerrar Turno
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>

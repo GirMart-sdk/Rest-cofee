@@ -3,7 +3,7 @@ import { useId } from 'react'
 interface ButtonProps {
   children: React.ReactNode
   onClick?: () => void
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   disabled?: boolean
   loading?: boolean
@@ -15,6 +15,8 @@ const variants = {
   primary: 'bg-primary text-white hover:bg-primary-dark shadow-sm',
   secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
   danger: 'bg-accent text-white hover:bg-accent-dark',
+  success: 'bg-green-600 text-white hover:bg-green-700 shadow-sm',
+  outline: 'border-2 border-accent text-accent hover:bg-accent hover:text-white',
   ghost: 'bg-transparent text-gray-600 hover:bg-gray-100',
 }
 

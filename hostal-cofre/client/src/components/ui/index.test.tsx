@@ -19,6 +19,17 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Eliminar' })).toBeInTheDocument()
   })
 
+  it('supports the success and outline variants', () => {
+    render(
+      <div>
+        <Button variant="success">Guardar</Button>
+        <Button variant="outline">Cancelar</Button>
+      </div>,
+    )
+    expect(screen.getByRole('button', { name: 'Guardar' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument()
+  })
+
   it('is disabled when disabled or loading', () => {
     render(
       <Button disabled loading>

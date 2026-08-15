@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { Input, Button } from '../components/ui'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 
@@ -52,39 +53,32 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegister && (
-              <input
+              <Input
                 type="text"
                 placeholder="Nombre completo"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input-field"
                 required
               />
             )}
-            <input
+            <Input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-field"
               required
             />
-            <input
+            <Input
               type="password"
               placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field"
               required
               minLength={6}
             />
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full text-lg disabled:opacity-50"
-            >
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
               {loading ? 'Procesando...' : isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}
-            </button>
+            </Button>
           </form>
 
           <div className="text-center mt-6">
