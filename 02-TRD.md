@@ -349,13 +349,13 @@ auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.
 
 ## 8. Stack de Despliegue
 
-| Componente       | Opción Actual (implementada)                             | Opción Recomendada               |
-| ---------------- | -------------------------------------------------------- | -------------------------------- |
-| Hosting frontend | Servido por el mismo proceso Node (estático)             | CDN (Vercel/Cloudflare)          |
-| Hosting backend  | Windows bare-metal: servicio NSSM (`node dist/index.js`) | Windows Server / VPS             |
-| Reverse proxy    | Caddy (HTTPS automático)                                 | Caddy / Nginx                    |
-| Database         | PostgreSQL local                                         | PostgreSQL (con backups diarios) |
-| Dominio          | DNS + Let's Encrypt (Caddy)                              | Cloudflare + SSL                 |
+| Componente       | Implementado                                             |
+| ---------------- | -------------------------------------------------------- |
+| Hosting frontend | Servido por el mismo proceso Node (Vite build, estático) |
+| Hosting backend  | Windows bare-metal: servicio NSSM (`node dist/index.js`) |
+| Reverse proxy    | Caddy (HTTPS automático)                                 |
+| Database         | PostgreSQL local                                         |
+| Dominio          | DNS + Let's Encrypt (Caddy)                              |
 
 Ver [deploy/README.md](deploy/README.md) para la guía completa de despliegue.
 
