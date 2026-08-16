@@ -47,14 +47,41 @@ async function clientToken() {
 }
 
 describe('GET /api/tables', () => {
-  it('should return all tables (public)', async () => {
+  it('should return all tables (public) without exposing reservations or order PII', async () => {
     const table = await prisma.table.create({
       data: { number: 101, capacity: 4, zone: 'interior' },
     })
+    const menuItem = await createMenuItem()
+    await prisma.order.create({
+      data: {
+        customerName: 'John Doe',
+        customerPhone: '3001234567',
+        customerEmail: 'john@x.com',
+        total: menuItem.price,
+        paymentMethod: 'cash',
+        status: 'pending',
+        orderType: 'mesa',
+        receiptNumber: 'HC-SECRET-1',
+        tableId: table.id,
+        items: {
+          create: { menuItemId: menuItem.id, quantity: 1, price: menuItem.price },
+        },
+      },
+    })
+    await createReservation({ tableId: table.id })
+
     const res = await request(app).get('/api/tables')
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.data)).toBe(true)
-    expect(res.body.data.some((t: any) => t.id === table.id)).toBe(true)
+    const entry = res.body.data.find((t: any) => t.id === table.id)
+    expect(entry).toBeDefined()
+    expect(entry).not.toHaveProperty('reservations')
+    expect(entry.orders).toHaveLength(1)
+    const order = entry.orders[0]
+    expect(order).not.toHaveProperty('customerName')
+    expect(order).not.toHaveProperty('customerPhone')
+    expect(order).not.toHaveProperty('customerEmail')
+    expect(order).not.toHaveProperty('receiptNumber')
   })
 })
 
@@ -236,17 +263,44 @@ describe('DELETE /api/tables/:id', () => {
 })
 
 describe('GET /api/tables/:number', () => {
-  it('should return a table by number', async () => {
+  it('should return a table by number without order PII', async () => {
     const table = await prisma.table.create({
       data: { number: 113, capacity: 4, zone: 'interior' },
+    })
+    const menuItem = await createMenuItem()
+    await prisma.order.create({
+      data: {
+        customerName: 'Secret Customer',
+        customerPhone: '3000000000',
+        total: menuItem.price,
+        paymentMethod: 'cash',
+        status: 'pending',
+        orderType: 'mesa',
+        receiptNumber: 'HC-TOP-SECRET',
+        tableId: table.id,
+        items: {
+          create: { menuItemId: menuItem.id, quantity: 1, price: menuItem.price },
+        },
+      },
     })
     const res = await request(app).get(`/api/tables/${table.number}`)
     expect(res.status).toBe(200)
     expect(res.body.data.id).toBe(table.id)
+    expect(res.body.data.orders).toHaveLength(1)
+    const order = res.body.data.orders[0]
+    expect(order).not.toHaveProperty('customerName')
+    expect(order).not.toHaveProperty('customerPhone')
+    expect(order).not.toHaveProperty('customerEmail')
+    expect(order).not.toHaveProperty('receiptNumber')
   })
 
   it('should return 404 for non-existent table number', async () => {
-    const res = await request(app).get('/api/tables/99999')
+    const res = await request(app).get('/api/tables/995')
     expect(res.status).toBe(404)
+  })
+
+  it('should reject an out-of-range table number', async () => {
+    const res = await request(app).get('/api/tables/0')
+    expect(res.status).toBe(400)
   })
 })

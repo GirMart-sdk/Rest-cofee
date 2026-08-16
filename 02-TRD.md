@@ -8,7 +8,7 @@
 ![Arquitectura](https://img.shields.io/badge/Arquitectura-Monolito%20por%20Capas-blue.svg)
 ![Validación](https://img.shields.io/badge/Validación-Zod-blue.svg)
 ![Autenticación](https://img.shields.io/badge/Auth-JWT%20%2B%20httpOnly-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-436%20Pasando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-446%20Pasando-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2099%25-brightgreen.svg)
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 
@@ -30,7 +30,7 @@
 > - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
 > - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
 > - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
-> - **Testing**: 189 tests backend + 205 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
+> - **Testing**: 196 tests backend + 208 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
 
 ---
 
@@ -224,8 +224,8 @@ VITE_WHATSAPP_PHONE   # Número de WhatsApp para deep links
 ### 5.1 Wompi (Pasarela de Pagos)
 
 - **Tipo:** API REST (sandbox y producción)
-- **Base URL sandbox:** `https://api-sandbox.wompi.su/v1` (default con `WOMPI_MODE=sandbox`)
-- **Base URL producción:** `https://api.wompi.su/v1` (automática con `WOMPI_MODE=production`)
+- **Base URL sandbox:** `https://sandbox.wompi.co/v1` (default con `WOMPI_MODE=sandbox`)
+- **Base URL producción:** `https://production.wompi.co/v1` (automática con `WOMPI_MODE=production`)
 - **Uso actual:** Backend proxy para crear transacciones y consultar estado
 - **Endpoints consumidos:** POST `/transactions`, GET `/transactions/:id`
 
@@ -273,32 +273,32 @@ export default defineConfig({
 
 ### 6.3 Cobertura Actual
 
-**Backend (Vitest + Supertest) — 189 tests:**
+**Backend (Vitest + Supertest) — 196 tests:**
 
 | Suite                | Tests   | Estado           |
 | -------------------- | ------- | ---------------- |
 | auth.test.ts         | 25      | Todos pasando    |
-| orders.test.ts       | 18      | Todos pasando    |
+| orders.test.ts       | 19      | Todos pasando    |
 | reservations.test.ts | 13      | Todos pasando    |
 | menu.test.ts         | 11      | Todos pasando    |
 | middleware.test.ts   | 23      | Todos pasando    |
-| payments.test.ts     | 11      | Todos pasando    |
+| payments.test.ts     | 13      | Todos pasando    |
 | reports.test.ts      | 6       | Todos pasando    |
 | services.test.ts     | 27      | Todos pasando    |
 | shifts.test.ts       | 12      | Todos pasando    |
-| tables.test.ts       | 18      | Todos pasando    |
-| validation.test.ts   | 9       | Todos pasando    |
+| tables.test.ts       | 19      | Todos pasando    |
+| validation.test.ts   | 12      | Todos pasando    |
 | whatsapp.test.ts     | 8       | Todos pasando    |
 | audit.test.ts        | 5       | Todos pasando    |
 | events.test.ts       | 3       | Todos pasando    |
-| **Total backend**    | **189** | **100% pasando** |
+| **Total backend**    | **196** | **100% pasando** |
 
 **Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **99%** cliente
 (thresholds server: 80/65/80/80 · client: 95/90/90/95).
 
-**Frontend (Vitest + Testing Library) — 205 tests:**
-Layout (13), Routing (9), Menú (14), Reservas (10), Carrito (20), Auth (16),
-Admin (57), Mesa (7), UI design system (17), Hooks (13), Services (29).
+**Frontend (Vitest + Testing Library) — 208 tests:**
+Layout (13), Routing (9), Menú (14), Reservas (10), Carrito (21), Auth (16),
+Admin (59), Mesa (7), UI design system (17), Hooks (13), Services (29).
 
 **Seguridad (suite aparte, `npm run test:security`) — 42 tests:** secrets,
 auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.

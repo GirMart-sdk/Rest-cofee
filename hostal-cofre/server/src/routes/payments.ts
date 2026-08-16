@@ -13,10 +13,8 @@ const router = Router()
 
 const createTransactionSchema = z.object({
   body: z.object({
-    amount_in_cents: z.number().int().positive(),
-    currency: z.string().trim().optional(),
-    customer_email: z.string().trim().email(),
-    reference: z.string().trim().min(1),
+    orderId: z.string().cuid('Invalid order ID'),
+    customer_email: z.string().trim().email().optional(),
     payment_method: z
       .object({
         type: z.enum(['CARD', 'BANCOLOMBIA_TRANSFER', 'PSE', 'NEQUI']),
@@ -61,16 +59,40 @@ router.post(
   authenticate,
   validate(createTransactionSchema),
   async (req: AuthRequest, res: Response) => {
-    const { amount_in_cents, currency, customer_email, reference, payment_method } = req.body
+    const { orderId, customer_email, payment_method } = req.body
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } })
+    if (!order) throw Object.assign(new Error('Order not found'), { statusCode: 404 })
+
+    if (order.paymentStatus === 'paid') {
+      return res.json({
+        success: true,
+        data: {
+          id: order.paymentId,
+          status: 'APPROVED',
+          alreadyPaid: true,
+          amount_in_cents: Math.round(order.total * 100),
+        },
+      })
+    }
+
+    const amountInCents = Math.round(order.total * 100)
+    const reference = order.receiptNumber || order.id
+    const email = customer_email || order.customerEmail
+    if (!email) {
+      throw Object.assign(new Error('Customer email is required to create a payment'), {
+        statusCode: 400,
+      })
+    }
 
     metrics.inc('paymentsInitiated')
     const response = await wompiFetch('/transactions', {
       method: 'POST',
       body: JSON.stringify({
-        amount_in_cents,
-        currency: currency || 'COP',
+        amount_in_cents: amountInCents,
+        currency: 'COP',
         reference,
-        customer_email,
+        customer_email: email,
         ...(payment_method ? { payment_method } : {}),
       }),
     })
@@ -78,6 +100,7 @@ router.post(
     const data = await response.json()
     logger.info('wompi transaction created', {
       reference,
+      orderId: order.id,
       status: data?.data?.status,
       mode: config.wompi.mode,
     })
@@ -172,6 +195,7 @@ router.post('/webhook', async (req: AuthRequest, res: Response) => {
   const transactionId = String(transaction.id ?? '')
   const reference = String(transaction.reference ?? '')
   const status = String(transaction.status ?? '').toUpperCase()
+  const amountInCents = Number(transaction.amount_in_cents)
   const paymentStatus: 'paid' | 'failed' = status === 'APPROVED' ? 'paid' : 'failed'
 
   if (event === 'transaction.updated') {
@@ -187,15 +211,38 @@ router.post('/webhook', async (req: AuthRequest, res: Response) => {
           },
         })
         if (order) {
-          await OrderService.updatePayment(order.id, paymentStatus, transactionId)
-          metrics.inc('paymentsWebhookProcessed')
-          logger.info('wompi webhook processed', {
-            transactionId,
-            status,
-            paymentStatus,
-            orderId: order.id,
-            receiptNumber: order.receiptNumber,
-          })
+          if (status === 'APPROVED') {
+            const expectedAmount = Math.round(order.total * 100)
+            if (Number.isFinite(amountInCents) && amountInCents === expectedAmount) {
+              await OrderService.updatePayment(order.id, 'paid', transactionId)
+              metrics.inc('paymentsWebhookProcessed')
+              logger.info('wompi webhook processed', {
+                transactionId,
+                status,
+                paymentStatus,
+                orderId: order.id,
+                receiptNumber: order.receiptNumber,
+              })
+            } else {
+              metrics.inc('paymentsAmountMismatch')
+              logger.warn('wompi webhook amount mismatch, payment rejected', {
+                transactionId,
+                orderId: order.id,
+                amountInCents,
+                expectedAmount,
+              })
+            }
+          } else {
+            await OrderService.updatePayment(order.id, paymentStatus, transactionId)
+            metrics.inc('paymentsWebhookProcessed')
+            logger.info('wompi webhook processed', {
+              transactionId,
+              status,
+              paymentStatus,
+              orderId: order.id,
+              receiptNumber: order.receiptNumber,
+            })
+          }
         } else {
           logger.warn('wompi webhook: order not found for transaction', {
             transactionId,

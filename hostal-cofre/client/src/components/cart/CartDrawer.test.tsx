@@ -160,6 +160,8 @@ describe('CartDrawer', () => {
           customerEmail: 'ana.maria@x.com',
           orderType: 'domicilio',
           deliveryZone: 'centro',
+          address: 'Cra 12-34',
+          deliveryNotes: 'Casa verde',
           paymentMethod: 'nequi',
         }),
       ),
@@ -190,18 +192,47 @@ describe('CartDrawer', () => {
         '/orders',
         expect.objectContaining({
           orderType: 'tienda',
-          deliveryZone: undefined,
         }),
       ),
     )
     expect(mocks.whatsappService.sendOrder).toHaveBeenCalled()
   })
 
+  it('starts a Wompi payment after creating an order', async () => {
+    seedCart()
+    await goToDetails('Recoger en tienda')
+
+    await screen.findByText('Datos del Pedido')
+    fireEvent.change(screen.getByPlaceholderText('Teléfono *'), {
+      target: { value: '3001234567' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
+
+    await screen.findByText('Método de Pago')
+    mocks.api.post.mockResolvedValueOnce({ data: { data: { id: 'order-1' } } })
+    mocks.api.post.mockResolvedValueOnce({
+      data: { data: { id: 'txn-1', payment_link: 'https://checkout.wompi.co/p/abc' } },
+    })
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+
+    fireEvent.click(screen.getByRole('button', { name: /Wompi/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Enviar Pedido/ }))
+
+    await waitFor(() =>
+      expect(mocks.api.post).toHaveBeenCalledWith('/payments/create-transaction', {
+        orderId: 'order-1',
+      }),
+    )
+    expect(openSpy).toHaveBeenCalledWith('https://checkout.wompi.co/p/abc', '_blank')
+    expect(mocks.toast.success).toHaveBeenCalledWith(
+      'Pago iniciado con Wompi. Completa el pago en la nueva ventana.',
+    )
+    openSpy.mockRestore()
+  })
+
   it('registers a mesa order without sending WhatsApp', async () => {
     seedCart()
     await goToDetails('Para la mesa')
-
-    await screen.findByText('Datos Rápidos')
     expect(screen.queryByPlaceholderText('Email')).not.toBeInTheDocument()
     fireEvent.change(screen.getByPlaceholderText('Teléfono *'), {
       target: { value: '3001234567' },

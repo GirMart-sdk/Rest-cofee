@@ -153,7 +153,7 @@ de 32 caracteres o sigue siendo el placeholder.
   - **Llave privada** (`priv_...`): firma las transacciones; se usa solo
     en el servidor.
 - Coloca `WOMPI_MODE=production` y las dos llaves en `.env`.
-- En produccion Wompi usa la URL base `https://api.wompi.su/v1`
+- En produccion Wompi usa la URL base `https://production.wompi.co/v1`
   (si dejas `WOMPI_BASE_URL` vacia se usa automaticamente).
 
 ### WhatsApp Business API (opcional)

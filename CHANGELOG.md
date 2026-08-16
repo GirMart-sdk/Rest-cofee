@@ -9,7 +9,7 @@
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)](https://semver.org/lang/es/)
 ![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 [![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-436%20Passing-brightgreen.svg)](02-TRD.md)
+[![Tests](https://img.shields.io/badge/Tests-446%20Passing-brightgreen.svg)](02-TRD.md)
 
 ---
 
@@ -35,7 +35,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Cliente: design system (Button/Input/Card/EmptyState) adoptado en flujos clave —
   login, grid de menú, checkout (carrito, dirección, reservas) y formularios admin
   (menú, mesas, turnos, POS)
-- Suite de tests del cliente con Vitest (205 tests) y workflow de CI (lint + tests +
+- Suite de tests del cliente con Vitest (208 tests) y workflow de CI (lint + tests +
   coverage para server y cliente)
 - CI: `npm audit --audit-level=high` en lint-server y lint-client, acciones fijadas por SHA,
   Node 22 y timeouts por job
@@ -83,6 +83,22 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Pagos (server): dominio Wompi corregido a `https://sandbox.wompi.co/v1` /
+  `https://production.wompi.co/v1` (antes `wompi.su`); `create-transaction` ahora recibe
+  solo `orderId` y el monto lo calcula el servidor (`order.total`), ignorando valores del
+  cliente; el webhook verifica `amount_in_cents` contra la orden y rechaza discrepancias
+  (métrica `paymentsAmountMismatch`)
+- Pagos (cliente): el carrito inicia el cobro Wompi tras crear la orden (`POST
+/payments/create-transaction`) y abre el link de pago en una pestaña nueva
+- Admin: botón "Marcar Pagado" consume `PATCH /orders/:id/payment` para pagos no cash y
+  se muestra el estado de pago en las tarjetas de pedido
+- Domicilios (server): el esquema de creación exige dirección y zona de entrega cuando
+  `orderType === 'domicilio'`
+- Domicilios (cliente): `DeliveryForm` es controlado y el carrito envía `address`/
+  `deliveryNotes`; los pedidos ya no se atascan en `out_for_delivery` (flujo → `delivered`)
+- Privacidad: los endpoints públicos `GET /api/orders/table/:tableNumber`,
+  `GET /api/tables` y `GET /api/tables/:number` ya no exponen PII (nuevo `toPublicOrder`);
+  los parámetros numéricos se validan con Zod (1–999)
 - Cliente: el interceptor de `api` ya no intenta refrescar/redirigir en un 401 de
   `/auth/login` (o `/auth/register`), evitando la recarga completa que ocultaba el toast
   de "Credenciales incorrectas"

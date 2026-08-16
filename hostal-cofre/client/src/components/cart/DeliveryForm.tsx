@@ -7,16 +7,22 @@ import { Button, Input } from '../ui'
 import { FiMapPin, FiClock } from 'react-icons/fi'
 
 export default function DeliveryForm({
+  address,
+  deliveryNotes,
+  onAddressChange,
+  onDeliveryNotesChange,
   onNext,
   onBack,
 }: {
+  address: string
+  deliveryNotes: string
+  onAddressChange: (value: string) => void
+  onDeliveryNotesChange: (value: string) => void
   onNext: () => void
   onBack: () => void
 }) {
   const { deliveryZone, setDeliveryZone } = useCart()
   const [zones, setZones] = useState<DeliveryZoneConfig[]>([])
-  const [address, setAddress] = useState('')
-  const [deliveryNotes, setDeliveryNotes] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -55,12 +61,12 @@ export default function DeliveryForm({
           type="text"
           placeholder="Calle, número, barrio, referencias..."
           value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          onChange={(e) => onAddressChange(e.target.value)}
         />
         <textarea
           placeholder="Indicaciones adicionales (optional): apartamento, punto de referencia, etc."
           value={deliveryNotes}
-          onChange={(e) => setDeliveryNotes(e.target.value)}
+          onChange={(e) => onDeliveryNotesChange(e.target.value)}
           className="input-field h-20 resize-none mt-3"
         />
       </div>

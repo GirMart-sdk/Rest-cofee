@@ -41,6 +41,8 @@ export default function CartDrawer() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wompi' | 'nequi' | 'daviplata'>(
     'cash',
   )
+  const [address, setAddress] = useState('')
+  const [deliveryNotes, setDeliveryNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   if (items.length === 0) {
@@ -62,6 +64,11 @@ export default function CartDrawer() {
       return
     }
 
+    if (orderType === 'domicilio' && !address.trim()) {
+      toast.error('La dirección es requerida para domicilios')
+      return
+    }
+
     setSubmitting(true)
     try {
       const orderItems = items.map((i) => ({
@@ -69,15 +76,45 @@ export default function CartDrawer() {
         quantity: i.quantity,
       }))
 
-      await api.post('/orders', {
+      const { data: orderRes } = await api.post('/orders', {
         customerName,
         customerPhone,
         ...(customerEmail ? { customerEmail } : {}),
         items: orderItems,
         paymentMethod,
         orderType,
-        deliveryZone: orderType === 'domicilio' ? deliveryZone : undefined,
+        ...(orderType === 'domicilio'
+          ? {
+              deliveryZone,
+              address,
+              deliveryNotes: deliveryNotes || undefined,
+            }
+          : {}),
       })
+      const order = orderRes.data as { id: string }
+
+      if (paymentMethod === 'wompi' && order?.id) {
+        try {
+          const paymentRes = await api.post('/payments/create-transaction', {
+            orderId: order.id,
+          })
+          const paymentData = paymentRes.data?.data
+          const paymentLink =
+            paymentData?.payment_link ||
+            paymentData?.data?.payment_link ||
+            paymentData?.redirect_url
+          if (paymentLink) {
+            window.open(paymentLink, '_blank')
+            toast.success('Pago iniciado con Wompi. Completa el pago en la nueva ventana.')
+          } else {
+            toast.success(
+              `Orden registrada. Referencia de pago: ${paymentData?.id || order.id}. La confirmación llega automáticamente.`,
+            )
+          }
+        } catch {
+          toast.error('Pedido registrado. Inicia sesión para completar el pago en línea.')
+        }
+      }
 
       if (orderType !== 'mesa') {
         const orderLines = items.map(
@@ -88,7 +125,7 @@ export default function CartDrawer() {
         const summary =
           orderLines.join('\n') +
           `\n\nTipo: ${typeLabel}` +
-          (orderType === 'domicilio' ? `\nEnvío: $${deliveryFee}` : '') +
+          (orderType === 'domicilio' ? `\nDirección: ${address}\nEnvío: $${deliveryFee}` : '') +
           `\n\n*Total: $${(orderType === 'domicilio' ? grandTotal : total).toFixed(2)}*\nMétodo de pago: ${paymentMethod.toUpperCase()}\nCliente: ${customerName}\nTel: ${customerPhone}`
         const whatsappPhone = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
         whatsappService.sendOrder(whatsappPhone, summary)
@@ -245,7 +282,14 @@ export default function CartDrawer() {
       )}
 
       {step === 'delivery' && (
-        <DeliveryForm onBack={() => setStep('type')} onNext={() => setStep('details')} />
+        <DeliveryForm
+          address={address}
+          deliveryNotes={deliveryNotes}
+          onAddressChange={setAddress}
+          onDeliveryNotesChange={setDeliveryNotes}
+          onBack={() => setStep('type')}
+          onNext={() => setStep('details')}
+        />
       )}
 
       {step === 'details' && (

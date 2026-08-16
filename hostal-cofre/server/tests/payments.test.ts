@@ -25,6 +25,7 @@ beforeAll(async () => {
 })
 
 beforeEach(() => {
+  fetchMock.mockClear()
   fetchMock.mockResolvedValue({
     ok: true,
     status: 200,
@@ -46,18 +47,14 @@ afterAll(async () => {
 })
 
 describe('POST /api/payments/create-transaction', () => {
-  it('should create a transaction via Wompi for authenticated user', async () => {
+  it('should create a transaction via Wompi for an order using the server-computed amount', async () => {
     const { user } = await createUser('client')
     const token = generateToken(user)
+    const order = await createOrder({ paymentMethod: 'wompi' })
     const res = await request(app)
       .post('/api/payments/create-transaction')
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        amount_in_cents: 2500000,
-        currency: 'COP',
-        customer_email: 'buyer@mail.com',
-        reference: 'HC-12345',
-      })
+      .send({ orderId: order.id, customer_email: 'buyer@mail.com' })
     expect(res.status).toBe(200)
     expect(res.body.success).toBe(true)
     expect(res.body.data.id).toBe('txn-mock-123')
@@ -70,29 +67,45 @@ describe('POST /api/payments/create-transaction', () => {
         }),
       }),
     )
+    const sent = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(sent.amount_in_cents).toBe(Math.round(order.total * 100))
+    expect(sent.reference).toBe(order.receiptNumber)
+    expect(sent.currency).toBe('COP')
   })
 
-  it('should default currency to COP', async () => {
+  it('should reject when the order does not exist', async () => {
     const { user } = await createUser('client')
     const token = generateToken(user)
-    await request(app)
+    const res = await request(app)
       .post('/api/payments/create-transaction')
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        amount_in_cents: 1000,
-        customer_email: 'buyer@mail.com',
-        reference: 'HC-1',
-      })
-    const sent = fetchMock.mock.calls[0][1]
-    expect(JSON.parse(sent.body).currency).toBe('COP')
+      .send({ orderId: 'c00000000000000000000001' })
+    expect(res.status).toBe(404)
+  })
+
+  it('should return the existing payment when the order is already paid', async () => {
+    const { user } = await createUser('client')
+    const token = generateToken(user)
+    const order = await createOrder({ paymentMethod: 'wompi' })
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { paymentStatus: 'paid', paymentId: 'txn-already' },
+    })
+    const res = await request(app)
+      .post('/api/payments/create-transaction')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ orderId: order.id })
+    expect(res.status).toBe(200)
+    expect(res.body.data.alreadyPaid).toBe(true)
+    expect(res.body.data.id).toBe('txn-already')
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('should reject without auth', async () => {
-    const res = await request(app).post('/api/payments/create-transaction').send({
-      amount_in_cents: 1000,
-      customer_email: 'buyer@mail.com',
-      reference: 'HC-2',
-    })
+    const order = await createOrder()
+    const res = await request(app)
+      .post('/api/payments/create-transaction')
+      .send({ orderId: order.id })
     expect(res.status).toBe(401)
   })
 
@@ -102,7 +115,7 @@ describe('POST /api/payments/create-transaction', () => {
     const res = await request(app)
       .post('/api/payments/create-transaction')
       .set('Authorization', `Bearer ${token}`)
-      .send({ amount_in_cents: -10, customer_email: 'not-an-email', reference: '' })
+      .send({ orderId: 'not-a-cuid' })
     expect(res.status).toBe(400)
   })
 })
@@ -258,5 +271,35 @@ describe('POST /api/payments/webhook', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.success).toBe(true)
+  })
+
+  it('should reject the approval when the amount does not match the order total', async () => {
+    const order = await createOrder()
+    const transactionId = 'txn-webhook-fraud'
+    const amountInCents = 1
+    const timestamp = 1747673128604
+    const properties = ['transaction.id', 'transaction.status', 'transaction.amount_in_cents']
+    const payload = `${transactionId}APPROVED${amountInCents}${timestamp}${config.wompi.eventsSecret}`
+    const checksum = crypto.createHash('sha256').update(payload).digest('hex')
+
+    const res = await request(app)
+      .post('/api/payments/webhook')
+      .send({
+        event: 'transaction.updated',
+        data: {
+          transaction: {
+            id: transactionId,
+            reference: order.receiptNumber,
+            status: 'APPROVED',
+            amount_in_cents: amountInCents,
+          },
+        },
+        signature: { properties, checksum, timestamp },
+      })
+
+    expect(res.status).toBe(200)
+    const updated = await prisma.order.findUnique({ where: { id: order.id } })
+    expect(updated?.paymentStatus).toBe('pending')
+    expect(updated?.paymentId).toBeNull()
   })
 })

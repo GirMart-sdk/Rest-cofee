@@ -175,13 +175,14 @@ describe('GET /api/orders', () => {
 })
 
 describe('GET /api/orders/table/:tableNumber', () => {
-  it('should return active orders for table', async () => {
+  it('should return active orders for table without exposing personal data', async () => {
     const menuItem = await createMenuItem()
     const table = await createTable()
     await request(app)
       .post('/api/orders/table')
       .send({
         customerName: 'Mesa Test',
+        customerPhone: '3001234567',
         paymentMethod: 'cash',
         items: [{ menuItemId: menuItem.id, quantity: 1 }],
         tableNumber: table.number,
@@ -190,11 +191,26 @@ describe('GET /api/orders/table/:tableNumber', () => {
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.data)).toBe(true)
     expect(res.body.data.length).toBeGreaterThanOrEqual(1)
+
+    const order = res.body.data[0]
+    expect(order).not.toHaveProperty('customerName')
+    expect(order).not.toHaveProperty('customerPhone')
+    expect(order).not.toHaveProperty('customerEmail')
+    expect(order).not.toHaveProperty('address')
+    expect(order).not.toHaveProperty('deliveryNotes')
+    expect(order).not.toHaveProperty('receiptNumber')
+    expect(order).toHaveProperty('items')
+    expect(order.items[0]).toHaveProperty('menuItem')
   })
 
   it('should return 404 for non-existent table', async () => {
-    const res = await request(app).get('/api/orders/table/99999')
+    const res = await request(app).get('/api/orders/table/995')
     expect(res.status).toBe(404)
+  })
+
+  it('should reject an out-of-range table number', async () => {
+    const res = await request(app).get('/api/orders/table/0')
+    expect(res.status).toBe(400)
   })
 })
 

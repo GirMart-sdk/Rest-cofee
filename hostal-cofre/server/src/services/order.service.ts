@@ -1,6 +1,7 @@
 import prisma from '../db.js'
 import { DeliveryService } from './delivery.service.js'
 import { metrics } from '../utils/metrics.js'
+import { toPublicOrder } from '../utils/public-order.js'
 
 function generateReceiptNumber(): string {
   const date = new Date()
@@ -157,7 +158,7 @@ export class OrderService {
     const table = await prisma.table.findUnique({ where: { number: tableNumber } })
     if (!table) throw Object.assign(new Error('Table not found'), { statusCode: 404 })
 
-    return prisma.order.findMany({
+    const orders = await prisma.order.findMany({
       where: {
         tableId: table.id,
         status: { in: ['pending', 'preparing', 'ready'] },
@@ -165,6 +166,8 @@ export class OrderService {
       include: { items: { include: { menuItem: true } } },
       orderBy: { createdAt: 'desc' },
     })
+
+    return orders.map(toPublicOrder)
   }
 
   static async updateStatus(id: string, status: string) {

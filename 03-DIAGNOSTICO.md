@@ -23,12 +23,33 @@ decidir cualquier iteración.
 
 ## 2. Resumen ejecutivo
 
+> **Estado de resolución (2026-08-16):** los hallazgos que bloqueaban el MVP se
+> corrigieron en esta iteración. Se mantiene el listado completo del diagnóstico con su
+> severidad original para trazabilidad; los resueltos están marcados ✅.
+
 | Ámbito              | Hallazgos   | Críticos | Altos  | Medios | Bajos  |
 | ------------------- | ----------- | -------- | ------ | ------ | ------ |
 | Ciberseguridad      | 22 (H1–H22) | 1        | 5      | 8      | 8      |
 | Funcionalidad       | 38          | 1        | 5      | 20     | 10     |
 | Lógica y estructura | 28 (A1–A28) | 0        | 4      | 12     | 12     |
 | **Total**           | **88**      | **2**    | **14** | **40** | **30** |
+
+### 2.1 Hallazgos resueltos en esta iteración
+
+| Hallazgo | Severidad | Corrección aplicada                                                                                                                                                                         |
+| -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅ H1    | Crítica   | Dominio Wompi corregido a `https://sandbox.wompi.co/v1` / `https://production.wompi.co/v1` (config, `.env.example`, deploy)                                                                 |
+| ✅ H3    | Alta      | `create-transaction` recibe solo `orderId` (el monto lo calcula el servidor); el webhook verifica `amount_in_cents` contra `order.total` y rechaza discrepancias (`paymentsAmountMismatch`) |
+| ✅ H4    | Alta      | `GET /api/orders/table/:tableNumber` sanea PII vía `toPublicOrder` y valida el parámetro (1–999)                                                                                            |
+| ✅ A1    | Alta      | `GET /api/tables` ya no expone `reservations` ni PII de pedidos                                                                                                                             |
+| ✅ A2    | Alta      | Pedidos por mesa sin PII + parámetro validado (coincide con H4)                                                                                                                             |
+| ✅ A4    | Alta      | `GET /api/tables/:number` sin PII de pedidos + parámetro validado                                                                                                                           |
+| ✅ U1    | Crítica   | Dirección y zona de entrega obligatorias para `domicilio` (server + cliente controlado)                                                                                                     |
+| ✅ U3    | Alta      | Flujo `out_for_delivery → delivered` en `AdminOrders`                                                                                                                                       |
+| ✅ E1    | Alta      | El cliente inicia el cobro Wompi tras crear la orden (`POST /payments/create-transaction` + apertura del link)                                                                              |
+| ✅ E2    | Alta      | Botón "Marcar Pagado" en admin consume `PATCH /orders/:id/payment`                                                                                                                          |
+| ✅ A18   | Baja      | Esquema de creación de pedidos exige dirección y zona en `domicilio` (coincide con U1)                                                                                                      |
+| ✅ A23   | Baja      | `parseInt` de params reemplazado por validación Zod + coerción en rutas públicas                                                                                                            |
 
 **Conclusión general:** la base técnica es sólida (tests, CI, seguridad en profundidad,
 arquitectura en capas), pero el sistema aún no alcanza el umbral de **MVP funcional**:
@@ -52,12 +73,13 @@ la operación básica.
 
 ### 3.2 Hallazgos detallados
 
-#### H1 — Dominio base de Wompi incorrecto (`wompi.su` en vez de `wompi.co`)
+#### H1 — Dominio base de Wompi incorrecto (`wompi.su` en vez de `wompi.co`) ✅ Resuelto
 
 - **Severidad:** Crítica | **Capa:** Integraciones externas
 - **Ubicación:** `server/src/config/index.ts:26-29`; `server/.env.example:31`; `deploy/.env.production.example:40`; `deploy/README.md:156`
 - **Descripción:** `wompiBaseUrls = { sandbox: 'https://api-sandbox.wompi.su/v1', production: 'https://api.wompi.su/v1' }`. El dominio oficial de Wompi Colombia es `sandbox.wompi.co` / `production.wompi.co`. El TLD `.su` no pertenece a Wompi.
 - **Impacto:** Los cobros se envían a un host no controlado por Wompi. En sandbox la integración nunca funciona; en producción, si el `.su` está en manos de un tercero, se exponen las transacciones y los payloads firmados con la clave privada de pagos.
+- **Corrección:** URLs base corregidas a `https://sandbox.wompi.co/v1` y `https://production.wompi.co/v1` en `server/src/config/index.ts`, `.env.example`, `deploy/.env.production.example` y `deploy/README.md`.
 
 #### H2 — `trust proxy` sin configurar → rate limiting roto detrás de Caddy
 
@@ -66,19 +88,21 @@ la operación básica.
 - **Descripción:** No existe `app.set('trust proxy', ...)`. El despliegue documentado usa Caddy como proxy inverso, que inyecta `X-Forwarded-For`; `express-rate-limit@7` rechaza el header o toma `127.0.0.1` para todos.
 - **Impacto:** En producción todos los usuarios comparten una única bucket: el `authLimiter` (10/15 min) y el limiter global (100/15 min) se agotan entre todos los usuarios combinados → denegación de servicio de login. Las IPs registradas en auditoría quedan como `::ffff:127.0.0.1`.
 
-#### H3 — Webhook de pagos sin verificación de monto
+#### H3 — Webhook de pagos sin verificación de monto ✅ Resuelto
 
 - **Severidad:** Alta | **Capa:** Aplicación
 - **Ubicación:** `server/src/routes/payments.ts:150-214`; `:14-27,59-86`
 - **Descripción:** El webhook valida la firma pero solo hace match por `paymentId`/`reference`/`receiptNumber` y marca la orden `paid` sin comparar `amount_in_cents` contra `order.total`. `create-transaction` acepta `amount_in_cents` y `reference` aportados por el cliente.
 - **Impacto:** Un cliente puede crear una transacción propia con `reference` = un `receiptNumber` existente (`HC-…` predecible) y pagar 1 COP; el webhook marca la orden como pagada. Fraude de "pago mínimo" que corrompe la contabilidad.
+- **Corrección:** `create-transaction` recibe solo `orderId` y calcula `amount_in_cents = Math.round(order.total * 100)`; el webhook verifica el monto y, ante discrepancias, incrementa la métrica `paymentsAmountMismatch` sin marcar la orden como pagada.
 
-#### H4 — Exposición de datos personales en `GET /api/orders/table/:tableNumber`
+#### H4 — Exposición de datos personales en `GET /api/orders/table/:tableNumber` ✅ Resuelto
 
 - **Severidad:** Alta | **Capa:** Datos/Privacidad
 - **Ubicación:** `server/src/routes/orders.ts:77-81`; `server/src/services/order.service.ts:156-168`
 - **Descripción:** Endpoint público sin autenticación que devuelve las órdenes activas de una mesa con todos los campos escalares: `customerName`, `customerPhone`, `customerEmail`, `address`, `deliveryNotes`, `receiptNumber`. Los números de mesa son enumerables (1–999).
 - **Impacto:** Cualquier persona puede enumerar mesas y obtener nombres, teléfonos, emails y direcciones de clientes.
+- **Corrección:** La respuesta pasa por `toPublicOrder` (`server/src/utils/public-order.ts`), que elimina los campos personales, y el parámetro se valida con Zod (entero 1–999).
 
 #### H5 — `JWT_SECRET`: los placeholders conocidos pasan la validación en runtime
 
@@ -291,32 +315,32 @@ que los tests de seguridad corren en CI es falsa (H6).
 
 #### 4.2.2 UI rota
 
-| #   | Hallazgo                                                                                                                                                                                                                                                                                 | Severidad   |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| U1  | **Pedidos a domicilio sin dirección (crítico):** `DeliveryForm.tsx:54-65` captura dirección/notas localmente, pero el POST en `CartDrawer.tsx:72-80` no envía `address` ni `deliveryNotes`. La dirección nunca llega al servidor (`AdminOrders.tsx:191` muestra el pedido sin domicilio) | **Crítica** |
-| U2  | **"Para la mesa" sin mesa:** `CartDrawer.tsx:72-80` envía `orderType:'mesa'` sin `tableId` ni selector de mesa → pedido sin mesa asignada                                                                                                                                                | Alta        |
-| U3  | **Domicilio atascado en `out_for_delivery`:** `AdminOrders.tsx:91` (`getNextStatus`) no contempla `out_for_delivery`; `:236` solo muestra "Marcar Entregado" cuando `next==='delivered'`; `:241-244` lleva a `out_for_delivery` sin acción de avance                                     | **Alta**    |
-| U4  | **2FA rompe el login:** `AuthContext.tsx:70-81` asume `accessToken`; ante `requiresTwoFactor` devuelve `false` y `LoginPage.tsx:33` muestra "Credenciales incorrectas"                                                                                                                   | Alta        |
-| U5  | **MesaPage envía email como teléfono:** `MesaPage.tsx:141` `customerPhone: user?.email`; si supera 20 chars el server responde 400                                                                                                                                                       | Media       |
-| U6  | **Login/Registro inconsistentes:** `minLength={6}` (`LoginPage.tsx:77`) contradice la política del server (8+, `auth.ts:50`); errores de registro muestran "Credenciales incorrectas"                                                                                                    | Media       |
-| U7  | **Dashboard con etiquetas engañosas:** "Pedidos Totales"/"Ingresos Totales" (`AdminDashboard.tsx:119,143`) usan datos del reporte de hoy (`/reports/daily`)                                                                                                                              | Media       |
-| U8  | **Mesas:** botones Editar/Eliminar solo en hover (`opacity-0 group-hover`, `AdminTables.tsx:143`) → inaccesibles en táctil                                                                                                                                                               | Media       |
-| U10 | **POS:** nequi/daviplata/wompi se registran como venta "digital" sin confirmación de pago; `paymentStatus` queda `pending` para siempre (no se consume `PATCH /orders/:id/payment`)                                                                                                      | Media       |
+| #   | Hallazgo                                                                                                                                                                                                                                                                                                                                                                                                                                     | Severidad   |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| U1  | **Pedidos a domicilio sin dirección (crítico):** ~~`DeliveryForm.tsx:54-65` captura dirección/notas localmente, pero el POST en `CartDrawer.tsx:72-80` no envía `address` ni `deliveryNotes`. La dirección nunca llega al servidor (`AdminOrders.tsx:191` muestra el pedido sin domicilio)~~ ✅ **Resuelto:** `DeliveryForm` es controlado, el carrito envía `address`/`deliveryNotes` y el servidor exige dirección y zona para `domicilio` | **Crítica** |
+| U2  | **"Para la mesa" sin mesa:** `CartDrawer.tsx:72-80` envía `orderType:'mesa'` sin `tableId` ni selector de mesa → pedido sin mesa asignada                                                                                                                                                                                                                                                                                                    | Alta        |
+| U3  | **Domicilio atascado en `out_for_delivery`:** ~~`AdminOrders.tsx:91` (`getNextStatus`) no contempla `out_for_delivery`; `:236` solo muestra "Marcar Entregado" cuando `next==='delivered'`; `:241-244` lleva a `out_for_delivery` sin acción de avance~~ ✅ **Resuelto:** `out_for_delivery → delivered`                                                                                                                                     | **Alta**    |
+| U4  | **2FA rompe el login:** `AuthContext.tsx:70-81` asume `accessToken`; ante `requiresTwoFactor` devuelve `false` y `LoginPage.tsx:33` muestra "Credenciales incorrectas"                                                                                                                                                                                                                                                                       | Alta        |
+| U5  | **MesaPage envía email como teléfono:** `MesaPage.tsx:141` `customerPhone: user?.email`; si supera 20 chars el server responde 400                                                                                                                                                                                                                                                                                                           | Media       |
+| U6  | **Login/Registro inconsistentes:** `minLength={6}` (`LoginPage.tsx:77`) contradice la política del server (8+, `auth.ts:50`); errores de registro muestran "Credenciales incorrectas"                                                                                                                                                                                                                                                        | Media       |
+| U7  | **Dashboard con etiquetas engañosas:** "Pedidos Totales"/"Ingresos Totales" (`AdminDashboard.tsx:119,143`) usan datos del reporte de hoy (`/reports/daily`)                                                                                                                                                                                                                                                                                  | Media       |
+| U8  | **Mesas:** botones Editar/Eliminar solo en hover (`opacity-0 group-hover`, `AdminTables.tsx:143`) → inaccesibles en táctil                                                                                                                                                                                                                                                                                                                   | Media       |
+| U10 | **POS:** nequi/daviplata/wompi se registran como venta "digital" sin confirmación de pago; `paymentStatus` queda `pending` para siempre (no se consume `PATCH /orders/:id/payment`)                                                                                                                                                                                                                                                          | Media       |
 
 #### 4.2.3 Endpoints sin uso (server ok, cliente nunca los llama)
 
-| #   | Endpoint                                                                                                                                                           | Severidad |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| E1  | `/api/payments/*` completo (create-transaction, transactions/:id, status, webhook) — "wompi" solo aparece como string en `CartDrawer.tsx:311` y `AdminPOS.tsx:267` | Alta      |
-| E2  | `PATCH /api/orders/:id/payment` — ningún botón lo invoca → ningún pedido puede marcarse pagado desde la app                                                        | **Alta**  |
-| E3  | `GET /api/reports/weekly` — reportes semanales sin UI (`AdminReports.tsx:24` solo llama `/reports/daily`)                                                          | Media     |
-| E4  | `GET /api/orders/daily-sales` + `OrderService.getDailySales` duplican `ReportService.getDailyReport`                                                               | Media     |
-| E5  | `/api/audit` — logs de auditoría en BD sin página que los muestre                                                                                                  | Media     |
-| E6  | `/api/auth/2fa/*` y `/api/auth/change-password` — implementados y testeados, sin ninguna UI                                                                        | Media     |
-| E7  | `GET /api/orders/table/:tableNumber` sin consumir (y además público — H4)                                                                                          | Baja      |
-| E8  | `/api/shifts/by-period`, `/api/shifts/:id`, `/api/shifts/:id/summary` sin consumir                                                                                 | Baja      |
-| E9  | `GET /api/tables` y `GET /api/tables/:number` sin consumir                                                                                                         | Baja      |
-| E10 | `/api/metrics` y `/api/health` sin consumir por el cliente                                                                                                         | Info      |
+| #   | Endpoint                                                                                                                                                                                                                                                                              | Severidad |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| E1  | ~~`/api/payments/*` completo (create-transaction, transactions/:id, status, webhook) — "wompi" solo aparece como string en `CartDrawer.tsx:311` y `AdminPOS.tsx:267`~~ ✅ **Resuelto:** `CartDrawer` llama a `POST /payments/create-transaction` con `orderId` y abre el link de pago | Alta      |
+| E2  | ~~`PATCH /api/orders/:id/payment` — ningún botón lo invoca → ningún pedido puede marcarse pagado desde la app~~ ✅ **Resuelto:** botón "Marcar Pagado" en `AdminOrders` para pagos no cash                                                                                            | **Alta**  |
+| E3  | `GET /api/reports/weekly` — reportes semanales sin UI (`AdminReports.tsx:24` solo llama `/reports/daily`)                                                                                                                                                                             | Media     |
+| E4  | `GET /api/orders/daily-sales` + `OrderService.getDailySales` duplican `ReportService.getDailyReport`                                                                                                                                                                                  | Media     |
+| E5  | `/api/audit` — logs de auditoría en BD sin página que los muestre                                                                                                                                                                                                                     | Media     |
+| E6  | `/api/auth/2fa/*` y `/api/auth/change-password` — implementados y testeados, sin ninguna UI                                                                                                                                                                                           | Media     |
+| E7  | `GET /api/orders/table/:tableNumber` sin consumir (y además público — H4)                                                                                                                                                                                                             | Baja      |
+| E8  | `/api/shifts/by-period`, `/api/shifts/:id`, `/api/shifts/:id/summary` sin consumir                                                                                                                                                                                                    | Baja      |
+| E9  | `GET /api/tables` y `GET /api/tables/:number` sin consumir                                                                                                                                                                                                                            | Baja      |
+| E10 | `/api/metrics` y `/api/health` sin consumir por el cliente                                                                                                                                                                                                                            | Info      |
 
 #### 4.2.4 Inconsistencias de datos
 
@@ -368,36 +392,36 @@ que los tests de seguridad corren en CI es falsa (H6).
 
 ### 5.2 Hallazgos detallados
 
-| #   | Hallazgo                                                                                                                                                                                                         | Severidad |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| A1  | Exposición de PII en endpoint público de mesas: `GET /api/tables/` (`routes/tables.ts:9`) incluye reservas completas (`name`, `phone`, `notes`, `userId`) vía `TableService.getAll()` (`table.service.ts:12-14`) | **Alta**  |
-| A2  | Pedidos activos por mesa accesibles sin autenticación: `GET /api/orders/table/:tableNumber` (`orders.ts:77`) devuelve items + `customerName`/`customerPhone`; número de mesa adivinable (coincide con H4)        | **Alta**  |
-| A3  | Webhook de Wompi no verifica el monto contra la orden (`payments.ts:150-214`); `create-transaction` acepta `amount_in_cents`/`reference` del cliente (coincide con H3)                                           | **Alta**  |
-| A4  | Detalle de mesa público con pedidos activos: `GET /api/tables/:number` (`tables.ts:73`) sin autenticar                                                                                                           | **Alta**  |
-| A5  | Creación de pedido + actualización de turno sin `$transaction` (`order.service.ts:96-127`) → contadores del turno pueden quedar inconsistentes                                                                   | Media     |
-| A6  | Prisma P2003 (FK) devuelve 500 en vez de 400 (`errors.ts:12-22`)                                                                                                                                                 | Media     |
-| A7  | Reservas públicas quedan huérfanas: `POST /api/reservations` nunca pasa `userId`; un cliente no-admin jamás ve sus propias reservas (`reservations.ts:79-93`)                                                    | Media     |
-| A8  | Pedidos anónimos invisibles para su creador posterior: `POST /api/orders` usa `optionalAuth` y guarda `userId: null`; `GET /api/orders` filtra por `userId`                                                      | Media     |
-| A9  | `AuthService` completo pero nunca usado; `routes/auth.ts:135-453` reimplementa la lógica con prisma directo; expiraciones divergentes (service 15m/7d hardcode vs `config.jwtExpiresIn`)                         | Media     |
-| A10 | `MenuService` muerto; `routes/menu.ts:46,82,103` accede a prisma directo, rompiendo la capa de servicios                                                                                                         | Media     |
-| A11 | `OrderService.getDailySales` (`order.service.ts:185-237`) duplica `ReportService.getDailyReport` (`report.service.ts:11-110`) con diferencias sutiles                                                            | Media     |
-| A12 | `getClientIp` confía en `X-Forwarded-For` sin `trust proxy` (`auth.ts:108-114`); IP falsificable en `loginAttempt` (coincide con H2)                                                                             | Media     |
-| A13 | En producción, `/api/*` inexistente devuelve `index.html` con 200 (`index.ts:125-131`); sin 404 JSON explícito                                                                                                   | Media     |
-| A14 | Webhook Wompi no idempotente: `paymentStatus = status === 'APPROVED' ? 'paid' : 'failed'` (`payments.ts:175`); un PENDING posterior a un evento marca `failed`, y los reenvíos reprocesan                        | Media     |
-| A15 | Ventana de reuso en rotación de refresh token (`auth.ts:366-402`): dos peticiones concurrentes pueden emitir dos pares válidos                                                                                   | Media     |
-| A16 | `sanitize` global muta el body del webhook antes de la verificación de firma (`index.ts:51`, `sanitize.ts:8-14`) → puede romper el digest y rechazar pagos legítimos                                             | Media     |
-| A17 | Múltiples turnos abiertos sin control (`shift.service.ts:47-65`); `getCurrent` devuelve array                                                                                                                    | Baja      |
-| A18 | Pedido domicilio sin dirección/zona validada: el esquema permite `orderType:'domicilio'` con `address`/`deliveryZone` opcionales (`orders.ts:113-127`)                                                           | Baja      |
-| A19 | `config.jwtRefreshExpiresIn` sin uso; expiración hardcodeada en `auth.ts:78` y `cookies.ts:15`                                                                                                                   | Baja      |
-| A20 | CSP `upgradeInsecureRequests: isDev ? [] : []` siempre vacío (coincide con H17)                                                                                                                                  | Baja      |
-| A21 | Normalización de métricas no agrupa IDs cuid (`metrics.ts:60` solo cubre hex ≥24)                                                                                                                                | Baja      |
-| A22 | SSE sin límite de clientes conectados (`events.ts:7-13`, `orders.ts:88-106`)                                                                                                                                     | Baja      |
-| A23 | `parseInt` de params sin validación en rutas públicas (`orders.ts:78`, `tables.ts:74`) → NaN posible                                                                                                             | Baja      |
-| A24 | Zona horaria inconsistente entre `report.service.ts:4-8` y `shift.service.ts:123-125`                                                                                                                            | Baja      |
-| A25 | Cierre de turno sin cuadre de caja: `ShiftService.close` acepta `closingCash` arbitrario sin arqueo (`shift.service.ts:67-99`)                                                                                   | Baja      |
-| A26 | Logger registra la query string completa (`requestLogger.ts:14`)                                                                                                                                                 | Baja      |
-| A27 | Límite de body de 10 kb puede rechazar pedidos legítimos (50 items + notas de 500 chars) (`index.ts:48`); 413 no mapeado en `errors.ts`                                                                          | Baja      |
-| A28 | Rate limit global muy restrictivo en producción (100/15 min para todo `/api/`) detrás de IPs compartidas (`index.ts:34-40`)                                                                                      | Baja      |
+| #   | Hallazgo                                                                                                                                                                                                                                                                                                | Severidad |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| A1  | ~~Exposición de PII en endpoint público de mesas: `GET /api/tables/` (`routes/tables.ts:9`) incluye reservas completas (`name`, `phone`, `notes`, `userId`) vía `TableService.getAll()` (`table.service.ts:12-14`)~~ ✅ **Resuelto:** se eliminan `reservations` y se sanan pedidos con `toPublicOrder` | **Alta**  |
+| A2  | ~~Pedidos activos por mesa accesibles sin autenticación: `GET /api/orders/table/:tableNumber` (`orders.ts:77`) devuelve items + `customerName`/`customerPhone`; número de mesa adivinable (coincide con H4)~~ ✅ **Resuelto:** sin PII + parámetro validado                                             | **Alta**  |
+| A3  | Webhook de Wompi no verifica el monto contra la orden (`payments.ts:150-214`); `create-transaction` acepta `amount_in_cents`/`reference` del cliente (coincide con H3)                                                                                                                                  | **Alta**  |
+| A4  | ~~Detalle de mesa público con pedidos activos: `GET /api/tables/:number` (`tables.ts:73`) sin autenticar~~ ✅ **Resuelto:** sin PII de pedidos + parámetro validado                                                                                                                                     | **Alta**  |
+| A5  | Creación de pedido + actualización de turno sin `$transaction` (`order.service.ts:96-127`) → contadores del turno pueden quedar inconsistentes                                                                                                                                                          | Media     |
+| A6  | Prisma P2003 (FK) devuelve 500 en vez de 400 (`errors.ts:12-22`)                                                                                                                                                                                                                                        | Media     |
+| A7  | Reservas públicas quedan huérfanas: `POST /api/reservations` nunca pasa `userId`; un cliente no-admin jamás ve sus propias reservas (`reservations.ts:79-93`)                                                                                                                                           | Media     |
+| A8  | Pedidos anónimos invisibles para su creador posterior: `POST /api/orders` usa `optionalAuth` y guarda `userId: null`; `GET /api/orders` filtra por `userId`                                                                                                                                             | Media     |
+| A9  | `AuthService` completo pero nunca usado; `routes/auth.ts:135-453` reimplementa la lógica con prisma directo; expiraciones divergentes (service 15m/7d hardcode vs `config.jwtExpiresIn`)                                                                                                                | Media     |
+| A10 | `MenuService` muerto; `routes/menu.ts:46,82,103` accede a prisma directo, rompiendo la capa de servicios                                                                                                                                                                                                | Media     |
+| A11 | `OrderService.getDailySales` (`order.service.ts:185-237`) duplica `ReportService.getDailyReport` (`report.service.ts:11-110`) con diferencias sutiles                                                                                                                                                   | Media     |
+| A12 | `getClientIp` confía en `X-Forwarded-For` sin `trust proxy` (`auth.ts:108-114`); IP falsificable en `loginAttempt` (coincide con H2)                                                                                                                                                                    | Media     |
+| A13 | En producción, `/api/*` inexistente devuelve `index.html` con 200 (`index.ts:125-131`); sin 404 JSON explícito                                                                                                                                                                                          | Media     |
+| A14 | Webhook Wompi no idempotente: `paymentStatus = status === 'APPROVED' ? 'paid' : 'failed'` (`payments.ts:175`); un PENDING posterior a un evento marca `failed`, y los reenvíos reprocesan                                                                                                               | Media     |
+| A15 | Ventana de reuso en rotación de refresh token (`auth.ts:366-402`): dos peticiones concurrentes pueden emitir dos pares válidos                                                                                                                                                                          | Media     |
+| A16 | `sanitize` global muta el body del webhook antes de la verificación de firma (`index.ts:51`, `sanitize.ts:8-14`) → puede romper el digest y rechazar pagos legítimos                                                                                                                                    | Media     |
+| A17 | Múltiples turnos abiertos sin control (`shift.service.ts:47-65`); `getCurrent` devuelve array                                                                                                                                                                                                           | Baja      |
+| A18 | ~~Pedido domicilio sin dirección/zona validada: el esquema permite `orderType:'domicilio'` con `address`/`deliveryZone` opcionales (`orders.ts:113-127`)~~ ✅ **Resuelto:** `superRefine` exige ambos campos para `domicilio` (coincide con U1)                                                         | Baja      |
+| A19 | `config.jwtRefreshExpiresIn` sin uso; expiración hardcodeada en `auth.ts:78` y `cookies.ts:15`                                                                                                                                                                                                          | Baja      |
+| A20 | CSP `upgradeInsecureRequests: isDev ? [] : []` siempre vacío (coincide con H17)                                                                                                                                                                                                                         | Baja      |
+| A21 | Normalización de métricas no agrupa IDs cuid (`metrics.ts:60` solo cubre hex ≥24)                                                                                                                                                                                                                       | Baja      |
+| A22 | SSE sin límite de clientes conectados (`events.ts:7-13`, `orders.ts:88-106`)                                                                                                                                                                                                                            | Baja      |
+| A23 | ~~`parseInt` de params sin validación en rutas públicas (`orders.ts:78`, `tables.ts:74`) → NaN posible~~ ✅ **Resuelto:** validación Zod (`z.coerce.number()`) + coerción en el handler                                                                                                                 | Baja      |
+| A24 | Zona horaria inconsistente entre `report.service.ts:4-8` y `shift.service.ts:123-125`                                                                                                                                                                                                                   | Baja      |
+| A25 | Cierre de turno sin cuadre de caja: `ShiftService.close` acepta `closingCash` arbitrario sin arqueo (`shift.service.ts:67-99`)                                                                                                                                                                          | Baja      |
+| A26 | Logger registra la query string completa (`requestLogger.ts:14`)                                                                                                                                                                                                                                        | Baja      |
+| A27 | Límite de body de 10 kb puede rechazar pedidos legítimos (50 items + notas de 500 chars) (`index.ts:48`); 413 no mapeado en `errors.ts`                                                                                                                                                                 | Baja      |
+| A28 | Rate limit global muy restrictivo en producción (100/15 min para todo `/api/`) detrás de IPs compartidas (`index.ts:34-40`)                                                                                                                                                                             | Baja      |
 
 ### 5.3 Patrones correctos (verificados)
 
@@ -426,6 +450,9 @@ que los tests de seguridad corren en CI es falsa (H6).
 
 ### 6.1 Qué bloquea el MVP (crítico)
 
+> **Actualización (2026-08-16):** los 6 bloqueos fueron corregidos en esta iteración
+> (ver §2.1). La operación como MVP ya no depende de estos hallazgos.
+
 | #   | Bloqueo                                   | Hallazgo(s)                                                                                 |
 | --- | ----------------------------------------- | ------------------------------------------------------------------------------------------- |
 | 1   | Pagos inseguros/inoperantes               | H1 (dominio Wompi `.su`), H3 (webhook sin verificar monto), E1/E2 (Wompi sin flujo cliente) |
@@ -437,7 +464,7 @@ que los tests de seguridad corren en CI es falsa (H6).
 - Flujo completo cliente: menú → carrito → WhatsApp.
 - POS táctil con receipt, turnos, reportes diarios, reservas, QR por mesa.
 - Autenticación robusta (JWT + refresh + 2FA server-side) y RBAC.
-- 436 tests, CI con lint/audit/coverage, seguridad en profundidad (9/16 mitigaciones efectivas).
+- 446 tests, CI con lint/audit/coverage, seguridad en profundidad (9/16 mitigaciones efectivas).
 
 ### 6.3 Qué es deuda de calidad (no bloquea MVP)
 
@@ -451,8 +478,8 @@ que los tests de seguridad corren en CI es falsa (H6).
 ## 7. Conclusión
 
 Hostal Cofee v2 tiene una base técnica por encima de la media de un prototipo: arquitectura en
-capas, validación estricta, seguridad en profundidad y una suite de pruebas real. Para que
-**funcione como MVP** debe cerrar primero los 6 hallazgos críticos/altos que bloquean la
-operación (dominio de pagos, verificación de montos, dirección de domicilios, avance del
-estado de entrega, y endpoints públicos con datos personales). El resto de los 88 hallazgos son
+capas, validación estricta, seguridad en profundidad y una suite de pruebas real. Los 6 hallazgos
+críticos/altos que bloqueaban la operación (dominio de pagos, verificación de montos, dirección
+de domicilios, avance del estado de entrega, y endpoints públicos con datos personales) fueron
+corregidos en la iteración de agosto de 2026 (ver §2.1). El resto de los 88 hallazgos son
 mejoras de calidad y endurecimiento que pueden iterarse sin impedir la operación básica.

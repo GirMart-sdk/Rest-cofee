@@ -30,7 +30,12 @@ beforeAll(async () => {
   await prisma.$connect()
   const hashed = await bcrypt.hash('AdminPass!1', 12)
   const admin = await prisma.user.create({
-    data: { name: 'Admin Test', email: `admin-${Date.now()}@test.com`, password: hashed, role: 'admin' },
+    data: {
+      name: 'Admin Test',
+      email: `admin-${Date.now()}@test.com`,
+      password: hashed,
+      role: 'admin',
+    },
   })
   adminToken = jwt.sign(
     { id: admin.id, email: admin.email, role: admin.role },
@@ -40,6 +45,8 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await prisma.orderItem.deleteMany()
+  await prisma.order.deleteMany()
   await prisma.menuItem.deleteMany()
   await prisma.user.deleteMany()
   await prisma.$disconnect()
@@ -80,40 +87,34 @@ describe('Menu Validation', () => {
 
 describe('Reservation Validation', () => {
   it('should reject invalid time format', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Test',
-        phone: '1234567890',
-        date: '2026-12-31',
-        time: 'invalid',
-        guests: 2,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Test',
+      phone: '1234567890',
+      date: '2026-12-31',
+      time: 'invalid',
+      guests: 2,
+    })
     expect(res.status).toBe(400)
   })
 
   it('should reject guests > 50', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        name: 'Test',
-        phone: '1234567890',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 999,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Test',
+      phone: '1234567890',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 999,
+    })
     expect(res.status).toBe(400)
   })
 
   it('should reject missing name', async () => {
-    const res = await request(app)
-      .post('/api/reservations')
-      .send({
-        phone: '1234567890',
-        date: '2026-12-31',
-        time: '20:00',
-        guests: 2,
-      })
+    const res = await request(app).post('/api/reservations').send({
+      phone: '1234567890',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+    })
     expect(res.status).toBe(400)
   })
 })
@@ -132,14 +133,65 @@ describe('Order Validation', () => {
   })
 
   it('should reject empty items', async () => {
+    const res = await request(app).post('/api/orders').send({
+      customerName: 'Test',
+      customerPhone: '123',
+      paymentMethod: 'cash',
+      items: [],
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it('should reject a domicilio order without an address', async () => {
     const res = await request(app)
       .post('/api/orders')
       .send({
         customerName: 'Test',
         customerPhone: '123',
         paymentMethod: 'cash',
-        items: [],
+        orderType: 'domicilio',
+        items: [{ menuItemId: 'test', quantity: 1 }],
       })
     expect(res.status).toBe(400)
+    expect(res.body.errors.some((e: any) => e.path.includes('address'))).toBe(true)
+  })
+
+  it('should reject a domicilio order without a delivery zone', async () => {
+    const res = await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Test',
+        customerPhone: '123',
+        paymentMethod: 'cash',
+        orderType: 'domicilio',
+        address: 'Cra 12-34',
+        items: [{ menuItemId: 'test', quantity: 1 }],
+      })
+    expect(res.status).toBe(400)
+    expect(res.body.errors.some((e: any) => e.path.includes('deliveryZone'))).toBe(true)
+  })
+
+  it('should accept a domicilio order with address and delivery zone', async () => {
+    const menuItem = await prisma.menuItem.create({
+      data: {
+        name: 'Domi Pizza',
+        description: 'd',
+        price: 10000,
+        category: 'pizza',
+        available: true,
+      },
+    })
+    const res = await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Test',
+        customerPhone: '123',
+        paymentMethod: 'cash',
+        orderType: 'domicilio',
+        address: 'Cra 12-34',
+        deliveryZone: 'centro',
+        items: [{ menuItemId: menuItem.id, quantity: 1 }],
+      })
+    expect(res.status).toBe(201)
   })
 })

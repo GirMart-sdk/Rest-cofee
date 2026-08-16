@@ -24,8 +24,8 @@ function getJwtSecret(): string {
 }
 
 export const wompiBaseUrls = {
-  sandbox: 'https://api-sandbox.wompi.su/v1',
-  production: 'https://api.wompi.su/v1',
+  sandbox: 'https://sandbox.wompi.co/v1',
+  production: 'https://production.wompi.co/v1',
 } as const
 
 export const config = {

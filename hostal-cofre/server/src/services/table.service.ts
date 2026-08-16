@@ -1,19 +1,19 @@
 import prisma from '../db.js'
+import { toPublicOrder } from '../utils/public-order.js'
 
 export class TableService {
   static async getAll() {
-    return prisma.table.findMany({
+    const tables = await prisma.table.findMany({
       orderBy: { number: 'asc' },
       include: {
         orders: {
           where: { status: { in: ['pending', 'preparing', 'ready'] } },
           include: { items: { include: { menuItem: true } } },
         },
-        reservations: {
-          where: { status: { in: ['pending', 'confirmed'] } },
-        },
       },
     })
+
+    return tables.map((table) => ({ ...table, orders: table.orders.map(toPublicOrder) }))
   }
 
   static async getActive() {
@@ -46,7 +46,7 @@ export class TableService {
       },
     })
     if (!table) throw Object.assign(new Error('Table not found'), { statusCode: 404 })
-    return table
+    return { ...table, orders: table.orders.map(toPublicOrder) }
   }
 
   static async create(data: { number: number; capacity: number; zone: string }) {

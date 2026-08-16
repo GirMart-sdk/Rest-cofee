@@ -47,6 +47,8 @@ const orders = [
     orderType: 'tienda',
     customerName: 'Luis',
     customerPhone: '301 456',
+    paymentMethod: 'nequi',
+    paymentStatus: 'pending',
     total: 20000,
     deliveryFee: 0,
     items: [{ quantity: 1, menuItem: { name: 'Pasta', price: 20000 } }],
@@ -71,6 +73,19 @@ const orders = [
     total: 1000,
     deliveryFee: 0,
     items: [],
+  },
+  {
+    id: 'o5',
+    receiptNumber: 'A-005',
+    status: 'out_for_delivery',
+    orderType: 'domicilio',
+    customerName: 'Pedro',
+    customerPhone: '303 789',
+    address: 'Cra 9',
+    deliveryZone: 'lejano',
+    total: 40000,
+    deliveryFee: 8000,
+    items: [{ quantity: 1, menuItem: { name: 'Lasagna', price: 32000 } }],
   },
 ]
 
@@ -97,7 +112,7 @@ describe('AdminOrders', () => {
     expect(screen.getByText('Preparando')).toBeInTheDocument()
     expect(screen.getByText('Entregado')).toBeInTheDocument()
     expect(screen.getByText('2x Pizza')).toBeInTheDocument()
-    expect(screen.getByText('Envío')).toBeInTheDocument()
+    expect(screen.getAllByText('Envío')).toHaveLength(2)
     expect(screen.getByText(/Mesa #5/)).toBeInTheDocument()
   })
 
@@ -195,6 +210,37 @@ describe('AdminOrders', () => {
         status: 'out_for_delivery',
       }),
     )
+  })
+
+  it('marks an out_for_delivery domicilio order as delivered', async () => {
+    apiMock.api.patch.mockResolvedValue({ data: { data: {} } })
+    renderPage()
+    await screen.findByText('#A-005')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Marcar Entregado' }))
+
+    await waitFor(() =>
+      expect(apiMock.api.patch).toHaveBeenCalledWith('/orders/o5/status', {
+        status: 'delivered',
+      }),
+    )
+    expect(toastMock.toast.success).toHaveBeenCalledWith('Estado cambiado a Entregado')
+  })
+
+  it('marks a non-cash order as paid', async () => {
+    apiMock.api.patch.mockResolvedValue({ data: { data: {} } })
+    renderPage()
+    await screen.findByText('#A-001')
+
+    const card = (screen.getByText(/Luis/) as HTMLElement).closest('div.bg-white') as HTMLElement
+    fireEvent.click(within(card).getByRole('button', { name: 'Marcar Pagado' }))
+
+    await waitFor(() =>
+      expect(apiMock.api.patch).toHaveBeenCalledWith('/orders/o2/payment', {
+        paymentStatus: 'paid',
+      }),
+    )
+    expect(toastMock.toast.success).toHaveBeenCalledWith('Pedido marcado como pagado')
   })
 
   it('cancels an order', async () => {

@@ -70,8 +70,14 @@ router.delete(
   },
 )
 
-router.get('/:number', async (req: AuthRequest, res: Response) => {
-  const table = await TableService.getByNumber(parseInt(req.params.number))
+const tableNumberSchema = z.object({
+  params: z.object({
+    number: z.coerce.number().int().min(1).max(999, 'Invalid table number'),
+  }),
+})
+
+router.get('/:number', validate(tableNumberSchema), async (req: AuthRequest, res: Response) => {
+  const table = await TableService.getByNumber(Number(req.params.number))
   res.json({ success: true, data: table })
 })
 

@@ -88,11 +88,24 @@ export default function AdminOrders() {
     }
   }
 
+  const markPaid = async (orderId: string) => {
+    try {
+      await api.patch(`/orders/${orderId}/payment`, { paymentStatus: 'paid' })
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, paymentStatus: 'paid' as const } : o)),
+      )
+      toast.success('Pedido marcado como pagado')
+    } catch {
+      toast.error('Error al actualizar el pago')
+    }
+  }
+
   const getNextStatus = (current: string): Order['status'] | null => {
     const flow: Record<string, Order['status']> = {
       pending: 'preparing',
       preparing: 'ready',
       ready: 'delivered',
+      out_for_delivery: 'delivered',
     }
     return flow[current] || null
   }
@@ -202,6 +215,23 @@ export default function AdminOrders() {
                     >
                       {STATUS_LABELS[order.status]}
                     </span>
+                    {order.paymentMethod !== 'cash' && (
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          order.paymentStatus === 'paid'
+                            ? 'bg-green-100 text-green-700'
+                            : order.paymentStatus === 'failed'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                      >
+                        {order.paymentStatus === 'paid'
+                          ? 'Pagado'
+                          : order.paymentStatus === 'failed'
+                            ? 'Pago fallido'
+                            : 'Pago pendiente'}
+                      </span>
+                    )}
                     <span className="text-xl font-bold text-primary">
                       ${order.total.toLocaleString()}
                     </span>
@@ -250,6 +280,14 @@ export default function AdminOrders() {
                       className="px-4 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200"
                     >
                       Cancelar
+                    </button>
+                  )}
+                  {order.paymentMethod !== 'cash' && order.paymentStatus !== 'paid' && (
+                    <button
+                      onClick={() => markPaid(order.id)}
+                      className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200"
+                    >
+                      Marcar Pagado
                     </button>
                   )}
                 </div>

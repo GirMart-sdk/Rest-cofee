@@ -74,11 +74,20 @@ router.get('/daily-sales', authenticate, requireAdmin, async (req: AuthRequest, 
   res.json({ success: true, data: report })
 })
 
-router.get('/table/:tableNumber', async (req: AuthRequest, res: Response) => {
-  const tableNumber = parseInt(req.params.tableNumber)
-  const orders = await OrderService.getActiveOrdersByTable(tableNumber)
-  res.json({ success: true, data: orders })
+const tableNumberParamsSchema = z.object({
+  params: z.object({
+    tableNumber: z.coerce.number().int().min(1).max(999, 'Invalid table number'),
+  }),
 })
+
+router.get(
+  '/table/:tableNumber',
+  validate(tableNumberParamsSchema),
+  async (req: AuthRequest, res: Response) => {
+    const orders = await OrderService.getActiveOrdersByTable(Number(req.params.tableNumber))
+    res.json({ success: true, data: orders })
+  },
+)
 
 router.get('/zones', (_req, res: Response) => {
   const zones = DeliveryService.getZones()
@@ -111,19 +120,38 @@ const orderItemSchema = z.object({
 })
 
 const createOrderSchema = z.object({
-  body: z.object({
-    customerName: z.string().trim().min(1).max(100),
-    customerPhone: z.string().trim().min(1).max(20),
-    customerEmail: z.string().trim().email().max(255).optional(),
-    paymentMethod: z.enum(['cash', 'wompi', 'nequi', 'daviplata']),
-    items: z.array(orderItemSchema).min(1).max(50),
-    orderType: z.enum(['domicilio', 'tienda', 'mesa']).optional(),
-    tableId: z.string().cuid().optional(),
-    address: z.string().trim().max(500).optional(),
-    deliveryZone: z.enum(['centro', 'periurbano', 'lejano']).optional(),
-    deliveryNotes: z.string().trim().max(500).optional(),
-    shiftId: z.string().cuid().optional(),
-  }),
+  body: z
+    .object({
+      customerName: z.string().trim().min(1).max(100),
+      customerPhone: z.string().trim().min(1).max(20),
+      customerEmail: z.string().trim().email().max(255).optional(),
+      paymentMethod: z.enum(['cash', 'wompi', 'nequi', 'daviplata']),
+      items: z.array(orderItemSchema).min(1).max(50),
+      orderType: z.enum(['domicilio', 'tienda', 'mesa']).optional(),
+      tableId: z.string().cuid().optional(),
+      address: z.string().trim().min(1).max(500).optional(),
+      deliveryZone: z.enum(['centro', 'periurbano', 'lejano']).optional(),
+      deliveryNotes: z.string().trim().max(500).optional(),
+      shiftId: z.string().cuid().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.orderType === 'domicilio') {
+        if (!data.address) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['address'],
+            message: 'Address is required for delivery orders',
+          })
+        }
+        if (!data.deliveryZone) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['deliveryZone'],
+            message: 'Delivery zone is required for delivery orders',
+          })
+        }
+      }
+    }),
 })
 
 router.post(

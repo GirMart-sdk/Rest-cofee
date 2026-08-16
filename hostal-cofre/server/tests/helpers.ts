@@ -61,7 +61,7 @@ export async function createMenuItem() {
 export async function createTable() {
   return prisma.table.create({
     data: {
-      number: Math.floor(Math.random() * 9000) + 1000,
+      number: Math.floor(Math.random() * 999) + 1,
       capacity: 4,
       zone: 'interior',
     },
