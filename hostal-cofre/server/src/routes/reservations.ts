@@ -1,5 +1,5 @@
 import { Router, Response } from 'express'
-import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
+import { authenticate, requireAdmin, AuthRequest, optionalAuth } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
 import { auditMiddleware } from '../services/audit.service.js'
 import { ReservationService } from '../services/reservation.service.js'
@@ -76,7 +76,7 @@ const reservationSchema = z.object({
   }),
 })
 
-router.post('/', validate(reservationSchema), async (req, res: Response) => {
+router.post('/', optionalAuth, validate(reservationSchema), async (req, res: Response) => {
   const { name, phone, email, date, time, guests, tableId, notes } = req.body
   const reservation = await ReservationService.create({
     name,
@@ -87,6 +87,7 @@ router.post('/', validate(reservationSchema), async (req, res: Response) => {
     guests,
     tableId,
     notes,
+    userId: (req as AuthRequest).user?.id,
   })
   notifyReservation(reservation)
   res.status(201).json({ success: true, data: reservation })

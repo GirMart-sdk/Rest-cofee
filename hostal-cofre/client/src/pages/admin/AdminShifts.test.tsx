@@ -174,4 +174,37 @@ describe('AdminShifts', () => {
 
     await waitFor(() => expect(toastMock.toast.error).toHaveBeenCalledWith('Error al cerrar turno'))
   })
+
+  it('shows the shift summary modal', async () => {
+    apiMock.api.get.mockImplementation((url: string) => {
+      if (url === '/shifts/current') return Promise.resolve({ data: { data: [openShift] } })
+      if (url === '/shifts/s2/summary') {
+        return Promise.resolve({
+          data: {
+            data: {
+              ...closedShift,
+              orders: [],
+              breakdown: {
+                paymentMethods: { cash: 40000, nequi: 40000 },
+                orderTypes: { mesa: 8, domicilio: 4 },
+              },
+            },
+          },
+        })
+      }
+      return Promise.resolve({ data: { data: [closedShift, openShift] } })
+    })
+    renderPage()
+    await screen.findByText('Luis')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Resumen' }))
+
+    expect(await screen.findByText('Resumen del Turno')).toBeInTheDocument()
+    expect(screen.getAllByText('Efectivo').length).toBeGreaterThan(0)
+    expect(screen.getByText('Nequi')).toBeInTheDocument()
+    expect(screen.getAllByText('$40.000').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText('Domicilio')).toBeInTheDocument()
+    expect(screen.getAllByText('Mesa').length).toBeGreaterThan(0)
+    expect(apiMock.api.get).toHaveBeenCalledWith('/shifts/s2/summary')
+  })
 })

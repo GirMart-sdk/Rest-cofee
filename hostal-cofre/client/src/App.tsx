@@ -10,6 +10,7 @@ const MenuPage = lazy(() => import('./pages/MenuPage'))
 const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const CartPage = lazy(() => import('./pages/CartPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
+const AccountPage = lazy(() => import('./pages/AccountPage'))
 const MesaPage = lazy(() => import('./pages/MesaPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
@@ -20,6 +21,8 @@ const AdminPOS = lazy(() => import('./pages/admin/AdminPOS'))
 const AdminShifts = lazy(() => import('./pages/admin/AdminShifts'))
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
 const AdminTables = lazy(() => import('./pages/admin/AdminTables'))
+const AdminAudit = lazy(() => import('./pages/admin/AdminAudit'))
+const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'))
 
 function PageLoader() {
   return (
@@ -46,6 +49,14 @@ export default function App() {
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/reservas" element={<ReservationsPage />} />
             <Route path="/carrito" element={<CartPage />} />
+            <Route
+              path="/cuenta"
+              element={
+                <ProtectedRoute>
+                  <AccountPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           <Route
@@ -63,6 +74,8 @@ export default function App() {
             <Route path="/admin/turnos" element={<AdminShifts />} />
             <Route path="/admin/reportes" element={<AdminReports />} />
             <Route path="/admin/mesas" element={<AdminTables />} />
+            <Route path="/admin/auditoria" element={<AdminAudit />} />
+            <Route path="/admin/pagos" element={<AdminPayments />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

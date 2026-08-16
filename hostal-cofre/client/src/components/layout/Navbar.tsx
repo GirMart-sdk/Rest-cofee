@@ -1,6 +1,6 @@
 import { useState, useEffect, memo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiMenu, FiX, FiShoppingCart, FiUser, FiLogOut } from 'react-icons/fi'
+import { FiMenu, FiX, FiShoppingCart, FiUser, FiLogOut, FiSettings } from 'react-icons/fi'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 
@@ -77,6 +77,13 @@ function Navbar() {
                   Panel Admin
                 </Link>
               )}
+              <Link
+                to="/cuenta"
+                className="text-white/80 hover:text-white transition-colors"
+                title="Mi cuenta"
+              >
+                <FiSettings size={20} />
+              </Link>
               <button onClick={logout} className="text-white/60 hover:text-white transition-colors">
                 <FiLogOut size={20} />
               </button>
@@ -123,6 +130,9 @@ function Navbar() {
                   Panel Admin
                 </Link>
               )}
+              <Link to="/cuenta" className="text-white/80 hover:text-white font-semibold py-2">
+                Mi Cuenta
+              </Link>
               <button onClick={logout} className="text-white/60 hover:text-white text-left py-2">
                 Cerrar Sesión
               </button>

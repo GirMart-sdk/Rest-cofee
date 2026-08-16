@@ -1,5 +1,17 @@
 import prisma from '../db.js'
 
+// Ventana de ocupación estimada por reserva (en horas).
+const OCCUPANCY_WINDOW_MIN = 2 * 60
+
+function toMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number)
+  return h * 60 + m
+}
+
+function overlaps(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
+  return aStart < bEnd && bStart < aEnd
+}
+
 export class ReservationService {
   static async getAll(
     userId?: string,
@@ -46,6 +58,9 @@ export class ReservationService {
     notes?: string
     userId?: string
   }) {
+    if (data.tableId) {
+      await this.assertTableAvailable(data.tableId, data.date, data.time)
+    }
     return prisma.reservation.create({
       data: {
         name: data.name,
@@ -60,6 +75,29 @@ export class ReservationService {
       },
       include: { table: true },
     })
+  }
+
+  static async assertTableAvailable(tableId: string, date: string, time: string) {
+    const targetStart = toMinutes(time)
+    const targetEnd = targetStart + OCCUPANCY_WINDOW_MIN
+
+    const existing = await prisma.reservation.findMany({
+      where: {
+        tableId,
+        date: new Date(date),
+        status: { not: 'cancelled' },
+      },
+    })
+
+    for (const reservation of existing) {
+      const otherStart = toMinutes(reservation.time)
+      const otherEnd = otherStart + OCCUPANCY_WINDOW_MIN
+      if (overlaps(targetStart, targetEnd, otherStart, otherEnd)) {
+        throw Object.assign(new Error('Table is already reserved at that time'), {
+          statusCode: 409,
+        })
+      }
+    }
   }
 
   static async updateStatus(id: string, status: string) {

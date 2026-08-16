@@ -30,9 +30,10 @@ describe('requestId middleware', () => {
     expect(res.headers['x-request-id']).toBeTruthy()
   })
 
-  it('should echo a client-provided X-Request-Id', async () => {
+  it('should ignore a client-provided X-Request-Id', async () => {
     const res = await request(app).get('/ping').set('X-Request-Id', 'test-123')
-    expect(res.headers['x-request-id']).toBe('test-123')
+    expect(res.headers['x-request-id']).toBeTruthy()
+    expect(res.headers['x-request-id']).not.toBe('test-123')
   })
 })
 

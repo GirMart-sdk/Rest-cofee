@@ -2,16 +2,21 @@ import { Request, Response, NextFunction } from 'express'
 import { logger } from '../utils/logger.js'
 import { metrics } from '../utils/metrics.js'
 
+function pathWithoutQuery(url: string): string {
+  return url.split('?')[0]
+}
+
 export function requestLogger(req: Request, res: Response, next: NextFunction) {
   const start = Date.now()
-  metrics.trackRequest(req.method, req.originalUrl || req.url)
+  const path = pathWithoutQuery(req.originalUrl || req.url)
+  metrics.trackRequest(req.method, path)
 
   res.on('finish', () => {
     const durationMs = Date.now() - start
     metrics.trackResponse(res.statusCode)
     logger.info('http request', {
       method: req.method,
-      path: req.originalUrl || req.url,
+      path,
       status: res.statusCode,
       durationMs,
       requestId: req.headers['x-request-id'],

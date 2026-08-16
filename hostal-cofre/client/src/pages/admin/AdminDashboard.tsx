@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { SystemMetrics } from '../../types'
 import { api } from '../../services/api'
+import { formatCOP } from '../../utils/format'
 import {
   FiGrid,
   FiClipboard,
@@ -10,32 +12,64 @@ import {
   FiShoppingCart,
   FiUsers,
   FiBarChart2,
+  FiActivity,
 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
+function formatUptime(seconds: number): string {
+  const days = Math.floor(seconds / 86400)
+  const hours = Math.floor((seconds % 86400) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  if (days > 0) return `${days}d ${hours}h`
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}m`
+}
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ orders: 0, reservations: 0, revenue: 0, todaySales: 0 })
+  const [stats, setStats] = useState({
+    orders: 0,
+    reservations: 0,
+    todaySales: 0,
+    weekSales: 0,
+  })
+  const [health, setHealth] = useState<string | null>(null)
+  const [metrics, setMetrics] = useState<SystemMetrics | null>(null)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [reportRes, resRes] = await Promise.all([
+        const [reportRes, weeklyRes, resRes] = await Promise.all([
           api.get('/reports/daily'),
+          api.get('/reports/weekly'),
           api.get('/reservations'),
         ])
         const report = reportRes.data.data
+        const weekly = weeklyRes.data.data
         const reservations = resRes.data.data
         setStats({
           orders: report.summary.totalOrders,
           reservations: reservations.filter((r: any) => r.status !== 'cancelled').length,
-          revenue: report.summary.totalSales,
           todaySales: report.summary.totalSales,
+          weekSales: weekly.totalSales || 0,
         })
       } catch {
         toast.error('Error al cargar estadísticas') /* stats remain default */
       }
     }
     fetchStats()
+  }, [])
+
+  useEffect(() => {
+    const fetchSystem = async () => {
+      try {
+        const [healthRes, metricsRes] = await Promise.all([api.get('/health'), api.get('/metrics')])
+        setHealth(healthRes.data?.status ?? null)
+        setMetrics(metricsRes.data?.data ?? null)
+      } catch {
+        /* sin datos de sistema: se oculta la sección */
+      }
+    }
+    fetchSystem()
   }, [])
 
   const shortcuts = [
@@ -103,7 +137,7 @@ export default function AdminDashboard() {
           <div className="bg-primary w-10 h-10 rounded-lg flex items-center justify-center text-white mb-3">
             <FiDollarSign size={18} />
           </div>
-          <div className="text-2xl font-bold">${stats.todaySales.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{formatCOP(stats.todaySales)}</div>
           <div className="text-gray-500 text-sm">Ventas Hoy</div>
         </motion.div>
         <motion.div
@@ -116,7 +150,7 @@ export default function AdminDashboard() {
             <FiClipboard size={18} />
           </div>
           <div className="text-2xl font-bold">{stats.orders}</div>
-          <div className="text-gray-500 text-sm">Pedidos Totales</div>
+          <div className="text-gray-500 text-sm">Pedidos Hoy</div>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -139,8 +173,8 @@ export default function AdminDashboard() {
           <div className="bg-purple-500 w-10 h-10 rounded-lg flex items-center justify-center text-white mb-3">
             <FiDollarSign size={18} />
           </div>
-          <div className="text-2xl font-bold">${stats.revenue.toLocaleString()}</div>
-          <div className="text-gray-500 text-sm">Ingresos Totales</div>
+          <div className="text-2xl font-bold">{formatCOP(stats.weekSales)}</div>
+          <div className="text-gray-500 text-sm">Ventas Semana</div>
         </motion.div>
       </div>
 
@@ -165,6 +199,63 @@ export default function AdminDashboard() {
           </Link>
         ))}
       </div>
+
+      {metrics && (
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-display">Estado del Servidor</h2>
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-bold ${
+                health === 'ok' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {health === 'ok' ? 'Saludable' : 'Sin conexión'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl p-5 shadow-md">
+              <div className="bg-gray-900 w-10 h-10 rounded-lg flex items-center justify-center text-white mb-3">
+                <FiActivity size={18} />
+              </div>
+              <div className="text-2xl font-bold">{formatUptime(metrics.uptimeSeconds)}</div>
+              <div className="text-gray-500 text-sm">Tiempo activo</div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-md">
+              <div className="bg-blue-500 w-10 h-10 rounded-lg flex items-center justify-center text-white mb-3">
+                <FiBarChart2 size={18} />
+              </div>
+              <div className="text-2xl font-bold">{metrics.totalRequests}</div>
+              <div className="text-gray-500 text-sm">Peticiones</div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-md">
+              <div className="bg-red-500 w-10 h-10 rounded-lg flex items-center justify-center text-white mb-3">
+                <FiUsers size={18} />
+              </div>
+              <div className="text-2xl font-bold">
+                {metrics.authLogins}
+                <span className="text-sm text-gray-400"> / {metrics.authFailedLogins}</span>
+              </div>
+              <div className="text-gray-500 text-sm">Logins (exitosos/fallidos)</div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-md">
+              <div className="bg-orange-500 w-10 h-10 rounded-lg flex items-center justify-center text-white mb-3">
+                <FiShoppingCart size={18} />
+              </div>
+              <div className="text-2xl font-bold">
+                {metrics.ordersCreated}
+                <span className="text-sm text-gray-400"> / {metrics.ordersCancelled}</span>
+              </div>
+              <div className="text-gray-500 text-sm">Pedidos (creados/cancelados)</div>
+            </div>
+          </div>
+          <p className="text-xs text-gray-400 mt-4">
+            Errores totales: {metrics.totalErrors} · Pagos iniciados: {metrics.paymentsInitiated} ·
+            Fallidos: {metrics.paymentsFailed} · Webhook rechazados:{' '}
+            {metrics.paymentsWebhookRejected} · Descuadres: {metrics.paymentsAmountMismatch} ·
+            WhatsApp enviados: {metrics.whatsappSent} / fallidos: {metrics.whatsappFailed}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

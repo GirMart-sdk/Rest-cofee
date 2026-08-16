@@ -1,10 +1,32 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Shift, ShiftPeriod, SHIFT_PERIOD_LABELS } from '../../types'
+import { Shift, ShiftPeriod, SHIFT_PERIOD_LABELS, Order } from '../../types'
 import { api } from '../../services/api'
-import { FiLock, FiUnlock, FiClock, FiUser, FiX } from 'react-icons/fi'
+import { formatCOP } from '../../utils/format'
+import { FiLock, FiUnlock, FiClock, FiUser, FiX, FiBarChart2 } from 'react-icons/fi'
 import { Button, Input } from '../../components/ui'
 import toast from 'react-hot-toast'
+
+interface ShiftSummary extends Shift {
+  orders: Order[]
+  breakdown: {
+    paymentMethods: Record<string, number>
+    orderTypes: Record<string, number>
+  }
+}
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  cash: 'Efectivo',
+  nequi: 'Nequi',
+  daviplata: 'Daviplata',
+  wompi: 'Wompi',
+}
+
+const ORDER_TYPE_LABELS: Record<string, string> = {
+  domicilio: 'Domicilio',
+  tienda: 'Tienda/POS',
+  mesa: 'Mesa',
+}
 
 export default function AdminShifts() {
   const [shifts, setShifts] = useState<Shift[]>([])
@@ -20,6 +42,21 @@ export default function AdminShifts() {
 
   const [closingCash, setClosingCash] = useState('')
   const [closeNotes, setCloseNotes] = useState('')
+
+  const [summaryData, setSummaryData] = useState<ShiftSummary | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+
+  const viewSummary = async (shiftId: string) => {
+    setSummaryLoading(true)
+    try {
+      const res = await api.get(`/shifts/${shiftId}/summary`)
+      setSummaryData(res.data.data)
+    } catch {
+      toast.error('Error al cargar el resumen del turno')
+    } finally {
+      setSummaryLoading(false)
+    }
+  }
 
   const fetchShifts = async () => {
     try {
@@ -133,9 +170,7 @@ export default function AdminShifts() {
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <div className="text-lg font-bold">
-                          ${shift.totalSales.toLocaleString()}
-                        </div>
+                        <div className="text-lg font-bold">{formatCOP(shift.totalSales)}</div>
                         <div className="text-xs text-gray-500">Ventas</div>
                       </div>
                       <div className="bg-white rounded-lg p-2 text-center">
@@ -144,8 +179,8 @@ export default function AdminShifts() {
                       </div>
                     </div>
                     <div className="flex justify-between text-xs text-gray-500">
-                      <span>Efectivo: ${shift.cashReceived.toLocaleString()}</span>
-                      <span>Digital: ${shift.digitalTotal.toLocaleString()}</span>
+                      <span>Efectivo: {formatCOP(shift.cashReceived)}</span>
+                      <span>Digital: {formatCOP(shift.digitalTotal)}</span>
                     </div>
                     <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                       <FiClock size={10} />{' '}
@@ -209,8 +244,16 @@ export default function AdminShifts() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-sm">${shift.totalSales.toLocaleString()}</p>
+                      <p className="font-bold text-sm">{formatCOP(shift.totalSales)}</p>
                       <p className="text-xs text-gray-500">{shift.totalOrders} pedidos</p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="mt-1 !py-1"
+                        onClick={() => void viewSummary(shift.id)}
+                      >
+                        <FiBarChart2 size={12} /> Resumen
+                      </Button>
                     </div>
                   </div>
                 )
@@ -338,20 +381,20 @@ export default function AdminShifts() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Efectivo inicial:</span>
-                  <span className="font-bold">${closingShift.openingCash.toLocaleString()}</span>
+                  <span className="font-bold">{formatCOP(closingShift.openingCash)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Ventas totales:</span>
-                  <span className="font-bold">${closingShift.totalSales.toLocaleString()}</span>
+                  <span className="font-bold">{formatCOP(closingShift.totalSales)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Efectivo recibido:</span>
-                  <span className="font-bold">${closingShift.cashReceived.toLocaleString()}</span>
+                  <span className="font-bold">{formatCOP(closingShift.cashReceived)}</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between">
                   <span className="text-gray-600 font-semibold">Esperado en caja:</span>
                   <span className="font-bold text-primary">
-                    ${(closingShift.openingCash + closingShift.cashReceived).toLocaleString()}
+                    {formatCOP(closingShift.openingCash + closingShift.cashReceived)}
                   </span>
                 </div>
               </div>
@@ -376,11 +419,10 @@ export default function AdminShifts() {
                     {parseFloat(closingCash) >= closingShift.openingCash + closingShift.cashReceived
                       ? '+'
                       : ''}
-                    $
-                    {(
+                    {formatCOP(
                       parseFloat(closingCash) -
-                      (closingShift.openingCash + closingShift.cashReceived)
-                    ).toFixed(2)}
+                        (closingShift.openingCash + closingShift.cashReceived),
+                    )}
                   </p>
                 </div>
               )}
@@ -403,6 +445,100 @@ export default function AdminShifts() {
               </Button>
               <Button variant="danger" className="flex-1" onClick={closeShift}>
                 Cerrar Turno
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {summaryData && (
+        <div className="modal-overlay" onClick={() => setSummaryData(null)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="modal-content max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-display">Resumen del Turno</h2>
+              <button
+                onClick={() => setSummaryData(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <FiUser size={16} className="text-gray-500" />
+                <span className="font-bold">{summaryData.cashierName}</span>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full font-semibold ${SHIFT_PERIOD_LABELS[summaryData.shiftPeriod].color}`}
+                >
+                  {SHIFT_PERIOD_LABELS[summaryData.shiftPeriod].label}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Ventas totales:</span>
+                <span className="font-bold">{formatCOP(summaryData.totalSales)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Pedidos:</span>
+                <span className="font-bold">{summaryData.totalOrders}</span>
+              </div>
+            </div>
+
+            {summaryLoading ? (
+              <div className="text-center py-8 text-gray-400">Cargando detalle...</div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Ventas por método de pago
+                  </h3>
+                  <div className="space-y-1.5">
+                    {Object.entries(summaryData.breakdown.paymentMethods).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="flex justify-between text-sm bg-gray-50 rounded-lg px-3 py-2"
+                      >
+                        <span className="text-gray-600">{PAYMENT_METHOD_LABELS[key] || key}</span>
+                        <span className="font-bold">{formatCOP(value)}</span>
+                      </div>
+                    ))}
+                    {Object.keys(summaryData.breakdown.paymentMethods).length === 0 && (
+                      <p className="text-gray-400 text-sm text-center py-2">
+                        Sin pagos registrados
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Pedidos por tipo</h3>
+                  <div className="space-y-1.5">
+                    {Object.entries(summaryData.breakdown.orderTypes).map(([key, count]) => (
+                      <div
+                        key={key}
+                        className="flex justify-between text-sm bg-gray-50 rounded-lg px-3 py-2"
+                      >
+                        <span className="text-gray-600">{ORDER_TYPE_LABELS[key] || key}</span>
+                        <span className="font-bold">{count}</span>
+                      </div>
+                    ))}
+                    {Object.keys(summaryData.breakdown.orderTypes).length === 0 && (
+                      <p className="text-gray-400 text-sm text-center py-2">
+                        Sin pedidos registrados
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-5">
+              <Button variant="ghost" className="w-full" onClick={() => setSummaryData(null)}>
+                Cerrar
               </Button>
             </div>
           </motion.div>

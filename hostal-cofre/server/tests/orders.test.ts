@@ -172,6 +172,47 @@ describe('GET /api/orders', () => {
     expect(res.status).toBe(200)
     expect(res.body.pagination.limit).toBe(100)
   })
+
+  it('should only return orders belonging to the non-admin user (by user or email)', async () => {
+    const me = await createUser('client')
+    const other = await createUser('client')
+    const myToken = generateToken(me.user)
+    const menuItem = await createMenuItem()
+
+    await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Mine by id',
+        customerPhone: '3001234567',
+        customerEmail: me.user.email,
+        paymentMethod: 'cash',
+        items: [{ menuItemId: menuItem.id, quantity: 1 }],
+      })
+    await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Mine by email',
+        customerPhone: '3001234567',
+        customerEmail: me.user.email,
+        paymentMethod: 'cash',
+        items: [{ menuItemId: menuItem.id, quantity: 1 }],
+      })
+    await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Someone else',
+        customerPhone: '3001234567',
+        customerEmail: other.user.email,
+        paymentMethod: 'cash',
+        items: [{ menuItemId: menuItem.id, quantity: 1 }],
+      })
+
+    const res = await request(app).get('/api/orders').set('Authorization', `Bearer ${myToken}`)
+    expect(res.status).toBe(200)
+    expect(res.body.pagination.total).toBe(2)
+    const names = res.body.data.map((o: any) => o.customerName).sort()
+    expect(names).toEqual(['Mine by email', 'Mine by id'])
+  })
 })
 
 describe('GET /api/orders/table/:tableNumber', () => {
@@ -280,8 +321,8 @@ describe('GET /api/orders/daily-sales', () => {
       .get('/api/orders/daily-sales')
       .set('Authorization', `Bearer ${token}`)
     expect(res.status).toBe(200)
-    expect(res.body.data).toHaveProperty('totalSales')
-    expect(res.body.data).toHaveProperty('totalOrders')
+    expect(res.body.data.summary).toHaveProperty('totalSales')
+    expect(res.body.data.summary).toHaveProperty('totalOrders')
     expect(res.body.data).toHaveProperty('topItems')
   })
 

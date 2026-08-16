@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Order, PaginationMeta } from '../../types'
+import { Order, PaginationMeta, DELIVERY_ZONE_LABELS, DeliveryZoneType } from '../../types'
 import { api } from '../../services/api'
 import { subscribeOrders, SseEvent } from '../../services/events'
-import { FiRefreshCw, FiTruck, FiHome, FiGrid } from 'react-icons/fi'
+import { FiRefreshCw, FiTruck, FiHome, FiGrid, FiSearch } from 'react-icons/fi'
 import { Skeleton, EmptyState, Pagination } from '../../components/ui'
+import { getErrorMessage } from '../../utils/errors'
+import { formatCOP } from '../../utils/format'
+import { useDebounce } from '../../hooks/useLocalStorage'
 import toast from 'react-hot-toast'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -35,6 +38,8 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [filter, setFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
+  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 250)
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
   const [page, setPage] = useState(1)
@@ -49,8 +54,8 @@ export default function AdminOrders() {
       setOrders(res.data.data)
       setPagination(res.data.pagination ?? null)
       setPage(targetPage)
-    } catch {
-      toast.error('Error al cargar pedidos')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al cargar pedidos'))
     } finally {
       setLoading(false)
     }
@@ -75,6 +80,14 @@ export default function AdminOrders() {
   const filtered = orders.filter((o) => {
     if (filter !== 'all' && o.status !== filter) return false
     if (typeFilter !== 'all' && o.orderType !== typeFilter) return false
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase()
+      const matches =
+        o.customerName.toLowerCase().includes(q) ||
+        (o.receiptNumber || '').toLowerCase().includes(q) ||
+        o.id.toLowerCase().includes(q)
+      if (!matches) return false
+    }
     return true
   })
 
@@ -83,8 +96,8 @@ export default function AdminOrders() {
       await api.patch(`/orders/${orderId}/status`, { status: newStatus })
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)))
       toast.success(`Estado cambiado a ${STATUS_LABELS[newStatus]}`)
-    } catch {
-      toast.error('Error al actualizar estado')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al actualizar estado'))
     }
   }
 
@@ -95,8 +108,8 @@ export default function AdminOrders() {
         prev.map((o) => (o.id === orderId ? { ...o, paymentStatus: 'paid' as const } : o)),
       )
       toast.success('Pedido marcado como pagado')
-    } catch {
-      toast.error('Error al actualizar el pago')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al actualizar el pago'))
     }
   }
 
@@ -129,24 +142,36 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-600 mb-2">Tipo de pedido:</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {[
-            { key: 'all', label: 'Todos' },
-            { key: 'domicilio', label: 'Domicilio' },
-            { key: 'tienda', label: 'Tienda/POS' },
-            { key: 'mesa', label: 'Mesa' },
-          ].map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setTypeFilter(f.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${typeFilter === f.key ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
-            >
-              {f.label}
-            </button>
-          ))}
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative w-full lg:w-72">
+          <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por cliente o recibo..."
+            className="input-field pl-9"
+            aria-label="Buscar pedidos"
+          />
         </div>
+        <p className="text-sm font-semibold text-gray-600">Tipo de pedido:</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {[
+          { key: 'all', label: 'Todos' },
+          { key: 'domicilio', label: 'Domicilio' },
+          { key: 'tienda', label: 'Tienda/POS' },
+          { key: 'mesa', label: 'Mesa' },
+        ].map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setTypeFilter(f.key)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${typeFilter === f.key ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
@@ -205,7 +230,10 @@ export default function AdminOrders() {
                     </p>
                     {order.address && (
                       <p className="text-gray-400 text-xs mt-1">
-                        📍 {order.address} ({order.deliveryZone})
+                        📍 {order.address} (
+                        {DELIVERY_ZONE_LABELS[order.deliveryZone as DeliveryZoneType] ||
+                          order.deliveryZone}
+                        )
                       </p>
                     )}
                   </div>
@@ -232,9 +260,7 @@ export default function AdminOrders() {
                             : 'Pago pendiente'}
                       </span>
                     )}
-                    <span className="text-xl font-bold text-primary">
-                      ${order.total.toLocaleString()}
-                    </span>
+                    <span className="text-xl font-bold text-primary">{formatCOP(order.total)}</span>
                   </div>
                 </div>
 
@@ -244,13 +270,13 @@ export default function AdminOrders() {
                       <span>
                         {ci.quantity}x {ci.menuItem?.name || 'Platillo'}
                       </span>
-                      <span>${(ci.menuItem?.price || 0) * ci.quantity}</span>
+                      <span>{formatCOP((ci.menuItem?.price || 0) * ci.quantity)}</span>
                     </div>
                   ))}
                   {order.deliveryFee > 0 && (
                     <div className="flex justify-between text-sm py-1 text-orange-600">
                       <span>Envío</span>
-                      <span>${order.deliveryFee}</span>
+                      <span>{formatCOP(order.deliveryFee)}</span>
                     </div>
                   )}
                 </div>

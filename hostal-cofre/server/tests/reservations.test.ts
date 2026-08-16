@@ -107,6 +107,76 @@ describe('POST /api/reservations', () => {
     expect(res.status).toBe(201)
     expect(res.body.data.notes).toBe('Alergia al maní')
   })
+
+  it('should reject overlapping reservation on the same table', async () => {
+    const table = await createTable()
+    await request(app).post('/api/reservations').send({
+      name: 'First',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+      tableId: table.id,
+    })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Second',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '21:00',
+      guests: 2,
+      tableId: table.id,
+    })
+    expect(res.status).toBe(409)
+  })
+
+  it('should allow a reservation after the occupancy window ends', async () => {
+    const table = await createTable()
+    await request(app).post('/api/reservations').send({
+      name: 'First',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+      tableId: table.id,
+    })
+    const res = await request(app).post('/api/reservations').send({
+      name: 'Later',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '22:30',
+      guests: 2,
+      tableId: table.id,
+    })
+    expect(res.status).toBe(201)
+  })
+
+  it('should not check availability for different tables or cancelled reservations', async () => {
+    const table = await createTable()
+    const first = await request(app).post('/api/reservations').send({
+      name: 'First',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:00',
+      guests: 2,
+      tableId: table.id,
+    })
+    const { user } = await createUser('admin')
+    const token = generateToken(user)
+    await request(app)
+      .patch(`/api/reservations/${first.body.data.id}/status`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'cancelled' })
+
+    const res = await request(app).post('/api/reservations').send({
+      name: 'After Cancel',
+      phone: '3001234567',
+      date: '2026-12-31',
+      time: '20:30',
+      guests: 2,
+      tableId: table.id,
+    })
+    expect(res.status).toBe(201)
+  })
 })
 
 describe('GET /api/reservations', () => {

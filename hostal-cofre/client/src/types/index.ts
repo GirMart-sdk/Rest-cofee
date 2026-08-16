@@ -11,13 +11,20 @@ export interface MenuItem {
   description: string
   price: number
   category: 'ensalada' | 'pasta' | 'pizza' | 'postre' | 'bebida'
-  image: string
+  image?: string
   available: boolean
 }
 
 export interface CartItem {
   menuItem: MenuItem
   quantity: number
+}
+
+export interface OrderItem {
+  id: string
+  quantity: number
+  price: number
+  menuItem: MenuItem
 }
 
 export interface Reservation {
@@ -38,7 +45,6 @@ export interface Table {
   number: number
   capacity: number
   zone: 'interior' | 'exterior' | 'privado'
-  available?: boolean
   isOccupied?: boolean
   activeOrderCount?: number
   totalPending?: number
@@ -47,6 +53,12 @@ export interface Table {
 
 export type OrderType = 'domicilio' | 'tienda' | 'mesa'
 export type DeliveryZoneType = 'centro' | 'periurbano' | 'lejano'
+
+export const DELIVERY_ZONE_LABELS: Record<DeliveryZoneType, string> = {
+  centro: 'Centro',
+  periurbano: 'Periurbano',
+  lejano: 'Lejano',
+}
 export type OrderStatusType =
   'pending' | 'preparing' | 'ready' | 'out_for_delivery' | 'delivered' | 'cancelled'
 
@@ -59,7 +71,7 @@ export interface DeliveryZoneConfig {
 
 export interface Order {
   id: string
-  items: CartItem[]
+  items: OrderItem[]
   total: number
   status: OrderStatusType
   paymentMethod: 'wompi' | 'cash' | 'nequi' | 'daviplata'
@@ -77,6 +89,7 @@ export interface Order {
   deliveryNotes?: string
   receiptNumber?: string
   shiftId?: string
+  paymentId?: string
 }
 
 export type ShiftPeriod = 'manana' | 'medio_dia' | 'tarde' | 'noche'
@@ -138,6 +151,46 @@ export interface DailyReport {
     openedAt: string
     closedAt?: string
   }>
+}
+
+export interface WeeklyReport {
+  totalSales: number
+  totalOrders: number
+  dailyBreakdown: Array<{ date: string; sales: number; count: number }>
+}
+
+export interface AuditLog {
+  id: string
+  userId: string
+  userEmail: string
+  action: string
+  resource: string
+  resourceId?: string | null
+  details?: Record<string, unknown> | null
+  ip?: string | null
+  createdAt: string
+}
+
+export interface SystemMetrics {
+  startedAt: string
+  uptimeSeconds: number
+  totalRequests: number
+  requestsByMethod: Record<string, number>
+  requestsByRoute: Record<string, number>
+  statusCodes: Record<string, number>
+  totalErrors: number
+  authLogins: number
+  authFailedLogins: number
+  ordersCreated: number
+  ordersCancelled: number
+  paymentsInitiated: number
+  paymentsFailed: number
+  paymentsWebhookRejected: number
+  paymentsWebhookProcessed: number
+  paymentsAmountMismatch: number
+  whatsappSent: number
+  whatsappFailed: number
+  whatsappSkipped: number
 }
 
 export interface ApiResponse<T> {

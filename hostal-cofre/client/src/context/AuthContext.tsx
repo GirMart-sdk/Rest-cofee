@@ -1,11 +1,16 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { User } from '../types'
-import { api } from '../services/api'
+import { api, setAccessToken, clearTokens } from '../services/api'
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
   register: (name: string, email: string, password: string) => Promise<boolean>
+  verifyTwoFactor: (code: string) => Promise<boolean>
+  cancelTwoFactor: () => void
+  twoFactorPending: string | null
+  authError: string | null
+  clearAuthError: () => void
   logout: () => void
   isAdmin: boolean
   loading: boolean
@@ -13,69 +18,83 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-const TOKEN_KEY = 'hostal-cofee-token'
+function extractError(err: unknown): string {
+  const e = err as { response?: { data?: { error?: string } } }
+  return e?.response?.data?.error || 'Ocurrió un error inesperado'
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const storeToken = (accessToken: string) => {
-    localStorage.setItem(TOKEN_KEY, accessToken)
-  }
-
-  const clearToken = () => {
-    localStorage.removeItem(TOKEN_KEY)
-  }
+  const [twoFactorPending, setTwoFactorPending] = useState<string | null>(null)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   const refreshAccessToken = useCallback(async (): Promise<boolean> => {
     try {
       const res = await api.post('/auth/refresh')
       const { accessToken } = res.data.data
       if (accessToken) {
-        storeToken(accessToken)
+        setAccessToken(accessToken)
         return true
       }
       return false
     } catch {
-      clearToken()
+      clearTokens()
       return false
     }
   }, [])
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY)
-    if (!token) {
-      setLoading(false)
-      return
-    }
-    api
-      .get('/auth/me')
-      .then((res) => setUser(res.data.data))
-      .catch(async () => {
-        const refreshed = await refreshAccessToken()
-        if (refreshed) {
-          try {
-            const res = await api.get('/auth/me')
-            setUser(res.data.data)
-          } catch {
-            clearToken()
-          }
-        } else {
-          clearToken()
+    let mounted = true
+    const restoreSession = async () => {
+      const refreshed = await refreshAccessToken()
+      if (refreshed && mounted) {
+        try {
+          const res = await api.get('/auth/me')
+          if (mounted) setUser(res.data.data)
+        } catch {
+          if (mounted) clearTokens()
         }
-      })
-      .finally(() => setLoading(false))
+      }
+      if (mounted) setLoading(false)
+    }
+    void restoreSession()
+    return () => {
+      mounted = false
+    }
   }, [refreshAccessToken])
+
+  const applySession = (res: { data: { data: { accessToken?: string; user?: User } } }) => {
+    const { accessToken, user: userData } = res.data.data
+    if (!accessToken) return false
+    setAccessToken(accessToken)
+    setUser(userData || null)
+    return true
+  }
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await api.post('/auth/login', { email, password })
-      const { accessToken, user: userData } = res.data.data
-      if (!accessToken) return false
-      storeToken(accessToken)
-      setUser(userData)
-      return true
-    } catch {
+      // Con 2FA habilitado el servidor responde sin token; se guarda el token pendiente.
+      if (res.data.requiresTwoFactor) {
+        setTwoFactorPending(res.data.data?.pendingToken || null)
+        return false
+      }
+      return applySession(res)
+    } catch (err) {
+      setAuthError(extractError(err))
+      return false
+    }
+  }
+
+  const verifyTwoFactor = async (code: string): Promise<boolean> => {
+    if (!twoFactorPending) return false
+    try {
+      const res = await api.post('/auth/2fa/verify', { pendingToken: twoFactorPending, code })
+      setTwoFactorPending(null)
+      return applySession(res)
+    } catch (err) {
+      setAuthError(extractError(err))
       return false
     }
   }
@@ -83,25 +102,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
       const res = await api.post('/auth/register', { name, email, password })
-      const { accessToken, user: userData } = res.data.data
-      if (!accessToken) return false
-      storeToken(accessToken)
-      setUser(userData)
-      return true
-    } catch {
+      return applySession(res)
+    } catch (err) {
+      setAuthError(extractError(err))
       return false
     }
   }
 
+  const clearAuthError = () => setAuthError(null)
+
+  const cancelTwoFactor = () => {
+    setTwoFactorPending(null)
+    setAuthError(null)
+  }
+
   const logout = () => {
     api.post('/auth/logout').catch(() => {})
-    clearToken()
+    clearTokens()
     setUser(null)
+    setTwoFactorPending(null)
+    setAuthError(null)
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, isAdmin: user?.role === 'admin', loading }}
+      value={{
+        user,
+        login,
+        register,
+        verifyTwoFactor,
+        cancelTwoFactor,
+        twoFactorPending,
+        authError,
+        clearAuthError,
+        logout,
+        isAdmin: user?.role === 'admin',
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

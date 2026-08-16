@@ -18,8 +18,15 @@ export class OrderService {
     role?: string,
     filters?: { orderType?: string; status?: string },
     pagination?: { page?: number; limit?: number },
+    customerEmail?: string,
   ) {
-    const where: any = role === 'admin' ? {} : { userId }
+    let where: any = {}
+    if (role !== 'admin') {
+      const clauses: any[] = []
+      if (userId) clauses.push({ userId })
+      if (customerEmail) clauses.push({ customerEmail })
+      where = clauses.length > 1 ? { OR: clauses } : clauses[0] || {}
+    }
     if (filters?.orderType) where.orderType = filters.orderType
     if (filters?.status) where.status = filters.status
     const page = Math.max(1, pagination?.page ?? 1)
@@ -94,38 +101,43 @@ export class OrderService {
       if (openShift) shiftId = openShift.id
     }
 
-    const order = await prisma.order.create({
-      data: {
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        customerEmail: data.customerEmail,
-        total,
-        paymentMethod: data.paymentMethod as any,
-        userId: data.userId,
-        orderType: (data.orderType as any) || 'tienda',
-        tableId: data.tableId || null,
-        address: data.address || null,
-        deliveryZone: (data.deliveryZone as any) || null,
-        deliveryFee,
-        deliveryNotes: data.deliveryNotes || null,
-        receiptNumber: generateReceiptNumber(),
-        shiftId,
-        items: { create: orderItems },
-      },
-      include: { items: { include: { menuItem: true } }, table: true },
-    })
-
-    if (shiftId) {
-      await prisma.shift.update({
-        where: { id: shiftId },
+    // Pedido + contadores del turno en una sola transacción: sin estados inconsistentes.
+    const order = await prisma.$transaction(async (tx) => {
+      const created = await tx.order.create({
         data: {
-          totalSales: { increment: total },
-          totalOrders: { increment: 1 },
-          cashReceived: data.paymentMethod === 'cash' ? { increment: total } : undefined,
-          digitalTotal: data.paymentMethod !== 'cash' ? { increment: total } : undefined,
+          customerName: data.customerName,
+          customerPhone: data.customerPhone,
+          customerEmail: data.customerEmail,
+          total,
+          paymentMethod: data.paymentMethod as any,
+          userId: data.userId,
+          orderType: (data.orderType as any) || 'tienda',
+          tableId: data.tableId || null,
+          address: data.address || null,
+          deliveryZone: (data.deliveryZone as any) || null,
+          deliveryFee,
+          deliveryNotes: data.deliveryNotes || null,
+          receiptNumber: generateReceiptNumber(),
+          shiftId,
+          items: { create: orderItems },
         },
+        include: { items: { include: { menuItem: true } }, table: true },
       })
-    }
+
+      if (shiftId) {
+        await tx.shift.update({
+          where: { id: shiftId },
+          data: {
+            totalSales: { increment: total },
+            totalOrders: { increment: 1 },
+            cashReceived: data.paymentMethod === 'cash' ? { increment: total } : undefined,
+            digitalTotal: data.paymentMethod !== 'cash' ? { increment: total } : undefined,
+          },
+        })
+      }
+
+      return created
+    })
 
     metrics.inc('ordersCreated')
     return order
@@ -183,59 +195,5 @@ export class OrderService {
       where: { id },
       data: { paymentStatus: paymentStatus as any, paymentId },
     })
-  }
-
-  static async getDailySales(date?: string) {
-    const targetDate = date ? new Date(date) : new Date()
-    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0))
-    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999))
-
-    const orders = await prisma.order.findMany({
-      where: {
-        createdAt: { gte: startOfDay, lte: endOfDay },
-        status: { not: 'cancelled' },
-      },
-      include: { items: { include: { menuItem: true } } },
-    })
-
-    const totalSales = orders.reduce((sum, o) => sum + o.total, 0)
-    const totalOrders = orders.length
-    const cashSales = orders
-      .filter((o) => o.paymentMethod === 'cash')
-      .reduce((sum, o) => sum + o.total, 0)
-    const digitalSales = orders
-      .filter((o) => o.paymentMethod !== 'cash')
-      .reduce((sum, o) => sum + o.total, 0)
-    const deliveryOrders = orders.filter((o) => o.orderType === 'domicilio').length
-    const dineInOrders = orders.filter((o) => o.orderType === 'mesa').length
-    const posOrders = orders.filter((o) => o.orderType === 'tienda').length
-
-    const itemCounts: Record<string, { name: string; count: number; revenue: number }> = {}
-    for (const order of orders) {
-      for (const item of order.items) {
-        const key = item.menuItemId
-        if (!itemCounts[key]) {
-          itemCounts[key] = { name: item.menuItem?.name || 'N/A', count: 0, revenue: 0 }
-        }
-        itemCounts[key].count += item.quantity
-        itemCounts[key].revenue += item.price * item.quantity
-      }
-    }
-    const topItems = Object.values(itemCounts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10)
-
-    return {
-      date: startOfDay.toISOString().split('T')[0],
-      totalSales: parseFloat(totalSales.toFixed(2)),
-      totalOrders,
-      cashSales: parseFloat(cashSales.toFixed(2)),
-      digitalSales: parseFloat(digitalSales.toFixed(2)),
-      deliveryOrders,
-      dineInOrders,
-      posOrders,
-      averageTicket: totalOrders > 0 ? parseFloat((totalSales / totalOrders).toFixed(2)) : 0,
-      topItems,
-    }
   }
 }

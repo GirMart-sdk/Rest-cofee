@@ -5,6 +5,9 @@ const EVENT_HANDLER_REGEX = /\bon\w+\s*=/gi
 const JAVASCRIPT_URI_REGEX = /javascript\s*:/gi
 const DANGEROUS_ATTRS = /style\s*=\s*["'][^"']*expression\s*\(/gi
 
+// Los campos de credenciales y secretos se dejan intactos (no son renderizables)
+const SKIP_FIELDS = new Set(['password', 'currentPassword', 'newPassword', 'twoFactorSecret'])
+
 function sanitizeString(value: string): string {
   let clean = value.replace(HTML_TAG_REGEX, '')
   clean = clean.replace(EVENT_HANDLER_REGEX, '')
@@ -16,7 +19,9 @@ function sanitizeString(value: string): string {
 function sanitizeObject(obj: Record<string, unknown>): Record<string, unknown> {
   const sanitized: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(obj)) {
-    if (typeof value === 'string') {
+    if (SKIP_FIELDS.has(key)) {
+      sanitized[key] = value
+    } else if (typeof value === 'string') {
       sanitized[key] = sanitizeString(value)
     } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       sanitized[key] = sanitizeObject(value as Record<string, unknown>)
@@ -35,6 +40,9 @@ function sanitizeObject(obj: Record<string, unknown>): Record<string, unknown> {
 }
 
 export function sanitize(req: Request, _res: Response, next: NextFunction) {
+  // El webhook de Wompi firma el payload: sanitizar rompería la verificación de la firma.
+  if (req.path.startsWith('/api/payments/webhook')) return next()
+
   if (req.body && typeof req.body === 'object') {
     req.body = sanitizeObject(req.body)
   }

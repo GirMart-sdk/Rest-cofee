@@ -1,7 +1,7 @@
 import { Router, Response } from 'express'
 import crypto from 'node:crypto'
-import { config, wompiBaseUrls } from '../config/index.js'
-import { authenticate, AuthRequest } from '../middleware/auth.js'
+import { config } from '../config/index.js'
+import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
 import { OrderService } from '../services/order.service.js'
 import prisma from '../db.js'
@@ -37,17 +37,15 @@ async function wompiFetch(path: string, init?: RequestInit): Promise<FetchRespon
   })
 
   if (!response.ok) {
-    const body = await response.json().catch(() => null)
+    // Nunca logueamos el cuerpo de la respuesta (puede contener datos del cliente).
     metrics.inc('paymentsFailed')
     logger.warn('wompi request failed', {
       path,
       status: response.status,
       mode: config.wompi.mode,
-      error: body,
     })
     throw Object.assign(new Error(`Wompi error ${response.status}`), {
       statusCode: response.status >= 500 ? 502 : 400,
-      details: body,
     })
   }
 
@@ -123,18 +121,32 @@ router.get(
   },
 )
 
-router.get('/status', authenticate, async (_req: AuthRequest, res: Response) => {
+router.get('/status', authenticate, requireAdmin, async (_req: AuthRequest, res: Response) => {
   res.json({
     success: true,
     data: {
       mode: config.wompi.mode,
-      baseUrl: config.wompi.baseUrl,
       publicKeyConfigured: Boolean(config.wompi.publicKey),
       privateKeyConfigured: Boolean(config.wompi.privateKey),
       eventsSecretConfigured: Boolean(config.wompi.eventsSecret),
-      availableUrls: wompiBaseUrls,
     },
   })
+})
+
+router.get('/', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50'), 10) || 50, 1), 200)
+  const status = typeof req.query.status === 'string' ? req.query.status : undefined
+
+  const orders = await prisma.order.findMany({
+    where: {
+      paymentMethod: 'wompi',
+      ...(status ? { paymentStatus: status as 'pending' | 'paid' | 'failed' } : {}),
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  })
+
+  res.json({ success: true, data: orders })
 })
 
 function getValueByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -144,6 +156,13 @@ function getValueByPath(obj: Record<string, unknown>, path: string): unknown {
     }
     return undefined
   }, obj)
+}
+
+function safeEqualHex(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a.toLowerCase(), 'hex')
+  const bBuf = Buffer.from(b.toLowerCase(), 'hex')
+  if (aBuf.length !== bBuf.length) return false
+  return crypto.timingSafeEqual(aBuf, bBuf)
 }
 
 function verifyWebhookSignature(body: Record<string, unknown>, headerChecksum: string): boolean {
@@ -166,8 +185,9 @@ function verifyWebhookSignature(body: Record<string, unknown>, headerChecksum: s
   const digest = crypto.createHash('sha256').update(payload).digest('hex')
 
   const bodyChecksum = String((signature as Record<string, unknown>).checksum ?? '')
-  const expected = (bodyChecksum || headerChecksum || '').toLowerCase()
-  return expected.length > 0 && digest === expected
+  const bodyMatches = bodyChecksum ? safeEqualHex(digest, bodyChecksum) : false
+  const headerMatches = headerChecksum ? safeEqualHex(digest, headerChecksum) : false
+  return bodyMatches || headerMatches
 }
 
 router.post('/webhook', async (req: AuthRequest, res: Response) => {
@@ -196,7 +216,6 @@ router.post('/webhook', async (req: AuthRequest, res: Response) => {
   const reference = String(transaction.reference ?? '')
   const status = String(transaction.status ?? '').toUpperCase()
   const amountInCents = Number(transaction.amount_in_cents)
-  const paymentStatus: 'paid' | 'failed' = status === 'APPROVED' ? 'paid' : 'failed'
 
   if (event === 'transaction.updated') {
     if (transactionId || reference) {
@@ -211,36 +230,60 @@ router.post('/webhook', async (req: AuthRequest, res: Response) => {
           },
         })
         if (order) {
+          const alreadyPaid = order.paymentStatus === 'paid'
           if (status === 'APPROVED') {
-            const expectedAmount = Math.round(order.total * 100)
-            if (Number.isFinite(amountInCents) && amountInCents === expectedAmount) {
-              await OrderService.updatePayment(order.id, 'paid', transactionId)
+            if (alreadyPaid && order.paymentId === transactionId) {
+              // Idempotencia: el pago ya fue marcado como pagado con esta transacción.
+              metrics.inc('paymentsWebhookProcessed')
+              logger.info('wompi webhook ignored: already processed', {
+                transactionId,
+                orderId: order.id,
+              })
+            } else {
+              const expectedAmount = Math.round(order.total * 100)
+              if (Number.isFinite(amountInCents) && amountInCents === expectedAmount) {
+                await OrderService.updatePayment(order.id, 'paid', transactionId)
+                metrics.inc('paymentsWebhookProcessed')
+                logger.info('wompi webhook processed', {
+                  transactionId,
+                  status,
+                  orderId: order.id,
+                  receiptNumber: order.receiptNumber,
+                })
+              } else {
+                metrics.inc('paymentsAmountMismatch')
+                logger.warn('wompi webhook amount mismatch, payment rejected', {
+                  transactionId,
+                  orderId: order.id,
+                  amountInCents,
+                  expectedAmount,
+                })
+              }
+            }
+          } else if (status === 'DECLINED' || status === 'ERROR' || status === 'VOIDED') {
+            if (alreadyPaid) {
+              // Nunca degradamos una orden ya pagada.
+              logger.warn('wompi webhook ignored: order already paid', {
+                transactionId,
+                status,
+                orderId: order.id,
+              })
+            } else {
+              await OrderService.updatePayment(order.id, 'failed', transactionId)
               metrics.inc('paymentsWebhookProcessed')
               logger.info('wompi webhook processed', {
                 transactionId,
                 status,
-                paymentStatus,
                 orderId: order.id,
                 receiptNumber: order.receiptNumber,
               })
-            } else {
-              metrics.inc('paymentsAmountMismatch')
-              logger.warn('wompi webhook amount mismatch, payment rejected', {
-                transactionId,
-                orderId: order.id,
-                amountInCents,
-                expectedAmount,
-              })
             }
           } else {
-            await OrderService.updatePayment(order.id, paymentStatus, transactionId)
-            metrics.inc('paymentsWebhookProcessed')
-            logger.info('wompi webhook processed', {
+            // PENDING u otro estado no final: no modificar la orden.
+            logger.info('wompi webhook ignored: non-final status', {
               transactionId,
               status,
-              paymentStatus,
               orderId: order.id,
-              receiptNumber: order.receiptNumber,
             })
           }
         } else {

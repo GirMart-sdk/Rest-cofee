@@ -12,6 +12,8 @@ import {
   FiLogOut,
   FiExternalLink,
   FiCoffee,
+  FiShield,
+  FiCreditCard,
 } from 'react-icons/fi'
 
 const NAV_ITEMS = [
@@ -23,6 +25,8 @@ const NAV_ITEMS = [
   { to: '/admin/turnos', label: 'Turnos', icon: FiCalendar },
   { to: '/admin/reportes', label: 'Reportes', icon: FiBarChart2 },
   { to: '/admin/reservas', label: 'Reservas', icon: FiCalendar },
+  { to: '/admin/pagos', label: 'Pagos', icon: FiCreditCard },
+  { to: '/admin/auditoria', label: 'Auditoría', icon: FiShield },
 ]
 
 interface AdminSidebarProps {

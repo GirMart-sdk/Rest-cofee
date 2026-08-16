@@ -51,6 +51,13 @@ export class ShiftService {
     openingCash: number
     notes?: string
   }) {
+    const openShift = await prisma.shift.findFirst({ where: { status: 'open' } })
+    if (openShift) {
+      throw Object.assign(
+        new Error('There is already an open shift. Close it before opening a new one.'),
+        { statusCode: 400 },
+      )
+    }
     return prisma.shift.create({
       data: {
         userId: data.userId,
@@ -82,7 +89,11 @@ export class ShiftService {
       .filter((o) => o.paymentMethod !== 'cash')
       .reduce((sum, o) => sum + o.total, 0)
 
-    return prisma.shift.update({
+    // Cuadre de caja: lo que debería haber en caja vs lo declarado.
+    const expectedCash = parseFloat(((shift.openingCash || 0) + cashReceived).toFixed(2))
+    const cashMismatch = parseFloat((closingCash - expectedCash).toFixed(2))
+
+    const closed = await prisma.shift.update({
       where: { id },
       data: {
         status: 'closed',
@@ -96,6 +107,8 @@ export class ShiftService {
       },
       include: { user: { select: { id: true, name: true } } },
     })
+
+    return { ...closed, expectedCash, cashMismatch }
   }
 
   static async getShiftSummary(id: string) {
@@ -120,9 +133,10 @@ export class ShiftService {
   }
 
   static async getByPeriod(date?: string) {
-    const targetDate = date ? new Date(date + 'T00:00:00.000Z') : new Date()
-    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0))
-    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999))
+    // Día en hora local (misma convención que ReportService): evita el corrimiento UTC.
+    const now = date ? new Date(date + 'T12:00:00') : new Date()
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
 
     return prisma.shift.findMany({
       where: {

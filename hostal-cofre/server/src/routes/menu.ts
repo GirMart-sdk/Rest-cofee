@@ -1,14 +1,14 @@
 import { Router, Response } from 'express'
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { auditMiddleware } from '../services/audit.service.js'
-import prisma from '../db.js'
+import { MenuService } from '../services/menu.service.js'
 import { validate } from '../middleware/validation.js'
 import { z } from 'zod'
 
 const router = Router()
 
 router.get('/', async (_req, res: Response) => {
-  const items = await prisma.menuItem.findMany({ orderBy: { createdAt: 'desc' } })
+  const items = await MenuService.getAll()
   res.json({ success: true, data: items })
 })
 
@@ -43,8 +43,13 @@ router.post(
   validate(menuItemSchema),
   async (req: AuthRequest, res: Response) => {
     const { name, description, price, category, image } = req.body
-    const item = await prisma.menuItem.create({
-      data: { name, description, price, category, image },
+    // description es opcional en el schema pero NOT NULL en BD → default ''
+    const item = await MenuService.create({
+      name,
+      description: description ?? '',
+      price,
+      category,
+      image,
     })
     res.status(201).json({ success: true, data: item })
   },
@@ -79,9 +84,13 @@ router.put(
   validate(updateMenuItemSchema),
   async (req: AuthRequest, res: Response) => {
     const { name, description, price, category, image, available } = req.body
-    const item = await prisma.menuItem.update({
-      where: { id: req.params.id },
-      data: { name, description, price, category, image, available },
+    const item = await MenuService.update(req.params.id, {
+      name,
+      description,
+      price,
+      category,
+      image,
+      available,
     })
     res.json({ success: true, data: item })
   },
@@ -100,7 +109,7 @@ router.delete(
   auditMiddleware('menu.delete', 'menu', { getResourceId: (req) => req.params.id }),
   validate(deleteMenuItemSchema),
   async (req: AuthRequest, res: Response) => {
-    await prisma.menuItem.delete({ where: { id: req.params.id } })
+    await MenuService.delete(req.params.id)
     res.status(204).send()
   },
 )

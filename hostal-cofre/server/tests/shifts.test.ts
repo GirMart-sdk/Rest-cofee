@@ -57,6 +57,20 @@ describe('POST /api/shifts/open', () => {
       .send({ cashierName: 'Test', shiftPeriod: 'manana', openingCash: 100000 })
     expect(res.status).toBe(403)
   })
+
+  it('should reject opening a second shift while one is open', async () => {
+    const { user } = await createUser('admin')
+    const token = generateToken(user)
+    await request(app)
+      .post('/api/shifts/open')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cashierName: 'First', shiftPeriod: 'manana', openingCash: 200000 })
+    const res = await request(app)
+      .post('/api/shifts/open')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cashierName: 'Second', shiftPeriod: 'tarde', openingCash: 100000 })
+    expect(res.status).toBe(400)
+  })
 })
 
 describe('GET /api/shifts', () => {
@@ -67,9 +81,7 @@ describe('GET /api/shifts', () => {
       .post('/api/shifts/open')
       .set('Authorization', `Bearer ${token}`)
       .send({ cashierName: 'Test Cashier', shiftPeriod: 'manana', openingCash: 200000 })
-    const res = await request(app)
-      .get('/api/shifts')
-      .set('Authorization', `Bearer ${token}`)
+    const res = await request(app).get('/api/shifts').set('Authorization', `Bearer ${token}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.data)).toBe(true)
     expect(res.body.data.length).toBeGreaterThanOrEqual(1)
@@ -78,9 +90,7 @@ describe('GET /api/shifts', () => {
   it('should reject non-admin', async () => {
     const { user } = await createUser('client')
     const token = generateToken(user)
-    const res = await request(app)
-      .get('/api/shifts')
-      .set('Authorization', `Bearer ${token}`)
+    const res = await request(app).get('/api/shifts').set('Authorization', `Bearer ${token}`)
     expect(res.status).toBe(403)
   })
 })
@@ -162,6 +172,39 @@ describe('PATCH /api/shifts/:id/close', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ closingCash: 350000 })
     expect(res.status).toBe(400)
+  })
+
+  it('should compute expected cash and cash mismatch when closing', async () => {
+    const { user } = await createUser('admin')
+    const token = generateToken(user)
+    const openRes = await request(app)
+      .post('/api/shifts/open')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cashierName: 'Test Cashier', shiftPeriod: 'manana', openingCash: 200000 })
+    const shiftId = openRes.body.data.id
+
+    await prisma.order.create({
+      data: {
+        customerName: 'Cuadre Test',
+        customerPhone: '3001234567',
+        total: 15000,
+        paymentMethod: 'cash',
+        status: 'delivered',
+        orderType: 'tienda',
+        receiptNumber: `HC-${Date.now()}`,
+        shiftId,
+      },
+    })
+
+    const res = await request(app)
+      .patch(`/api/shifts/${shiftId}/close`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ closingCash: 215000 })
+    expect(res.status).toBe(200)
+    expect(res.body.data.status).toBe('closed')
+    expect(res.body.data.cashReceived).toBe(15000)
+    expect(res.body.data.expectedCash).toBe(215000)
+    expect(res.body.data.cashMismatch).toBe(0)
   })
 })
 

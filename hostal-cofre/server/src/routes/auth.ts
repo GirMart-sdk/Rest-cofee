@@ -1,18 +1,17 @@
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import rateLimit from 'express-rate-limit'
+import crypto from 'node:crypto'
 import { generateSecret, generateURI, verifySync } from 'otplib'
 import { config } from '../config/index.js'
 import { authenticate, AuthRequest } from '../middleware/auth.js'
 import { checkLockout, recordLoginAttempt } from '../middleware/lockout.js'
-import {
-  revokeRefreshToken,
-  revokeAllUserTokens,
-  isRefreshTokenRevoked,
-} from '../middleware/tokenBlacklist.js'
+import { revokeRefreshToken, revokeAllUserTokens } from '../middleware/tokenBlacklist.js'
 import { metrics } from '../utils/metrics.js'
 import { hashToken, generateRefreshTokenValue } from '../utils/tokens.js'
+import { makeLimiter } from '../utils/rateLimit.js'
+import { getClientIp } from '../utils/ip.js'
+import { parseDurationToMs } from '../utils/duration.js'
 import {
   REFRESH_COOKIE_NAME,
   setRefreshCookie,
@@ -23,27 +22,13 @@ import prisma from '../db.js'
 import { z } from 'zod'
 import { validate } from '../middleware/validation.js'
 
-const authLimiter =
-  process.env.NODE_ENV === 'test'
-    ? (req: Request, _res: Response, next: NextFunction) => next()
-    : rateLimit({
-        windowMs: 15 * 60 * 1000,
-        max: config.nodeEnv === 'production' ? 10 : 100,
-        message: { success: false, error: 'Too many attempts, please try again after 15 minutes.' },
-        standardHeaders: true,
-        legacyHeaders: false,
-      })
+const REFRESH_TOKEN_MS = parseDurationToMs(config.jwtRefreshExpiresIn)
 
-const twoFactorVerifyLimiter =
-  process.env.NODE_ENV === 'test'
-    ? (req: Request, _res: Response, next: NextFunction) => next()
-    : rateLimit({
-        windowMs: 15 * 60 * 1000,
-        max: config.nodeEnv === 'production' ? 10 : 100,
-        message: { success: false, error: 'Too many attempts, please try again after 15 minutes.' },
-        standardHeaders: true,
-        legacyHeaders: false,
-      })
+const authLimiter = makeLimiter(10)
+const twoFactorVerifyLimiter = makeLimiter(10)
+const refreshLimiter = makeLimiter(60)
+const logoutLimiter = makeLimiter(60)
+const changePasswordLimiter = makeLimiter(20)
 
 const router = Router()
 
@@ -52,6 +37,10 @@ const PASSWORD_REGEX =
 
 const TWO_FACTOR_ISSUER = 'Hostal Cofre'
 const TWO_FACTOR_PENDING_EXPIRY = '5m'
+
+// Hash real generado una sola vez: evita la diferencia de tiempo de respuesta
+// entre "usuario no existe" y "contraseña incorrecta" (timing attack).
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(crypto.randomUUID(), 12)
 
 function generateAccessToken(user: {
   id: string
@@ -75,7 +64,7 @@ async function generateRefreshToken(userId: string): Promise<string> {
     data: {
       tokenHash: hashToken(token),
       userId,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_MS),
     },
   })
   return token
@@ -103,14 +92,6 @@ function verifyTotpCode(secret: string, code: string): boolean {
   if (!/^\d{6}$/.test(digits)) return false
   const result = verifySync({ secret, token: digits, epochTolerance: 30 })
   return result.valid
-}
-
-function getClientIp(req: Request): string {
-  return (
-    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-    req.socket.remoteAddress ||
-    'unknown'
-  )
 }
 
 function publicUser(user: { id: string; name: string; email: string; role: string }) {
@@ -177,11 +158,11 @@ router.post(
     const { email, password } = req.body
     const ip = getClientIp(req)
 
-    const dummyHash = '$2a$10$invalidhashforhashingprevention'
     const user = await prisma.user.findUnique({ where: { email } })
+    // Comparación con hash real incluso si el usuario no existe: timing constante.
     const passwordValid = user
       ? await bcrypt.compare(password, user.password)
-      : await bcrypt.compare('x', dummyHash)
+      : await bcrypt.compare(password, DUMMY_PASSWORD_HASH)
 
     await recordLoginAttempt(email, ip, !!user && passwordValid)
 
@@ -294,6 +275,7 @@ router.get('/2fa/setup', authenticate, async (req: AuthRequest, res: Response) =
 const twoFactorEnableSchema = z.object({
   body: z.object({
     code: z.string().min(1, 'Code is required').max(8),
+    password: z.string().min(1, 'Password is required').max(100),
   }),
 })
 
@@ -302,7 +284,7 @@ router.post(
   authenticate,
   validate(twoFactorEnableSchema),
   async (req: AuthRequest, res: Response) => {
-    const { code } = req.body
+    const { code, password } = req.body
 
     const user = await prisma.user.findUnique({ where: { id: req.user!.id } })
     if (!user) return res.status(404).json({ success: false, error: 'User not found' })
@@ -315,6 +297,11 @@ router.post(
       return res
         .status(400)
         .json({ success: false, error: 'Run the setup step before enabling 2FA' })
+    }
+    // Re-autenticación: se exige la contraseña actual antes de activar 2FA.
+    const validPassword = await bcrypt.compare(password, user.password)
+    if (!validPassword) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect' })
     }
     if (!verifyTotpCode(user.twoFactorSecret, code)) {
       return res.status(401).json({ success: false, error: 'Invalid authentication code' })
@@ -363,7 +350,7 @@ router.post(
   },
 )
 
-router.post('/refresh', async (req: Request, res: Response) => {
+router.post('/refresh', refreshLimiter, async (req: Request, res: Response) => {
   const refreshToken = getRefreshToken(req)
   if (!refreshToken) {
     return res.status(401).json({ success: false, error: 'No refresh token provided' })
@@ -371,37 +358,52 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
   const tokenHash = hashToken(refreshToken)
 
-  if (await isRefreshTokenRevoked(refreshToken)) {
-    return res.status(401).json({ success: false, error: 'Refresh token has been revoked' })
+  try {
+    // Rotación atómica: validar, revocar el actual y emitir el nuevo en una sola transacción.
+    const result = await prisma.$transaction(async (tx) => {
+      const record = await tx.refreshToken.findUnique({
+        where: { tokenHash },
+        include: { user: true },
+      })
+
+      if (!record || record.revoked) {
+        throw Object.assign(new Error('Invalid refresh token'), { statusCode: 401 })
+      }
+      if (new Date() > record.expiresAt) {
+        await tx.refreshToken.update({ where: { id: record.id }, data: { revoked: true } })
+        throw Object.assign(new Error('Refresh token expired'), { statusCode: 401 })
+      }
+
+      await tx.refreshToken.update({ where: { id: record.id }, data: { revoked: true } })
+
+      const newRefreshToken = generateRefreshTokenValue()
+      await tx.refreshToken.create({
+        data: {
+          tokenHash: hashToken(newRefreshToken),
+          userId: record.user.id,
+          expiresAt: new Date(Date.now() + REFRESH_TOKEN_MS),
+        },
+      })
+
+      return { user: record.user, newRefreshToken }
+    })
+
+    const newAccessToken = generateAccessToken(result.user)
+    setRefreshCookie(res, result.newRefreshToken)
+
+    res.json({
+      success: true,
+      data: { accessToken: newAccessToken },
+    })
+  } catch (error: any) {
+    if (error?.statusCode) {
+      return res.status(error.statusCode).json({ success: false, error: error.message })
+    }
+    throw error
   }
-
-  const record = await prisma.refreshToken.findUnique({
-    where: { tokenHash },
-    include: { user: true },
-  })
-
-  if (!record || record.revoked) {
-    return res.status(401).json({ success: false, error: 'Invalid refresh token' })
-  }
-
-  if (new Date() > record.expiresAt) {
-    await revokeRefreshToken(refreshToken)
-    return res.status(401).json({ success: false, error: 'Refresh token expired' })
-  }
-
-  await revokeRefreshToken(refreshToken)
-
-  const newAccessToken = generateAccessToken(record.user)
-  const newRefreshToken = await generateRefreshToken(record.user.id)
-  setRefreshCookie(res, newRefreshToken)
-
-  res.json({
-    success: true,
-    data: { accessToken: newAccessToken },
-  })
 })
 
-router.post('/logout', async (req: Request, res: Response) => {
+router.post('/logout', logoutLimiter, async (req: Request, res: Response) => {
   const refreshToken = getRefreshToken(req)
   if (refreshToken) {
     await revokeRefreshToken(refreshToken)
@@ -427,6 +429,7 @@ const changePasswordSchema = z.object({
 router.post(
   '/change-password',
   authenticate,
+  changePasswordLimiter,
   validate(changePasswordSchema),
   async (req: AuthRequest, res: Response) => {
     const { currentPassword, newPassword } = req.body

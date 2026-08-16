@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-const TOKEN_KEY = 'hostal-cofee-token'
-
 const mock = vi.hoisted(() => {
   const state: {
     requestHandler?: (config: { headers: Record<string, string> }) => unknown
@@ -49,10 +47,17 @@ vi.mock('axios', () => ({
   },
 }))
 
-import { api, refreshTokens, clearTokens, whatsappService } from './api'
+import {
+  api,
+  refreshTokens,
+  clearTokens,
+  setAccessToken,
+  getAccessToken,
+  whatsappService,
+} from './api'
 
 beforeEach(() => {
-  localStorage.clear()
+  clearTokens()
   vi.clearAllMocks()
   vi.stubGlobal('location', { href: '' })
 })
@@ -63,21 +68,27 @@ afterEach(() => {
 })
 
 describe('api client', () => {
-  it('attaches the Bearer token from localStorage to outgoing requests', () => {
-    localStorage.setItem(TOKEN_KEY, 'abc123')
+  it('attaches the Bearer token to outgoing requests', () => {
+    setAccessToken('abc123')
     const config = { headers: {} }
     const result = mock.state.requestHandler!(config)
     expect(result).toMatchObject({ headers: { Authorization: 'Bearer abc123' } })
   })
 
-  it('does not attach a token when localStorage is empty', () => {
+  it('does not attach a token when none is set', () => {
     const config = { headers: {} }
     const result = mock.state.requestHandler!(config)
     expect(result).toMatchObject({ headers: {} })
   })
 
+  it('does not persist the access token to localStorage', () => {
+    setAccessToken('abc123')
+    expect(localStorage.getItem('hostal-cofee-token')).toBeNull()
+    expect(getAccessToken()).toBe('abc123')
+  })
+
   it('refreshes the token on 401 and retries the original request', async () => {
-    localStorage.setItem(TOKEN_KEY, 'old-token')
+    setAccessToken('old-token')
 
     mock.mockRefreshPost.mockResolvedValue({
       data: { data: { accessToken: 'new-token' } },
@@ -95,17 +106,18 @@ describe('api client', () => {
     })
 
     expect(mock.mockRefreshPost).toHaveBeenCalledWith('/api/auth/refresh')
-    expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
+    expect(getAccessToken()).toBe('new-token')
     expect(mock.apiCallable).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/menu' }))
   })
 
   it('rejects a 401 when the refresh request fails', async () => {
+    setAccessToken('old-token')
     mock.mockRefreshPost.mockRejectedValue(new Error('no cookie'))
     const originalConfig = { url: '/api/menu', headers: {} }
     await expect(
       mock.state.onRejected!({ response: { status: 401 }, config: originalConfig }),
     ).rejects.toBeDefined()
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
+    expect(getAccessToken()).toBeNull()
   })
 
   it('does not retry twice for the same request', async () => {
@@ -134,7 +146,7 @@ describe('api client', () => {
   })
 
   it('redirects to login when the refresh fails to produce a token', async () => {
-    localStorage.setItem(TOKEN_KEY, 'old-token')
+    setAccessToken('old-token')
     mock.mockRefreshPost.mockResolvedValue({ data: { data: {} } })
 
     const originalConfig = { url: '/api/menu', headers: {}, _retry: undefined }
@@ -146,7 +158,7 @@ describe('api client', () => {
   })
 
   it('queues concurrent 401s and retries them after the refresh completes', async () => {
-    localStorage.setItem(TOKEN_KEY, 'old-token')
+    setAccessToken('old-token')
 
     let resolveRefresh!: (value: unknown) => void
     mock.mockRefreshPost.mockReturnValue(
@@ -164,7 +176,7 @@ describe('api client', () => {
     resolveRefresh({ data: { data: { accessToken: 'new-token' } } })
     await Promise.all([first, second])
 
-    expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
+    expect(getAccessToken()).toBe('new-token')
     expect(mock.apiCallable).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/menu' }))
     expect(mock.apiCallable).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/orders' }))
     expect(mock.apiCallable).toHaveBeenCalledWith(
@@ -181,10 +193,10 @@ describe('api client', () => {
     expect(mock.state.onFulfilled!(response)).toBe(response)
   })
 
-  it('clearTokens removes the stored access token', () => {
-    localStorage.setItem(TOKEN_KEY, 'abc')
+  it('clearTokens clears the in-memory access token', () => {
+    setAccessToken('abc')
     clearTokens()
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
+    expect(getAccessToken()).toBeNull()
   })
 
   it('refreshTokens stores the new access token on success', async () => {
@@ -196,17 +208,17 @@ describe('api client', () => {
 
     expect(ok).toBe(true)
     expect(mock.mockRefreshPost).toHaveBeenCalledWith('/api/auth/refresh')
-    expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
+    expect(getAccessToken()).toBe('new-token')
   })
 
   it('refreshTokens clears the token and returns false when the request fails', async () => {
-    localStorage.setItem(TOKEN_KEY, 'old')
+    setAccessToken('old')
     mock.mockRefreshPost.mockRejectedValue(new Error('nope'))
 
     const ok = await refreshTokens()
 
     expect(ok).toBe(false)
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
+    expect(getAccessToken()).toBeNull()
   })
 
   it('refreshTokens returns false when the response has no access token', async () => {

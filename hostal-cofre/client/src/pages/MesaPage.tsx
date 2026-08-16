@@ -1,11 +1,13 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MenuItem, CartItem } from '../types'
+import { MenuItem, CartItem, Table } from '../types'
 import { api, whatsappService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { useCartState } from '../hooks/useCartState'
 import { Button, Card, EmptyState } from '../components/ui'
+import { getErrorMessage } from '../utils/errors'
+import { formatCOP } from '../utils/format'
 import { FiPlus, FiMinus, FiTrash2, FiCheck, FiGrid } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -62,7 +64,7 @@ function MesaMenuGrid() {
     api
       .get('/menu')
       .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
-      .catch(() => {})
+      .catch(() => toast.error('Error al cargar el menú'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -106,7 +108,7 @@ function MesaMenuGrid() {
             <img src={item.image} alt={item.name} className="w-full h-28 object-cover" />
             <div className="p-3">
               <h3 className="font-semibold text-sm mb-1 line-clamp-1">{item.name}</h3>
-              <p className="text-primary font-bold text-sm">${item.price}</p>
+              <p className="text-primary font-bold text-sm">{formatCOP(item.price)}</p>
               <button
                 onClick={() => addItem(item)}
                 className="mt-2 w-full py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-semibold hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-1"
@@ -138,7 +140,6 @@ function MesaCart() {
     try {
       await api.post('/orders/table', {
         customerName: user?.name || `Mesa ${tableNumber}`,
-        customerPhone: user?.email || '',
         items: items.map((i) => ({ menuItemId: i.menuItem.id, quantity: i.quantity })),
         paymentMethod: 'cash',
         tableNumber,
@@ -146,21 +147,20 @@ function MesaCart() {
 
       const summary = items
         .map(
-          (i) =>
-            `${i.quantity}x ${i.menuItem.name} - $${(i.menuItem.price * i.quantity).toFixed(0)}`,
+          (i) => `${i.quantity}x ${i.menuItem.name} - ${formatCOP(i.menuItem.price * i.quantity)}`,
         )
         .join('\n')
       const whatsappPhone = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
       whatsappService.sendOrder(
         whatsappPhone,
-        `Mesa #${tableNumber}\n\n${summary}\n\n*Total: $${total.toFixed(2)}*`,
+        `Mesa #${tableNumber}\n\n${summary}\n\n*Total: ${formatCOP(total)}*`,
       )
 
       toast.success('Pedido enviado a la cocina')
       clearCart()
       setShowConfirm(false)
-    } catch {
-      toast.error('Error al enviar pedido')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al enviar pedido'))
     } finally {
       setSubmitting(false)
     }
@@ -180,7 +180,7 @@ function MesaCart() {
           <div key={ci.menuItem.id} className="flex items-center gap-3">
             <div className="flex-1">
               <p className="font-semibold text-sm">{ci.menuItem.name}</p>
-              <p className="text-primary text-xs font-bold">${ci.menuItem.price} c/u</p>
+              <p className="text-primary text-xs font-bold">{formatCOP(ci.menuItem.price)} c/u</p>
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -198,7 +198,7 @@ function MesaCart() {
               </button>
             </div>
             <p className="font-bold text-sm w-16 text-right">
-              ${(ci.menuItem.price * ci.quantity).toFixed(0)}
+              {formatCOP(ci.menuItem.price * ci.quantity)}
             </p>
             <button
               onClick={() => removeItem(ci.menuItem.id)}
@@ -213,7 +213,7 @@ function MesaCart() {
       <div className="border-t pt-3 mb-4">
         <div className="flex justify-between font-bold text-lg">
           <span>Total</span>
-          <span className="text-primary">${total.toFixed(2)}</span>
+          <span className="text-primary">{formatCOP(total)}</span>
         </div>
       </div>
 
@@ -255,16 +255,35 @@ function MesaCart() {
   )
 }
 
-function MesaHeader({ tableNumber }: { tableNumber: number }) {
+function MesaHeader({
+  tableNumber,
+  capacity,
+  activeOrders,
+}: {
+  tableNumber: number
+  capacity?: number
+  activeOrders: number
+}) {
   return (
     <div className="bg-primary text-white rounded-xl p-4 mb-6 flex items-center gap-3">
       <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center">
         <FiGrid size={24} />
       </div>
-      <div>
+      <div className="flex-1">
         <h2 className="font-display text-xl">Mesa #{tableNumber}</h2>
         <p className="text-white/80 text-sm">Agrega platos y envía tu pedido</p>
       </div>
+      {capacity ? (
+        <span className="bg-white/20 text-xs px-2 py-1 rounded-full font-semibold">
+          Capacidad: {capacity} pers.
+        </span>
+      ) : null}
+      {activeOrders > 0 ? (
+        <span className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1 rounded-full font-bold">
+          {activeOrders} pedido{activeOrders > 1 ? 's' : ''} activo{activeOrders > 1 ? 's' : ''} en
+          esta mesa
+        </span>
+      ) : null}
     </div>
   )
 }
@@ -272,6 +291,32 @@ function MesaHeader({ tableNumber }: { tableNumber: number }) {
 export default function MesaPage() {
   const [searchParams] = useSearchParams()
   const tableNumber = parseInt(searchParams.get('t') || '0')
+  const [tableInfo, setTableInfo] = useState<Table | null | undefined>(undefined)
+  const [activeOrders, setActiveOrders] = useState(0)
+
+  useEffect(() => {
+    if (!tableNumber || tableNumber < 1) return
+    let mounted = true
+    setTableInfo(undefined)
+    setActiveOrders(0)
+    api
+      .get(`/tables/${tableNumber}`)
+      .then((res) => {
+        if (mounted) setTableInfo(res.data.data)
+      })
+      .catch(() => {
+        if (mounted) setTableInfo(null)
+      })
+    api
+      .get(`/orders/table/${tableNumber}`)
+      .then((res) => {
+        if (mounted && Array.isArray(res.data.data)) setActiveOrders(res.data.data.length)
+      })
+      .catch(() => {})
+    return () => {
+      mounted = false
+    }
+  }, [tableNumber])
 
   if (!tableNumber || tableNumber < 1) {
     return (
@@ -284,11 +329,28 @@ export default function MesaPage() {
     )
   }
 
+  if (tableInfo === null) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-display text-gray-600 mb-4">Mesa no encontrada</h1>
+          <p className="text-gray-400">
+            Esta mesa no está registrada. Escanea el código QR de una mesa válida
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <MesaCartProvider>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <MesaHeader tableNumber={tableNumber} />
+          <MesaHeader
+            tableNumber={tableNumber}
+            capacity={tableInfo?.capacity}
+            activeOrders={activeOrders}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">

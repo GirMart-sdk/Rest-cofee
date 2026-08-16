@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { MenuItem } from '../../types'
 import { api } from '../../services/api'
 import { Modal, Button, Input, EmptyState } from '../../components/ui'
+import { getErrorMessage } from '../../utils/errors'
+import { formatCOP } from '../../utils/format'
 import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiRefreshCw } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -53,8 +55,8 @@ export default function AdminMenu() {
       setShowForm(false)
       setEditingId(null)
       setForm({ name: '', description: '', price: '', category: 'pasta', image: '' })
-    } catch {
-      toast.error('Error al guardar')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al guardar'))
     }
   }
 
@@ -70,7 +72,7 @@ export default function AdminMenu() {
       description: item.description,
       price: item.price.toString(),
       category: item.category,
-      image: item.image,
+      image: item.image ?? '',
     })
     setEditingId(item.id)
     setShowForm(true)
@@ -82,8 +84,8 @@ export default function AdminMenu() {
       await api.delete(`/menu/${id}`)
       setMenu((prev) => prev.filter((m) => m.id !== id))
       toast.success('Platillo eliminado')
-    } catch {
-      toast.error('Error al eliminar')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al eliminar'))
     }
   }
 
@@ -92,8 +94,8 @@ export default function AdminMenu() {
       const res = await api.put(`/menu/${item.id}`, { available: !item.available })
       setMenu((prev) => prev.map((m) => (m.id === item.id ? res.data.data : m)))
       toast.success(item.available ? 'Marcado como agotado' : 'Marcado como disponible')
-    } catch {
-      toast.error('Error al actualizar')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al actualizar'))
     }
   }
 
@@ -192,7 +194,7 @@ export default function AdminMenu() {
               <div className="p-4">
                 <h3 className="font-display text-lg">{item.name}</h3>
                 <p className="text-sm text-gray-500 mb-2">{item.category}</p>
-                <p className="text-primary font-bold text-xl mb-3">${item.price}</p>
+                <p className="text-primary font-bold text-xl mb-3">{formatCOP(item.price)}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}

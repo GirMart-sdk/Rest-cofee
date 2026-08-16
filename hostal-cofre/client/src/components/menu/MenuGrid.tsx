@@ -5,6 +5,8 @@ import { api } from '../../services/api'
 import { useCart } from '../../context/CartContext'
 import { EmptyState } from '../ui'
 import { FiPlus, FiCheck } from 'react-icons/fi'
+import toast from 'react-hot-toast'
+import { formatCOP } from '../../utils/format'
 
 const CATEGORIES = [
   { key: 'all', label: 'Todos' },
@@ -26,7 +28,7 @@ export default function MenuGrid() {
     api
       .get('/menu')
       .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
-      .catch(() => {})
+      .catch(() => toast.error('Error al cargar el menú'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -96,7 +98,7 @@ export default function MenuGrid() {
               <h3 className="font-display text-xl text-gray-900 mb-2">{item.name}</h3>
               <p className="text-gray-500 text-sm mb-4 line-clamp-2">{item.description}</p>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-primary">${item.price}</span>
+                <span className="text-2xl font-bold text-primary">{formatCOP(item.price)}</span>
                 <button
                   onClick={() => handleAdd(item)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${

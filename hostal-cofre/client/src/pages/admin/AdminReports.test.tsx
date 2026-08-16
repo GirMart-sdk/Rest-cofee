@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import AdminReports from './AdminReports'
+import { toLocalDateString } from '../../utils/date'
 
 const apiMock = vi.hoisted(() => ({
   api: {
@@ -53,14 +54,28 @@ const report = {
   ],
 }
 
+const weekly = {
+  totalSales: 850000,
+  totalOrders: 60,
+  dailyBreakdown: [
+    { date: '2026-08-10', sales: 120000, count: 8 },
+    { date: '2026-08-11', sales: 180000, count: 12 },
+    { date: '2026-08-12', sales: 95000, count: 7 },
+  ],
+}
+
 function renderPage() {
   return render(<AdminReports />)
 }
 
 describe('AdminReports', () => {
   beforeEach(() => {
+    localStorage.clear()
     vi.clearAllMocks()
-    apiMock.api.get.mockResolvedValue({ data: { data: report } })
+    apiMock.api.get.mockImplementation((url: string) => {
+      if (url === '/reports/weekly') return Promise.resolve({ data: { data: weekly } })
+      return Promise.resolve({ data: { data: report } })
+    })
   })
 
   it('renders the daily report sections', async () => {
@@ -82,7 +97,7 @@ describe('AdminReports', () => {
     renderPage()
     await screen.findByText('Ventas Totales')
 
-    const today = new Date().toISOString().split('T')[0]
+    const today = toLocalDateString()
     const input = screen.getByDisplayValue(today) as HTMLInputElement
     fireEvent.change(input, { target: { value: '2026-08-07' } })
 
@@ -127,6 +142,18 @@ describe('AdminReports', () => {
     renderPage()
 
     expect(await screen.findByText('No hay datos para esta fecha')).toBeInTheDocument()
+  })
+
+  it('shows the weekly report view', async () => {
+    renderPage()
+    await screen.findByText('Ventas Totales')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Semanal' }))
+    expect(await screen.findByText('Ventas por Día')).toBeInTheDocument()
+    expect(screen.getByText('Ventas (últimos 7 días)')).toBeInTheDocument()
+    expect(screen.getByText('Pedidos (últimos 7 días)')).toBeInTheDocument()
+    expect(screen.getByText('$850.000')).toBeInTheDocument()
+    expect(screen.getByText('$180.000')).toBeInTheDocument()
   })
 
   it('shows an error toast when the report fails to load', async () => {

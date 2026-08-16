@@ -9,6 +9,11 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
     return res.status(400).json({ success: false, errors: err.errors })
   }
 
+  if (err.type === 'entity.too.large' || err.status === 413) {
+    logger.warn('request body too large')
+    return res.status(413).json({ success: false, error: 'Request body is too large.' })
+  }
+
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     logger.warn('database error', { code: err.code, message: err.message })
     if (err.code === 'P2002') {
@@ -19,6 +24,9 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
     if (err.code === 'P2025') {
       return res.status(404).json({ success: false, error: 'The requested record was not found.' })
     }
+    if (err.code === 'P2003') {
+      return res.status(400).json({ success: false, error: 'Invalid reference: record not found.' })
+    }
   }
 
   if (err instanceof Prisma.PrismaClientValidationError) {
@@ -27,16 +35,13 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
   }
 
   if (err.statusCode) {
+    // Los detalles van solo al log del servidor, nunca al cliente.
     logger.warn('request error', {
       statusCode: err.statusCode,
       message: err.message,
       details: err.details,
     })
-    return res.status(err.statusCode).json({
-      success: false,
-      error: err.message,
-      ...(err.details ? { details: err.details } : {}),
-    })
+    return res.status(err.statusCode).json({ success: false, error: err.message })
   }
 
   logger.error('unhandled error', {

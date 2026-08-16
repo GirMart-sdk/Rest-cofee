@@ -65,7 +65,16 @@ function renderPage(path = '/mesa?t=5') {
 describe('MesaPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    apiMock.api.get.mockResolvedValue({ data: { data: items } })
+    apiMock.api.get.mockImplementation((url?: string) => {
+      if (url === '/menu') return Promise.resolve({ data: { data: items } })
+      if (url?.startsWith('/tables/')) {
+        return Promise.resolve({
+          data: { data: { id: 't5', number: 5, capacity: 4, zone: 'interior' } },
+        })
+      }
+      if (url === '/orders/table/5') return Promise.resolve({ data: { data: [] } })
+      return Promise.resolve({ data: { data: [] } })
+    })
   })
 
   it('shows an invalid table message without a table param', () => {
@@ -84,6 +93,37 @@ describe('MesaPage', () => {
     expect(screen.queryByText('Ensalada César')).not.toBeInTheDocument()
   })
 
+  it('shows the table capacity and active orders banner', async () => {
+    apiMock.api.get.mockImplementation((url?: string) => {
+      if (url === '/menu') return Promise.resolve({ data: { data: items } })
+      if (url?.startsWith('/tables/')) {
+        return Promise.resolve({
+          data: { data: { id: 't5', number: 5, capacity: 6, zone: 'interior' } },
+        })
+      }
+      if (url === '/orders/table/5') {
+        return Promise.resolve({ data: { data: [{ id: 'o1' }, { id: 'o2' }] } })
+      }
+      return Promise.resolve({ data: { data: [] } })
+    })
+    renderPage()
+
+    expect(await screen.findByText('Capacidad: 6 pers.')).toBeInTheDocument()
+    expect(await screen.findByText('2 pedidos activos en esta mesa')).toBeInTheDocument()
+  })
+
+  it('shows a not-found message for an unknown table', async () => {
+    apiMock.api.get.mockImplementation((url?: string) => {
+      if (url === '/menu') return Promise.resolve({ data: { data: items } })
+      if (url?.startsWith('/tables/')) return Promise.reject(new Error('nope'))
+      if (url === '/orders/table/5') return Promise.resolve({ data: { data: [] } })
+      return Promise.resolve({ data: { data: [] } })
+    })
+    renderPage()
+
+    expect(await screen.findByText('Mesa no encontrada')).toBeInTheDocument()
+  })
+
   it('adds items to the cart and shows the total', async () => {
     renderPage()
     await screen.findByText('Pizza Margarita')
@@ -93,7 +133,7 @@ describe('MesaPage', () => {
 
     expect(toastMock.toast.success).toHaveBeenCalledWith('Pizza Margarita añadido')
     expect(screen.getByText('Tu Pedido')).toBeInTheDocument()
-    expect(screen.getByText('$56000.00')).toBeInTheDocument()
+    expect(screen.getAllByText('$56.000').length).toBeGreaterThan(0)
   })
 
   it('updates the quantity and removes items from the cart', async () => {
@@ -105,10 +145,10 @@ describe('MesaPage', () => {
     const [minus, plus, trash] = within(cartPanel).getAllByRole('button')
 
     fireEvent.click(plus)
-    expect(screen.getByText('$56000.00')).toBeInTheDocument()
+    expect(screen.getAllByText('$56.000').length).toBeGreaterThan(0)
 
     fireEvent.click(minus)
-    expect(screen.getByText('$28000.00')).toBeInTheDocument()
+    expect(screen.getAllByText('$28.000').length).toBeGreaterThan(0)
 
     fireEvent.click(trash)
     expect(screen.getByText('Agrega platos del menú para ordenar')).toBeInTheDocument()
@@ -143,7 +183,6 @@ describe('MesaPage', () => {
     await waitFor(() =>
       expect(apiMock.api.post).toHaveBeenCalledWith('/orders/table', {
         customerName: 'Carlos',
-        customerPhone: 'carlos@x.com',
         items: [{ menuItemId: 'p1', quantity: 1 }],
         paymentMethod: 'cash',
         tableNumber: 5,

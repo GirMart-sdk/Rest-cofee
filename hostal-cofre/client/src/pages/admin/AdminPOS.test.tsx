@@ -96,7 +96,7 @@ describe('AdminPOS', () => {
     addProduct('Pasta Carbonara')
 
     expect(screen.getByText('Items: 3')).toBeInTheDocument()
-    expect(screen.getByText('$80000.00')).toBeInTheDocument()
+    expect(screen.getByText('$80.000')).toBeInTheDocument()
     expect(screen.getAllByText('Pizza Margarita').length).toBeGreaterThan(1)
   })
 
@@ -179,8 +179,8 @@ describe('AdminPOS', () => {
     expect(toastMock.toast.success).toHaveBeenCalledWith('Venta registrada')
     expect(await screen.findByText('TOTAL')).toBeInTheDocument()
     expect(screen.getByText('Pago: CASH')).toBeInTheDocument()
-    expect(screen.getByText('Recibido: $60000.00')).toBeInTheDocument()
-    expect(screen.getByText('Cambio: $4000.00')).toBeInTheDocument()
+    expect(screen.getByText('Recibido: $60.000')).toBeInTheDocument()
+    expect(screen.getByText('Cambio: $4.000')).toBeInTheDocument()
     expect(screen.getByText('Agrega items del menú')).toBeInTheDocument()
   })
 
@@ -198,6 +198,8 @@ describe('AdminPOS', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Nequi/ }))
     expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
+    expect(screen.getByText('Confirmo que recibí la transferencia del cliente')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Confirmo que recibí la transferencia del cliente'))
 
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar Cobro' }))
 

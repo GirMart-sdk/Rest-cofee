@@ -1,26 +1,30 @@
 import axios from 'axios'
 
-const TOKEN_KEY = 'hostal-cofee-token'
+let accessToken: string | null = null
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
+  return accessToken
+}
+
+export function setAccessToken(token: string | null): void {
+  accessToken = token
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem(TOKEN_KEY)
+  accessToken = null
 }
 
 export async function refreshTokens(): Promise<boolean> {
   try {
     const res = await axios.post('/api/auth/refresh')
-    const { accessToken } = res.data.data
-    if (accessToken) {
-      localStorage.setItem(TOKEN_KEY, accessToken)
+    const { accessToken: nextAccessToken } = res.data.data
+    if (nextAccessToken) {
+      accessToken = nextAccessToken
       return true
     }
     return false
   } catch {
-    clearTokens()
+    accessToken = null
     return false
   }
 }

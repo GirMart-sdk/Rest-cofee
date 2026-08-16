@@ -1,15 +1,24 @@
-import { Router, Response } from 'express'
+import { Router, Response, NextFunction } from 'express'
 import { authenticate, requireAdmin, AuthRequest, optionalAuth } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
 import { OrderService } from '../services/order.service.js'
+import { ReportService } from '../services/report.service.js'
 import { DeliveryService } from '../services/delivery.service.js'
 import { whatsappService } from '../services/whatsapp.service.js'
 import { config } from '../config/index.js'
 import { eventBus } from '../utils/events.js'
+import { makeLimiter } from '../utils/rateLimit.js'
 import { auditMiddleware } from '../services/audit.service.js'
 import { z } from 'zod'
 
 const router = Router()
+
+// Los pedidos anónimos (mesa) están limitados para frenar abuso; los autenticados no.
+const anonymousOrderLimiter = makeLimiter(20)
+function limitAnonymous(req: AuthRequest, res: Response, next: NextFunction) {
+  if (req.user) return next()
+  return anonymousOrderLimiter(req, res, next)
+}
 
 function buildOrderSummary(order: {
   receiptNumber: string | null
@@ -55,6 +64,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       page: page ? parseInt(page as string, 10) : undefined,
       limit: limit ? parseInt(limit as string, 10) : undefined,
     },
+    req.user!.email,
   )
   res.json({
     success: true,
@@ -70,7 +80,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 
 router.get('/daily-sales', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { date } = req.query
-  const report = await OrderService.getDailySales(date as string)
+  const report = await ReportService.getDailyReport(date as string)
   res.json({ success: true, data: report })
 })
 
@@ -95,13 +105,17 @@ router.get('/zones', (_req, res: Response) => {
 })
 
 router.get('/events', authenticate, requireAdmin, (req: AuthRequest, res: Response) => {
+  // El límite debe validarse antes de escribir las cabeceras SSE.
+  if (!eventBus.addClient(res)) {
+    return res.status(503).json({ success: false, error: 'Too many real-time connections' })
+  }
+
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')
   res.setHeader('X-Accel-Buffering', 'no')
   res.flushHeaders()
 
-  eventBus.addClient(res)
   res.write('event: hello\ndata: {"action":"connected"}\n\n')
 
   const heartbeat = setInterval(() => {
@@ -157,6 +171,7 @@ const createOrderSchema = z.object({
 router.post(
   '/',
   optionalAuth,
+  limitAnonymous,
   validate(createOrderSchema),
   async (req: AuthRequest, res: Response) => {
     const {
@@ -207,6 +222,7 @@ const createTableOrderSchema = z.object({
 router.post(
   '/table',
   optionalAuth,
+  limitAnonymous,
   validate(createTableOrderSchema),
   async (req: AuthRequest, res: Response) => {
     const {

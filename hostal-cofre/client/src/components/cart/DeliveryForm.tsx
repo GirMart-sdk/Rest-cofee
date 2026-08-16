@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { DeliveryZoneConfig, DeliveryZoneType } from '../../types'
-import { api } from '../../services/api'
+import { DeliveryZoneType } from '../../types'
 import { useCart } from '../../context/CartContext'
 import { Button, Input } from '../ui'
-import { FiMapPin, FiClock } from 'react-icons/fi'
+import { formatCOP } from '../../utils/format'
+import { FiMapPin, FiClock, FiAlertCircle } from 'react-icons/fi'
 
 export default function DeliveryForm({
   address,
@@ -21,30 +20,11 @@ export default function DeliveryForm({
   onNext: () => void
   onBack: () => void
 }) {
-  const { deliveryZone, setDeliveryZone } = useCart()
-  const [zones, setZones] = useState<DeliveryZoneConfig[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    api
-      .get('/orders/zones')
-      .then((res) => setZones(res.data.data))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
+  const { zones, zonesError, reloadZones, deliveryZone, setDeliveryZone } = useCart()
 
   const handleContinue = () => {
     if (!deliveryZone || !address.trim()) return
     onNext()
-  }
-
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-        <p className="text-gray-400">Cargando zonas de entrega...</p>
-      </div>
-    )
   }
 
   return (
@@ -73,41 +53,54 @@ export default function DeliveryForm({
 
       <div>
         <h3 className="text-xl font-display mb-4">Zona de entrega</h3>
-        <div className="grid grid-cols-1 gap-3">
-          {zones.map((zone) => (
-            <button
-              key={zone.name}
-              onClick={() => setDeliveryZone(zone.name as DeliveryZoneType)}
-              className={`p-4 rounded-xl border-2 text-left transition-all flex items-center justify-between ${
-                deliveryZone === zone.name
-                  ? 'border-primary bg-primary/5 shadow-lg'
-                  : 'border-gray-200 hover:border-primary/50'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    deliveryZone === zone.name
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  <FiMapPin size={18} />
-                </div>
-                <div>
-                  <div className="font-bold">{zone.label}</div>
-                  <div className="text-sm text-gray-500 flex items-center gap-1">
-                    <FiClock size={12} /> ~{zone.estimatedMinutes} min
+        {zonesError ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <FiAlertCircle className="mx-auto text-red-400 text-3xl mb-3" />
+            <p className="text-red-700 font-semibold mb-1">
+              No se pudieron cargar las zonas de entrega
+            </p>
+            <p className="text-red-500 text-sm mb-4">Verifica tu conexión e inténtalo de nuevo</p>
+            <Button variant="outline" onClick={reloadZones}>
+              Reintentar
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3">
+            {zones.map((zone) => (
+              <button
+                key={zone.name}
+                onClick={() => setDeliveryZone(zone.name as DeliveryZoneType)}
+                className={`p-4 rounded-xl border-2 text-left transition-all flex items-center justify-between ${
+                  deliveryZone === zone.name
+                    ? 'border-primary bg-primary/5 shadow-lg'
+                    : 'border-gray-200 hover:border-primary/50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      deliveryZone === zone.name
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    <FiMapPin size={18} />
+                  </div>
+                  <div>
+                    <div className="font-bold">{zone.label}</div>
+                    <div className="text-sm text-gray-500 flex items-center gap-1">
+                      <FiClock size={12} /> ~{zone.estimatedMinutes} min
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className="font-bold text-primary">${zone.fee.toLocaleString()}</div>
-                <div className="text-xs text-gray-400">envío</div>
-              </div>
-            </button>
-          ))}
-        </div>
+                <div className="text-right">
+                  <div className="font-bold text-primary">{formatCOP(zone.fee)}</div>
+                  <div className="text-xs text-gray-400">envío</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex gap-4 pt-4">
@@ -117,7 +110,7 @@ export default function DeliveryForm({
         <Button
           className="flex-1"
           onClick={handleContinue}
-          disabled={!deliveryZone || !address.trim()}
+          disabled={zonesError || !deliveryZone || !address.trim()}
         >
           Continuar
         </Button>

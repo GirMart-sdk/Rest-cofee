@@ -5,18 +5,12 @@
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 
-[![Keep a Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-e05735.svg)](https://keepachangelog.com/es/1.1.0/)
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue.svg)](https://semver.org/lang/es/)
-![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
 [![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-446%20Passing-brightgreen.svg)](02-TRD.md)
 
 ---
 
 Todos los cambios notables en **Hostal Cofee** se documentan en este archivo.
-
-El formato está basado en [Keep a Changelog](https://keepachangelog.com/es/1.1.0/),
-y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
@@ -110,6 +104,57 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   ya no depende del estado transitorio "Añadido", evitando flakiness bajo carga
 - Documentación: contaba 384 tests y 86% de cobertura cliente; ahora refleja 436 tests
   y 99% (métricas reales)
+
+### R1–R5 · Resolución completa del backlog (65/65 ✅)
+
+**Added**
+
+- Resolución completa: los 65 ítems de `04-PENDIENTES.md` quedaron resueltos (registro de
+  resolución 65/65 ✅); `03-DIAGNOSTICO.md` actualizado a 88/88 hallazgos resueltos
+- Servidor: `GET /api/payments` (admin) con filtro por estado y límite de resultados para el
+  nuevo panel de pagos
+- Servidor: 2FA completa — flujo `requiresTwoFactor` + `pendingToken`, configuración con
+  re-autenticación y verificación con limiter propio
+- Cliente: panel de auditoría (`/admin/auditoria`) con listado paginado y filtros
+- Cliente: panel de pagos Wompi (`/admin/pagos`) con resumen de transacciones, filtro por
+  estado y detalle por orden
+- Cliente: modal de resumen por turno (ventas por método de pago y pedidos por tipo)
+  consumiendo `GET /api/shifts/:id/summary`
+- Cliente: reporte semanal en `AdminReports` (pestaña guardada con `useLocalStorage`)
+- Cliente: buscador de pedidos en `AdminOrders` con `useDebounce`
+- Cliente: `MesaPage` valida la mesa (`GET /api/tables/:number`, capacidad y "Mesa no
+  encontrada") y muestra los pedidos activos (`GET /api/orders/table/:tableNumber`)
+
+**Changed**
+
+- Cliente: el access token se mantiene solo en memoria (fuera de `localStorage`); la sesión
+  se restaura vía refresh token en cookie `httpOnly`
+- Servidor: `AuthService` (código muerto) eliminado; la lógica de auth queda consolidada en
+  `routes/auth.ts`
+- Servidor: `sanitize` excluye campos de credenciales y está exento del webhook de Wompi
+- Servidor: `upgradeInsecureRequests` de la CSP solo en producción; 404 JSON en `/api`;
+  respuesta 413 con body 32 kb; rate limit global 300/15 min (prod) y 2000 (dev)
+- Tarifas de delivery con una única fuente: `GET /orders/zones` consumido por `CartContext`
+- Formato de moneda centralizado (`formatCOP`) y fechas en zona local (`toLocalDateString`)
+
+**Fixed**
+
+- Anti-timing en login con hash bcrypt válido y lockout por email **e IP**
+- Webhook Wompi idempotente (no revierte `paid`) y firma verificada con `timingSafeEqual`
+- Rotación de refresh token con detección de reuso; `config.jwtRefreshExpiresIn` aplicado
+- `X-Request-Id` generado con `crypto.randomUUID()` (se ignora el valor del cliente)
+- Creación de pedido atómica con `$transaction`; turno único abierto y cierre con arqueo
+- Reservas asocian `userId` y validan doble reserva; pedidos anónimos recuperables
+- Errores de validación del server visibles en la UI (`getErrorMessage`) y handler P2003 → 400
+- Placeholders de `JWT_SECRET` y contraseñas en plantillas eliminados; `test:security`
+  (43/43) ahora sí se ejecuta en CI
+- Cliente: flujo 2FA funcional (login paso a paso y `change-password`), consistencia
+  `minLength` de contraseñas y botones de mesas accesibles en táctil
+- Cuadre de caja al cerrar turno; backups de BD cifrados con ACL; límite de conexiones SSE
+
+**Test coverage**
+
+- Cliente: 232 tests (31 archivos) · Servidor: 188 tests (14 archivos) · Seguridad: 43 tests
 
 ---
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
@@ -16,6 +16,10 @@ import {
 import toast from 'react-hot-toast'
 import { Button, Input } from '../ui'
 import DeliveryForm from './DeliveryForm'
+import { getErrorMessage } from '../../utils/errors'
+import { formatCOP } from '../../utils/format'
+import type { Table, DeliveryZoneType } from '../../types'
+import { DELIVERY_ZONE_LABELS } from '../../types'
 
 type CheckoutStep = 'cart' | 'type' | 'delivery' | 'details' | 'payment'
 
@@ -44,6 +48,20 @@ export default function CartDrawer() {
   const [address, setAddress] = useState('')
   const [deliveryNotes, setDeliveryNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [tables, setTables] = useState<Table[]>([])
+  const [selectedTableId, setSelectedTableId] = useState('')
+  const [loadingTables, setLoadingTables] = useState(false)
+
+  useEffect(() => {
+    if (orderType !== 'mesa') return
+    if (tables.length > 0 || loadingTables) return
+    setLoadingTables(true)
+    api
+      .get('/tables')
+      .then((res) => setTables(res.data.data || []))
+      .catch(() => toast.error('No se pudieron cargar las mesas'))
+      .finally(() => setLoadingTables(false))
+  }, [orderType, tables.length, loadingTables])
 
   if (items.length === 0) {
     return (
@@ -69,6 +87,11 @@ export default function CartDrawer() {
       return
     }
 
+    if (orderType === 'mesa' && !selectedTableId) {
+      toast.error('Selecciona una mesa para el pedido')
+      return
+    }
+
     setSubmitting(true)
     try {
       const orderItems = items.map((i) => ({
@@ -90,6 +113,7 @@ export default function CartDrawer() {
               deliveryNotes: deliveryNotes || undefined,
             }
           : {}),
+        ...(orderType === 'mesa' ? { tableId: selectedTableId } : {}),
       })
       const order = orderRes.data as { id: string }
 
@@ -118,15 +142,16 @@ export default function CartDrawer() {
 
       if (orderType !== 'mesa') {
         const orderLines = items.map(
-          (i) =>
-            `${i.quantity}x ${i.menuItem.name} - $${(i.menuItem.price * i.quantity).toFixed(0)}`,
+          (i) => `${i.quantity}x ${i.menuItem.name} - ${formatCOP(i.menuItem.price * i.quantity)}`,
         )
         const typeLabel = orderType === 'domicilio' ? 'Domicilio' : 'Tienda'
         const summary =
           orderLines.join('\n') +
           `\n\nTipo: ${typeLabel}` +
-          (orderType === 'domicilio' ? `\nDirección: ${address}\nEnvío: $${deliveryFee}` : '') +
-          `\n\n*Total: $${(orderType === 'domicilio' ? grandTotal : total).toFixed(2)}*\nMétodo de pago: ${paymentMethod.toUpperCase()}\nCliente: ${customerName}\nTel: ${customerPhone}`
+          (orderType === 'domicilio'
+            ? `\nDirección: ${address}\nEnvío: ${formatCOP(deliveryFee)}`
+            : '') +
+          `\n\n*Total: ${formatCOP(orderType === 'domicilio' ? grandTotal : total)}*\nMétodo de pago: ${paymentMethod.toUpperCase()}\nCliente: ${customerName}\nTel: ${customerPhone}`
         const whatsappPhone = import.meta.env.VITE_WHATSAPP_PHONE || '573001234567'
         whatsappService.sendOrder(whatsappPhone, summary)
       }
@@ -138,8 +163,8 @@ export default function CartDrawer() {
       )
       clearCart()
       setStep('cart')
-    } catch {
-      toast.error('Error al registrar pedido')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al registrar pedido'))
     } finally {
       setSubmitting(false)
     }
@@ -177,7 +202,7 @@ export default function CartDrawer() {
                   />
                   <div className="flex-1">
                     <h3 className="font-display text-lg">{ci.menuItem.name}</h3>
-                    <p className="text-primary font-bold">${ci.menuItem.price} c/u</p>
+                    <p className="text-primary font-bold">{formatCOP(ci.menuItem.price)} c/u</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -195,7 +220,7 @@ export default function CartDrawer() {
                     </button>
                   </div>
                   <p className="font-bold text-lg w-20 text-right">
-                    ${(ci.menuItem.price * ci.quantity).toFixed(0)}
+                    {formatCOP(ci.menuItem.price * ci.quantity)}
                   </p>
                   <button
                     onClick={() => removeItem(ci.menuItem.id)}
@@ -211,7 +236,7 @@ export default function CartDrawer() {
           <div className="bg-gray-50 rounded-2xl p-6 mb-8">
             <div className="flex justify-between text-xl font-bold">
               <span>Subtotal</span>
-              <span className="text-primary">${total.toFixed(2)}</span>
+              <span className="text-primary">{formatCOP(total)}</span>
             </div>
           </div>
 
@@ -299,10 +324,32 @@ export default function CartDrawer() {
           </h2>
           {orderType === 'mesa' && (
             <p className="text-gray-500 text-sm mb-4 -mt-6">
-              Solo nombre y teléfono para agilizar tu pedido en mesa
+              Selecciona la mesa y confirma tus datos para agilizar el pedido
             </p>
           )}
           <div className="space-y-4 mb-8">
+            {orderType === 'mesa' && (
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">Mesa *</label>
+                {loadingTables ? (
+                  <p className="text-sm text-gray-500">Cargando mesas...</p>
+                ) : (
+                  <select
+                    value={selectedTableId}
+                    onChange={(e) => setSelectedTableId(e.target.value)}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                  >
+                    <option value="">Selecciona una mesa</option>
+                    {tables.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        Mesa {t.number} · {t.capacity} personas · {t.zone}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
             <Input
               type="text"
               placeholder="Nombre completo *"
@@ -335,8 +382,15 @@ export default function CartDrawer() {
             <Button
               className="flex-1"
               onClick={() => {
-                if (customerName && customerPhone) setStep('payment')
-                else toast.error('Nombre y teléfono son requeridos')
+                if (!customerName || !customerPhone) {
+                  toast.error('Nombre y teléfono son requeridos')
+                  return
+                }
+                if (orderType === 'mesa' && !selectedTableId) {
+                  toast.error('Selecciona una mesa para continuar')
+                  return
+                }
+                setStep('payment')
               }}
             >
               Siguiente
@@ -375,18 +429,20 @@ export default function CartDrawer() {
           <div className="bg-gray-50 rounded-2xl p-6 mb-8 space-y-2">
             <div className="flex justify-between text-sm text-gray-600">
               <span>Subtotal</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatCOP(total)}</span>
             </div>
             {orderType === 'domicilio' && deliveryFee > 0 && (
               <div className="flex justify-between text-sm text-gray-600">
-                <span>Envío ({deliveryZone})</span>
-                <span>${deliveryFee.toLocaleString()}</span>
+                <span>
+                  Envío ({DELIVERY_ZONE_LABELS[deliveryZone as DeliveryZoneType] || deliveryZone})
+                </span>
+                <span>{formatCOP(deliveryFee)}</span>
               </div>
             )}
             <div className="border-t pt-2 flex justify-between text-xl font-bold">
               <span>Total a pagar</span>
               <span className="text-primary">
-                ${(orderType === 'domicilio' ? grandTotal : total).toFixed(2)}
+                {formatCOP(orderType === 'domicilio' ? grandTotal : total)}
               </span>
             </div>
           </div>

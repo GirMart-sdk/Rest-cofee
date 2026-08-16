@@ -30,7 +30,7 @@
 > - **Pagos**: Wompi con modos sandbox y producción (`WOMPI_MODE`).
 > - **Notificaciones**: WhatsApp por deep link `wa.me` con fallback y opción de WhatsApp Business API.
 > - **Observabilidad**: logs JSON estructurados, request ID y endpoint `/api/metrics`.
-> - **Testing**: 196 tests backend + 208 frontend + 42 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
+> - **Testing**: 188 tests backend + 232 frontend + 43 tests de seguridad + suite E2E Playwright (cobertura servidor 92% · cliente 99% líneas).
 
 ---
 
@@ -273,34 +273,34 @@ export default defineConfig({
 
 ### 6.3 Cobertura Actual
 
-**Backend (Vitest + Supertest) — 196 tests:**
+**Backend (Vitest + Supertest) — 188 tests:**
 
 | Suite                | Tests   | Estado           |
 | -------------------- | ------- | ---------------- |
 | auth.test.ts         | 25      | Todos pasando    |
-| orders.test.ts       | 19      | Todos pasando    |
-| reservations.test.ts | 13      | Todos pasando    |
+| orders.test.ts       | 20      | Todos pasando    |
+| reservations.test.ts | 16      | Todos pasando    |
 | menu.test.ts         | 11      | Todos pasando    |
 | middleware.test.ts   | 23      | Todos pasando    |
 | payments.test.ts     | 13      | Todos pasando    |
 | reports.test.ts      | 6       | Todos pasando    |
-| services.test.ts     | 27      | Todos pasando    |
-| shifts.test.ts       | 12      | Todos pasando    |
+| services.test.ts     | 13      | Todos pasando    |
+| shifts.test.ts       | 14      | Todos pasando    |
 | tables.test.ts       | 19      | Todos pasando    |
 | validation.test.ts   | 12      | Todos pasando    |
 | whatsapp.test.ts     | 8       | Todos pasando    |
 | audit.test.ts        | 5       | Todos pasando    |
 | events.test.ts       | 3       | Todos pasando    |
-| **Total backend**    | **196** | **100% pasando** |
+| **Total backend**    | **188** | **100% pasando** |
 
 **Cobertura (v8, umbral en CI):** Líneas **92%** servidor · **99%** cliente
 (thresholds server: 80/65/80/80 · client: 95/90/90/95).
 
-**Frontend (Vitest + Testing Library) — 208 tests:**
-Layout (13), Routing (9), Menú (14), Reservas (10), Carrito (21), Auth (16),
-Admin (59), Mesa (7), UI design system (17), Hooks (13), Services (29).
+**Frontend (Vitest + Testing Library) — 232 tests:**
+Routing (9), Layout (13), Menú (4), Reservas (10), Carrito (28), Auth (25),
+Admin (81), Mesa (9), UI design system (17), Hooks (6), Services (30).
 
-**Seguridad (suite aparte, `npm run test:security`) — 42 tests:** secrets,
+**Seguridad (suite aparte, `npm run test:security`) — 43 tests:** secrets,
 auth hardening, 2FA, sesiones, rate limiting y verificación de webhooks.
 
 **E2E (Playwright):** home, menú, auth, carrito + capturas para documentación

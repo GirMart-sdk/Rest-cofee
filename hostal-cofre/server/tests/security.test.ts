@@ -83,11 +83,12 @@ async function testSecurityHeaders() {
     assert(!!headers['x-request-id'], 'X-Request-Id header missing')
   })
 
-  await test('X-Request-Id echoed from client', async () => {
+  await test('X-Request-Id is generated server-side (client value ignored)', async () => {
     const { headers } = await api('GET', '/api/health', undefined, { 'X-Request-Id': 'test-123' })
+    assert(!!headers['x-request-id'], 'X-Request-Id header missing')
     assert(
-      headers['x-request-id'] === 'test-123',
-      `Expected test-123, got: ${headers['x-request-id']}`,
+      headers['x-request-id'] !== 'test-123',
+      `Expected a generated UUID, got: ${headers['x-request-id']}`,
     )
   })
 
@@ -396,8 +397,8 @@ async function testInputValidation() {
     assert(status === 400 || status === 401, `Expected 400/401, got: ${status}`)
   })
 
-  await test('JSON payload > 10kb rejected', async () => {
-    const bigPayload = { name: 'A'.repeat(12000) }
+  await test('JSON payload > 32kb rejected', async () => {
+    const bigPayload = { name: 'A'.repeat(40000) }
     const { status } = await api('POST', '/api/menu', bigPayload)
     assert(status === 413 || status === 400, `Expected 413/400, got: ${status}`)
   })
@@ -471,12 +472,26 @@ async function testTwoFactor() {
     assert((data?.data?.otpauthUrl || '').startsWith('otpauth://totp/'), 'Invalid otpauth URL')
   })
 
-  await test('2FA: enable with a valid code', async () => {
+  await test('2FA: enable with a wrong password is rejected', async () => {
     const { status } = await api(
       'POST',
       '/api/auth/2fa/enable',
       {
         code: generateSync({ secret }),
+        password: 'WrongPassword!1',
+      },
+      { Authorization: `Bearer ${accessToken}` },
+    )
+    assert(status === 401, `Expected 401, got: ${status}`)
+  })
+
+  await test('2FA: enable requires the current password', async () => {
+    const { status } = await api(
+      'POST',
+      '/api/auth/2fa/enable',
+      {
+        code: generateSync({ secret }),
+        password,
       },
       { Authorization: `Bearer ${accessToken}` },
     )

@@ -10,7 +10,16 @@ export default function LoginPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { login, register } = useAuth()
+  const [code, setCode] = useState('')
+  const {
+    login,
+    register,
+    verifyTwoFactor,
+    cancelTwoFactor,
+    twoFactorPending,
+    authError,
+    clearAuthError,
+  } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
 
@@ -19,7 +28,9 @@ export default function LoginPage() {
     setLoading(true)
 
     let success: boolean
-    if (isRegister) {
+    if (twoFactorPending) {
+      success = await verifyTwoFactor(code)
+    } else if (isRegister) {
       success = await register(name, email, password)
     } else {
       success = await login(email, password)
@@ -29,8 +40,10 @@ export default function LoginPage() {
     if (success) {
       toast.success(isRegister ? '¡Cuenta creada!' : '¡Bienvenido!')
       navigate('/')
+    } else if (twoFactorPending) {
+      toast.error(authError || 'Código de verificación incorrecto')
     } else {
-      toast.error('Credenciales incorrectas')
+      toast.error(authError || 'Credenciales incorrectas')
     }
   }
 
@@ -44,51 +57,97 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-display mb-2">
-              {isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}
+              {twoFactorPending
+                ? 'Código de verificación'
+                : isRegister
+                  ? 'Crear Cuenta'
+                  : 'Iniciar Sesión'}
             </h1>
             <p className="text-gray-500">
-              {isRegister ? 'Regístrate para hacer pedidos' : 'Accede a tu cuenta'}
+              {twoFactorPending
+                ? 'Ingresa el código de 6 dígitos de tu app de autenticación'
+                : isRegister
+                  ? 'Regístrate para hacer pedidos'
+                  : 'Accede a tu cuenta'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isRegister && (
+            {twoFactorPending ? (
               <Input
                 type="text"
-                placeholder="Nombre completo"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                inputMode="numeric"
+                placeholder="Código (6 dígitos)"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
                 required
+                autoFocus
               />
+            ) : (
+              <>
+                {isRegister && (
+                  <Input
+                    type="text"
+                    placeholder="Nombre completo"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                )}
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <Input
+                  type="password"
+                  placeholder="Contraseña"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </>
             )}
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
             <Button type="submit" size="lg" className="w-full" disabled={loading}>
-              {loading ? 'Procesando...' : isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}
+              {loading
+                ? 'Procesando...'
+                : twoFactorPending
+                  ? 'Verificar'
+                  : isRegister
+                    ? 'Crear Cuenta'
+                    : 'Iniciar Sesión'}
             </Button>
           </form>
 
-          <div className="text-center mt-6">
-            <button
-              onClick={() => setIsRegister(!isRegister)}
-              className="text-primary hover:underline font-semibold"
-            >
-              {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
-            </button>
-          </div>
+          {!twoFactorPending && (
+            <div className="text-center mt-6">
+              <button
+                onClick={() => {
+                  setIsRegister(!isRegister)
+                  clearAuthError?.()
+                }}
+                className="text-primary hover:underline font-semibold"
+              >
+                {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
+              </button>
+            </div>
+          )}
+          {twoFactorPending && (
+            <div className="text-center mt-6">
+              <button
+                onClick={() => {
+                  cancelTwoFactor()
+                  setCode('')
+                }}
+                className="text-gray-500 hover:underline text-sm font-semibold"
+              >
+                Usar otra cuenta
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </section>

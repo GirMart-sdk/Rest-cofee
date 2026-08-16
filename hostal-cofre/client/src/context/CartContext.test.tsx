@@ -1,7 +1,21 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CartProvider, useCart } from './CartContext'
 import type { MenuItem } from '../types'
+
+vi.mock('../services/api', () => ({
+  api: {
+    get: vi.fn().mockResolvedValue({
+      data: {
+        data: [
+          { name: 'centro', label: 'Centro', fee: 3000, estimatedMinutes: 20 },
+          { name: 'periurbano', label: 'Periurbano', fee: 5000, estimatedMinutes: 35 },
+          { name: 'lejano', label: 'Lejano', fee: 8000, estimatedMinutes: 50 },
+        ],
+      },
+    }),
+  },
+}))
 
 const CART_KEY = 'hostal-cofee-cart'
 

@@ -39,6 +39,11 @@ const zones = [
   { name: 'lejano', label: 'Lejano', estimatedMinutes: 45, fee: 8000 },
 ]
 
+const tables = [
+  { id: 't1', number: 1, capacity: 4, zone: 'interior' },
+  { id: 't2', number: 2, capacity: 6, zone: 'exterior' },
+]
+
 function seedCart(quantity = 2) {
   localStorage.setItem(CART_KEY, JSON.stringify([{ menuItem: pizza, quantity }]))
 }
@@ -66,7 +71,6 @@ async function goToDetails(orderTypeLabel: string) {
   fireEvent.click(screen.getByRole('button', { name: new RegExp(orderTypeLabel) }))
   fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
   if (orderTypeLabel === 'Domicilio') {
-    await screen.findByText('Cargando zonas de entrega...')
     await screen.findByText('Centro')
   }
 }
@@ -74,7 +78,11 @@ async function goToDetails(orderTypeLabel: string) {
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.useAuth.user = { name: 'Ana', email: 'ana@x.com', role: 'client' }
-  mocks.api.get.mockResolvedValue({ data: { data: zones } })
+  mocks.api.get.mockImplementation((url?: string) =>
+    url === '/tables'
+      ? Promise.resolve({ data: { data: tables } })
+      : Promise.resolve({ data: { data: zones } }),
+  )
   mocks.api.post.mockResolvedValue({ data: { data: {} } })
 })
 
@@ -90,7 +98,7 @@ describe('CartDrawer', () => {
     renderDrawer()
     expect(screen.getByText('Tu Carrito (2)')).toBeInTheDocument()
     expect(screen.getByText('Pizza Margarita')).toBeInTheDocument()
-    expect(screen.getByText('$50000')).toBeInTheDocument()
+    expect(screen.getAllByText('$50.000').length).toBeGreaterThan(0)
 
     const [minus, plus] = iconButtons()
     fireEvent.click(plus)
@@ -147,7 +155,7 @@ describe('CartDrawer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
 
     await screen.findByText('Método de Pago')
-    expect(screen.getByText('Envío (centro)')).toBeInTheDocument()
+    expect(screen.getByText('Envío (Centro)')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Nequi/ }))
     fireEvent.click(screen.getByRole('button', { name: /Enviar Pedido/ }))
 
@@ -230,10 +238,13 @@ describe('CartDrawer', () => {
     openSpy.mockRestore()
   })
 
-  it('registers a mesa order without sending WhatsApp', async () => {
+  it('registers a mesa order with a selected table without sending WhatsApp', async () => {
     seedCart()
     await goToDetails('Para la mesa')
     expect(screen.queryByPlaceholderText('Email')).not.toBeInTheDocument()
+
+    await screen.findByRole('option', { name: /Mesa 1/ })
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 't1' } })
     fireEvent.change(screen.getByPlaceholderText('Teléfono *'), {
       target: { value: '3001234567' },
     })
@@ -245,7 +256,7 @@ describe('CartDrawer', () => {
     await waitFor(() =>
       expect(mocks.api.post).toHaveBeenCalledWith(
         '/orders',
-        expect.objectContaining({ orderType: 'mesa' }),
+        expect.objectContaining({ orderType: 'mesa', tableId: 't1' }),
       ),
     )
     expect(mocks.whatsappService.sendOrder).not.toHaveBeenCalled()

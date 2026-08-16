@@ -2,8 +2,8 @@
 
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee--v2-brightgreen.svg)](README.md)
 ![Diagnóstico](https://img.shields.io/badge/Diagnóstico-Integral-blue.svg)
-[![Pendientes](https://img.shields.io/badge/Pendientes-65-red.svg)](04-PENDIENTES.md)
-[![Resueltos](https://img.shields.io/badge/Resueltos-12-brightgreen.svg)](03-DIAGNOSTICO.md)
+[![Pendientes](https://img.shields.io/badge/Pendientes-0-brightgreen.svg)](04-PENDIENTES.md)
+[![Resueltos](https://img.shields.io/badge/Resueltos-88-brightgreen.svg)](04-PENDIENTES.md)
 
 ---
 
@@ -21,16 +21,16 @@ resueltos y fortalezas verificadas. **Todo lo pendiente por corregir vive en un 
 
 ## 2. Resumen ejecutivo
 
-> **Estado de resolución (2026-08-16):** los hallazgos que bloqueaban el MVP se corrigieron
-> en esta iteración. Los pendientes restantes (65, deduplicados) están consolidados en
-> [`04-PENDIENTES.md`](04-PENDIENTES.md).
+> **Estado de resolución (2026-08-16):** los 88 hallazgos del diagnóstico quedaron resueltos
+> (12 previos en §2.1 + 65 del backlog). Los 65 del backlog, con su corrección aplicada, están
+> registrados en [`04-PENDIENTES.md`](04-PENDIENTES.md) como registro de resolución.
 
-| Ámbito              | Hallazgos   | Críticos | Altos  | Medios | Bajos  |
-| ------------------- | ----------- | -------- | ------ | ------ | ------ |
-| Ciberseguridad      | 22 (H1–H22) | 1        | 5      | 8      | 8      |
-| Funcionalidad       | 38          | 1        | 5      | 20     | 10     |
-| Lógica y estructura | 28 (A1–A28) | 0        | 4      | 12     | 12     |
-| **Total**           | **88**      | **2**    | **14** | **40** | **30** |
+| Ámbito              | Hallazgos   | Críticos | Altos  | Medios | Bajos  | Resueltos    |
+| ------------------- | ----------- | -------- | ------ | ------ | ------ | ------------ |
+| Ciberseguridad      | 22 (H1–H22) | 1        | 5      | 8      | 8      | 22/22 ✅     |
+| Funcionalidad       | 38          | 1        | 5      | 20     | 10     | 38/38 ✅     |
+| Lógica y estructura | 28 (A1–A28) | 0        | 4      | 12     | 12     | 28/28 ✅     |
+| **Total**           | **88**      | **2**    | **14** | **40** | **30** | **88/88 ✅** |
 
 ### 2.1 Hallazgos resueltos en esta iteración
 
@@ -55,8 +55,8 @@ resueltos y fortalezas verificadas. **Todo lo pendiente por corregir vive en un 
 
 ### 3.1 Evaluación general
 
-22 hallazgos (H1–H22). Estado del diagnóstico: **3 resueltos** (H1 Crítica, H3 y H4 Altas) y
-**19 pendientes** (H2, H5–H6 Altas; H7–H14 Medias; H15–H22 Bajas), todos en
+22 hallazgos (H1–H22). Estado: **22/22 resueltos**. Los 8 de severidad baja/media del backlog
+(H7–H22) y los de alta (H2, H5–H6) con su corrección están en
 [`04-PENDIENTES.md`](04-PENDIENTES.md).
 
 ### 3.2 Fortalezas verificadas
@@ -74,7 +74,7 @@ resueltos y fortalezas verificadas. **Todo lo pendiente por corregir vive en un 
 
 `SECURITY-REPORT.md` (08-08-2026) documenta 16 mitigaciones. El contraste verificó: 9 plenas,
 5 parciales, 1 rota (anti-timing, H7) y la afirmación de tests en CI era falsa (H6). Ambos
-hallazgos pendientes figuran en [`04-PENDIENTES.md`](04-PENDIENTES.md).
+hallazgos quedaron corregidos en esta iteración (ver [`04-PENDIENTES.md`](04-PENDIENTES.md)).
 
 ---
 
@@ -82,9 +82,8 @@ hallazgos pendientes figuran en [`04-PENDIENTES.md`](04-PENDIENTES.md).
 
 ### 4.1 Evaluación general
 
-38 hallazgos (features, UI, endpoints sin uso, datos, errores, dead code). Estado: **4
-resueltos** (U1, U3, E1, E2), **34 pendientes** de calidad y UX (no bloquean la operación
-básica).
+38 hallazgos (features, UI, endpoints sin uso, datos, errores, dead code). Estado: **38/38
+resueltos** (4 previos U1/U3/E1/E2 + 34 del backlog en [`04-PENDIENTES.md`](04-PENDIENTES.md)).
 
 ### 4.2 Features verificadas
 
@@ -107,8 +106,8 @@ básica).
 ### 5.1 Evaluación general
 
 28 hallazgos (A1–A28) sobre arquitectura en capas, servicios, transacciones y consistencia.
-Estado: **5 resueltos** (A1, A2, A4, A18, A23) y **23 pendientes** de deuda técnica
-(duplicación de lógica, servicios muertos, atomicidad, consistencia).
+Estado: **28/28 resueltos** (5 previos A1/A2/A4/A18/A23 + 23 del backlog en
+[`04-PENDIENTES.md`](04-PENDIENTES.md)).
 
 ### 5.2 Patrones correctos (verificados)
 
@@ -134,28 +133,28 @@ Estado: **5 resueltos** (A1, A2, A4, A18, A23) y **23 pendientes** de deuda téc
 
 ### 6.2 Nivel MVP (funcional hoy)
 
-- Flujo completo cliente: menú → carrito → WhatsApp + pago Wompi iniciado por el cliente.
-- POS táctil con receipt, turnos, reportes diarios, reservas, QR por mesa.
-- Autenticación robusta (JWT + refresh + 2FA server-side) y RBAC.
-- 446 tests, CI con lint/audit/coverage, seguridad en profundidad (9/16 mitigaciones efectivas).
+- Flujo completo cliente: menú → carrito → WhatsApp + pago Wompi (transacción/nequi/daviplata en POS).
+- POS táctil con receipt, turnos, reportes diarios/semanales, reservas, QR por mesa y panel de pagos.
+- Autenticación robusta (JWT + refresh httpOnly en memoria + 2FA) y RBAC.
+- 232 tests de cliente + 188 de servidor + 43 de seguridad, CI con lint/audit/coverage.
 
-### 6.3 Deuda de calidad (no bloquea MVP)
+### 6.3 Deuda de calidad (saldada)
 
-- Servicios muertos y duplicación de lógica (A9–A11, DC3).
-- Inconsistencias de datos/formatos/timezone (D1–D6).
-- Errores sin manejo y UX frágil (G1–G4, U6–U10).
-- Endpoints sin consumir y features declaradas sin UI (E3–E10, F1–F2).
+- Servicios muertos y duplicación de lógica (A9–A11, DC3) → eliminados/consolidados.
+- Inconsistencias de datos/formatos/timezone (D1–D6) → corregidas.
+- Errores sin manejo y UX frágil (G1–G4, U6–U10) → resueltos.
+- Endpoints sin consumir y features declaradas sin UI (E3–E10, F1–F2) → consumidos/implementados.
 
-Detalle de cada ítem: [`04-PENDIENTES.md`](04-PENDIENTES.md).
+Detalle de cada ítem con su corrección: [`04-PENDIENTES.md`](04-PENDIENTES.md).
 
 ---
 
 ## 7. Conclusión
 
 Hostal Cofee v2 tiene una base técnica por encima de la media de un prototipo: arquitectura en
-capas, validación estricta, seguridad en profundidad y una suite de pruebas real. Los 6
-hallazgos críticos/altos que bloqueaban la operación (dominio de pagos, verificación de
-montos, dirección de domicilios, avance del estado de entrega, y endpoints públicos con datos
-personales) fueron corregidos en la iteración de agosto de 2026 (ver §2.1). Los 65 pendientes
-restantes son mejoras de calidad y endurecimiento que pueden iterarse sin impedir la operación
-básica; su seguimiento único está en [`04-PENDIENTES.md`](04-PENDIENTES.md).
+capas, validación estricta, seguridad en profundidad y una suite de pruebas real. Con la
+iteración de agosto de 2026 se resolvieron **los 88 hallazgos del diagnóstico**: los 6
+críticos/altos que bloqueaban la operación (dominio de pagos, verificación de montos, dirección
+de domicilios, avance del estado de entrega y endpoints públicos con datos personales, ver §2.1)
+y los 65 del backlog de calidad y endurecimiento. El registro de cada corrección está en
+[`04-PENDIENTES.md`](04-PENDIENTES.md).

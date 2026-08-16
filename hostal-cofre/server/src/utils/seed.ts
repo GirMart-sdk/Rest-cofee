@@ -4,11 +4,23 @@ import { config } from '../config/index.js'
 
 const prisma = new PrismaClient()
 
+const PLACEHOLDER_PASSWORD_PATTERN = /change[-_\s]?me|cambia[-_\s]?esta|tu[-_\s]?clave|placeholder/i
+
 async function main() {
   console.log('🌱 Seeding database...')
 
   if (!config.adminPassword || !config.clientPassword) {
     console.error('❌ ADMIN_PASSWORD and CLIENT_PASSWORD must be set in .env')
+    process.exit(1)
+  }
+
+  if (
+    PLACEHOLDER_PASSWORD_PATTERN.test(config.adminPassword) ||
+    PLACEHOLDER_PASSWORD_PATTERN.test(config.clientPassword)
+  ) {
+    console.error(
+      '❌ ADMIN_PASSWORD / CLIENT_PASSWORD usan valores de plantilla (p.ej. "ChangeMe!2026"). Configura contraseñas reales.',
+    )
     process.exit(1)
   }
 

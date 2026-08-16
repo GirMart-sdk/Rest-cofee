@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Table } from '../../types'
+import { toLocalDateString } from '../../utils/date'
 import { api, whatsappService } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import { Button, Input } from '../ui'
+import { getErrorMessage } from '../../utils/errors'
 import { FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -42,7 +44,7 @@ export default function ReservationForm() {
     api
       .get('/reservations/tables')
       .then((res) => setTables(res.data.data))
-      .catch(() => {})
+      .catch(() => toast.error('Error al cargar las mesas disponibles'))
   }, [])
 
   const filteredTables = tables.filter((t) => t.capacity >= form.guests)
@@ -74,8 +76,8 @@ export default function ReservationForm() {
       setStep('form')
       setForm({ name: '', phone: '', email: '', date: '', time: '', guests: 2, notes: '' })
       setSelectedTable('')
-    } catch {
-      toast.error('Error al crear reserva')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al crear reserva'))
     }
   }
 
@@ -110,7 +112,7 @@ export default function ReservationForm() {
               type="date"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
-              min={new Date().toISOString().split('T')[0]}
+              min={toLocalDateString()}
             />
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Hora *</label>

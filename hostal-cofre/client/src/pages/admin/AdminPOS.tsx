@@ -4,6 +4,8 @@ import { MenuItem } from '../../types'
 import { api } from '../../services/api'
 import { FiPlus, FiMinus, FiTrash2, FiShoppingBag, FiClock } from 'react-icons/fi'
 import { Button, Input } from '../../components/ui'
+import { getErrorMessage } from '../../utils/errors'
+import { formatCOP } from '../../utils/format'
 import toast from 'react-hot-toast'
 
 interface POSCartItem {
@@ -32,13 +34,14 @@ export default function AdminPOS() {
   )
   const [cashReceived, setCashReceived] = useState('')
   const [customerName, setCustomerName] = useState('')
+  const [transferConfirmed, setTransferConfirmed] = useState(false)
   const [showReceipt, setShowReceipt] = useState<any>(null)
 
   useEffect(() => {
     api
       .get('/menu')
       .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
-      .catch(() => {})
+      .catch(() => toast.error('Error al cargar el menú'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -70,6 +73,10 @@ export default function AdminPOS() {
 
   const handlePayment = async () => {
     if (cart.length === 0) return
+    if (paymentMethod !== 'cash' && paymentMethod !== 'wompi' && !transferConfirmed) {
+      toast.error('Confirma que recibiste la transferencia para continuar')
+      return
+    }
     setSubmitting(true)
     try {
       const res = await api.post('/orders', {
@@ -79,9 +86,42 @@ export default function AdminPOS() {
         paymentMethod,
         orderType: 'tienda',
       })
+      const order = res.data.data
+
+      if (paymentMethod === 'wompi') {
+        let paymentLink = ''
+        try {
+          const paymentRes = await api.post('/payments/create-transaction', { orderId: order.id })
+          const paymentData = paymentRes.data?.data
+          paymentLink =
+            paymentData?.payment_link ||
+            paymentData?.data?.payment_link ||
+            paymentData?.redirect_url
+        } catch {
+          /* el pedido queda pendiente; se puede cobrar luego desde Pedidos */
+        }
+
+        setShowReceipt({ ...order, cart: [...cart], paymentPending: true })
+        setCart([])
+        setShowPayment(false)
+        setCustomerName('')
+        setCashReceived('')
+        setTransferConfirmed(false)
+        if (paymentLink) {
+          window.open(paymentLink, '_blank')
+          toast.success('Pago iniciado con Wompi. Completa el pago en la nueva ventana.')
+        } else {
+          toast.success('Pedido registrado con pago pendiente')
+        }
+        return
+      }
+
+      if (paymentMethod !== 'cash') {
+        await api.patch(`/orders/${order.id}/payment`, { paymentStatus: 'paid' })
+      }
 
       setShowReceipt({
-        ...res.data.data,
+        ...order,
         cart: [...cart],
         cashReceived: paymentMethod === 'cash' ? parseFloat(cashReceived) || 0 : undefined,
         change:
@@ -94,9 +134,10 @@ export default function AdminPOS() {
       setShowPayment(false)
       setCustomerName('')
       setCashReceived('')
+      setTransferConfirmed(false)
       toast.success('Venta registrada')
-    } catch {
-      toast.error('Error al registrar venta')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al registrar venta'))
     } finally {
       setSubmitting(false)
     }
@@ -152,7 +193,7 @@ export default function AdminPOS() {
                     className="w-full h-20 object-cover rounded-lg mb-2"
                   />
                   <p className="font-semibold text-xs line-clamp-1">{item.name}</p>
-                  <p className="text-primary font-bold text-sm">${item.price}</p>
+                  <p className="text-primary font-bold text-sm">{formatCOP(item.price)}</p>
                 </button>
               ))}
             </div>
@@ -186,7 +227,7 @@ export default function AdminPOS() {
                       >
                         <div className="flex-1">
                           <p className="font-semibold text-sm line-clamp-1">{ci.menuItem.name}</p>
-                          <p className="text-xs text-gray-500">${ci.menuItem.price}</p>
+                          <p className="text-xs text-gray-500">{formatCOP(ci.menuItem.price)}</p>
                         </div>
                         <div className="flex items-center gap-1">
                           <button
@@ -206,7 +247,7 @@ export default function AdminPOS() {
                           </button>
                         </div>
                         <p className="font-bold text-sm w-16 text-right">
-                          ${(ci.menuItem.price * ci.quantity).toFixed(0)}
+                          {formatCOP(ci.menuItem.price * ci.quantity)}
                         </p>
                         <button
                           onClick={() => updateQuantity(ci.menuItem.id, 0)}
@@ -226,7 +267,7 @@ export default function AdminPOS() {
                     </div>
                     <div className="flex justify-between text-xl font-bold">
                       <span>Total</span>
-                      <span className="text-primary">${subtotal.toFixed(2)}</span>
+                      <span className="text-primary">{formatCOP(subtotal)}</span>
                     </div>
                   </div>
 
@@ -268,7 +309,10 @@ export default function AdminPOS() {
               ].map((m) => (
                 <button
                   key={m.key}
-                  onClick={() => setPaymentMethod(m.key as any)}
+                  onClick={() => {
+                    setPaymentMethod(m.key as any)
+                    setTransferConfirmed(false)
+                  }}
                   className={`p-3 rounded-xl border-2 text-center transition-all ${
                     paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-gray-200'
                   }`}
@@ -278,6 +322,26 @@ export default function AdminPOS() {
                 </button>
               ))}
             </div>
+
+            {(paymentMethod === 'nequi' || paymentMethod === 'daviplata') && (
+              <button
+                onClick={() => setTransferConfirmed((prev) => !prev)}
+                className={`w-full mb-4 p-3 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
+                  transferConfirmed ? 'border-green-500 bg-green-50' : 'border-gray-200'
+                }`}
+              >
+                <span
+                  className={`w-6 h-6 rounded-md border-2 flex items-center justify-center text-white text-xs font-bold ${
+                    transferConfirmed ? 'bg-green-500 border-green-500' : 'border-gray-300'
+                  }`}
+                >
+                  {transferConfirmed ? '✓' : ''}
+                </span>
+                <span className="text-sm font-semibold text-gray-700">
+                  Confirmo que recibí la transferencia del cliente
+                </span>
+              </button>
+            )}
 
             {paymentMethod === 'cash' && (
               <div className="mb-4">
@@ -293,7 +357,7 @@ export default function AdminPOS() {
                   <div className="text-center mt-2">
                     <span className="text-sm text-gray-500">Cambio: </span>
                     <span className="text-lg font-bold text-primary">
-                      ${Math.max(0, parseFloat(cashReceived) - subtotal).toFixed(2)}
+                      {formatCOP(Math.max(0, parseFloat(cashReceived) - subtotal))}
                     </span>
                   </div>
                 )}
@@ -303,7 +367,7 @@ export default function AdminPOS() {
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <div className="flex justify-between text-xl font-bold">
                 <span>Total</span>
-                <span className="text-primary">${subtotal.toFixed(2)}</span>
+                <span className="text-primary">{formatCOP(subtotal)}</span>
               </div>
             </div>
 
@@ -311,7 +375,14 @@ export default function AdminPOS() {
               <Button variant="ghost" className="flex-1" onClick={() => setShowPayment(false)}>
                 Cancelar
               </Button>
-              <Button className="flex-1" onClick={handlePayment} disabled={submitting}>
+              <Button
+                className="flex-1"
+                onClick={handlePayment}
+                disabled={
+                  submitting ||
+                  (paymentMethod !== 'cash' && paymentMethod !== 'wompi' && !transferConfirmed)
+                }
+              >
                 {submitting ? 'Procesando...' : 'Confirmar Cobro'}
               </Button>
             </div>
@@ -342,26 +413,29 @@ export default function AdminPOS() {
                     <span>
                       {ci.quantity}x {ci.menuItem.name}
                     </span>
-                    <span>${(ci.menuItem.price * ci.quantity).toFixed(0)}</span>
+                    <span>{formatCOP(ci.menuItem.price * ci.quantity)}</span>
                   </div>
                 ))}
               </div>
               <div className="border-t border-dashed border-gray-300 pt-2 mb-4">
                 <div className="flex justify-between font-bold text-lg">
                   <span>TOTAL</span>
-                  <span>${showReceipt.total.toFixed(2)}</span>
+                  <span>{formatCOP(showReceipt.total)}</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Pago: {showReceipt.paymentMethod.toUpperCase()}
                 </p>
+                {showReceipt.paymentPending && (
+                  <p className="text-xs font-semibold text-amber-600 mt-1">
+                    Pago pendiente — completa el pago en el enlace de Wompi
+                  </p>
+                )}
                 {showReceipt.cashReceived !== undefined && (
                   <>
                     <p className="text-xs text-gray-500">
-                      Recibido: ${showReceipt.cashReceived.toFixed(2)}
+                      Recibido: {formatCOP(showReceipt.cashReceived)}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      Cambio: ${showReceipt.change.toFixed(2)}
-                    </p>
+                    <p className="text-xs text-gray-500">Cambio: {formatCOP(showReceipt.change)}</p>
                   </>
                 )}
               </div>

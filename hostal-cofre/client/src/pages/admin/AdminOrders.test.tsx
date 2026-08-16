@@ -324,4 +324,23 @@ describe('AdminOrders', () => {
     expect(screen.queryByText('#A-099')).not.toBeInTheDocument()
     expect(toastMock.toast.success).toHaveBeenCalledWith('Nuevo pedido A-099')
   })
+
+  it('filters orders by customer or receipt search', async () => {
+    renderPage()
+    await screen.findByText('#A-001')
+
+    const searchInput = screen.getByRole('textbox', { name: 'Buscar pedidos' })
+
+    fireEvent.change(searchInput, { target: { value: 'Ana' } })
+    await waitFor(() => expect(screen.queryByText(/Luis/)).not.toBeInTheDocument(), {
+      timeout: 2000,
+    })
+    expect(screen.getByText(/Ana/)).toBeInTheDocument()
+
+    fireEvent.change(searchInput, { target: { value: 'A-005' } })
+    await waitFor(() => expect(screen.queryByText(/Ana/)).not.toBeInTheDocument(), {
+      timeout: 2000,
+    })
+    expect(screen.getByText('#A-005')).toBeInTheDocument()
+  })
 })

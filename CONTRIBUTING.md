@@ -3,11 +3,7 @@
 [![Proyecto](https://img.shields.io/badge/Proyecto-Hostal%20Cofee--v2-brightgreen.svg)](README.md)
 ![Estado](https://img.shields.io/badge/Estado-Normativa%20Obligatoria-red.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
-![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
-![Commits](https://img.shields.io/badge/Commits-Conventional-blue.svg)
-![PR Size](https://img.shields.io/badge/PR%20Size-%3C500%20Lines-red.svg)
-![Tests](https://img.shields.io/badge/Tests-446%20Passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-Server%2092%25%20%C2%B7%20Client%2099%25-brightgreen.svg)
+
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 
 ---

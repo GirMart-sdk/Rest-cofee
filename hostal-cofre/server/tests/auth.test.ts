@@ -253,7 +253,7 @@ describe('2FA TOTP', () => {
     const res = await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code })
+      .send({ code, password: 'TestPass!1' })
     expect(res.status).toBe(200)
 
     const statusRes = await request(app)
@@ -269,7 +269,7 @@ describe('2FA TOTP', () => {
     const res = await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code: '000000' })
+      .send({ code: '000000', password: 'TestPass!1' })
     expect(res.status).toBe(401)
 
     const statusRes = await request(app)
@@ -285,7 +285,7 @@ describe('2FA TOTP', () => {
     await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code })
+      .send({ code, password: 'TestPass!1' })
 
     const loginRes = await request(app)
       .post('/api/auth/login')
@@ -304,7 +304,7 @@ describe('2FA TOTP', () => {
     await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code })
+      .send({ code, password: 'TestPass!1' })
 
     const loginRes = await request(app)
       .post('/api/auth/login')
@@ -327,7 +327,7 @@ describe('2FA TOTP', () => {
     await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code })
+      .send({ code, password: 'TestPass!1' })
 
     const loginRes = await request(app)
       .post('/api/auth/login')
@@ -347,7 +347,7 @@ describe('2FA TOTP', () => {
     await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code })
+      .send({ code, password: 'TestPass!1' })
 
     const disableRes = await request(app)
       .post('/api/auth/2fa/disable')
@@ -368,7 +368,7 @@ describe('2FA TOTP', () => {
     await request(app)
       .post('/api/auth/2fa/enable')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ code })
+      .send({ code, password: 'TestPass!1' })
 
     const disableRes = await request(app)
       .post('/api/auth/2fa/disable')

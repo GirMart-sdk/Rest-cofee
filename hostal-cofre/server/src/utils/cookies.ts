@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { config } from '../config/index.js'
+import { parseDurationToMs } from './duration.js'
 
 export const REFRESH_COOKIE_NAME = 'hostal_refresh'
 
@@ -12,7 +13,7 @@ const REFRESH_COOKIE_OPTIONS = {
 
 const REFRESH_COOKIE_SET_OPTIONS = {
   ...REFRESH_COOKIE_OPTIONS,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: parseDurationToMs(config.jwtRefreshExpiresIn),
 }
 
 export function setRefreshCookie(res: Response, token: string) {

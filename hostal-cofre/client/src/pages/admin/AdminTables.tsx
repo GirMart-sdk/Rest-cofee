@@ -4,6 +4,8 @@ import { Table } from '../../types'
 import { api } from '../../services/api'
 import { QRCodeSVG } from 'qrcode.react'
 import { Button, Input } from '../../components/ui'
+import { getErrorMessage } from '../../utils/errors'
+import { formatCOP } from '../../utils/format'
 import { FiGrid, FiUsers, FiX, FiCopy, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -85,8 +87,8 @@ export default function AdminTables() {
       setEditingTable(null)
       setForm(EMPTY_FORM)
       fetchTables()
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Error al guardar mesa')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al guardar mesa'))
     } finally {
       setSubmitting(false)
     }
@@ -99,8 +101,8 @@ export default function AdminTables() {
       toast.success('Mesa eliminada')
       setSelectedTable(null)
       fetchTables()
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'No se puede eliminar esta mesa')
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'No se puede eliminar esta mesa'))
     }
   }
 
@@ -140,7 +142,7 @@ export default function AdminTables() {
                 >
                   <FiGrid size={22} />
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 transition-opacity">
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
@@ -178,7 +180,7 @@ export default function AdminTables() {
               </span>
               {table.isOccupied && table.totalPending !== undefined && (
                 <p className="text-sm font-bold text-orange-600 mt-2">
-                  ${table.totalPending.toLocaleString()} pendiente
+                  {formatCOP(table.totalPending)} pendiente
                 </p>
               )}
             </motion.div>

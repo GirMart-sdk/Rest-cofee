@@ -31,12 +31,19 @@ const __dirname = path.dirname(__filename)
 async function main() {
   const app = express()
 
+  // Solo confiamos en proxies (p.ej. Caddy) en producción; en dev X-Forwarded-For no altera req.ip.
+  app.set('trust proxy', config.nodeEnv === 'production' ? 1 : false)
+
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: config.nodeEnv === 'production' ? 100 : 1000,
+    max: config.nodeEnv === 'production' ? 300 : 2000,
     standardHeaders: true,
     legacyHeaders: false,
-    skip: (req) => !req.path.startsWith('/api/'),
+    skip: (req) => {
+      if (!req.path.startsWith('/api/')) return true
+      if (req.path.startsWith('/api/payments/webhook')) return true
+      return false
+    },
   })
 
   if (config.nodeEnv === 'production') {
@@ -45,7 +52,7 @@ async function main() {
     app.use(cors({ origin: config.corsOrigin, credentials: true }))
   }
 
-  app.use(express.json({ limit: '10kb' }))
+  app.use(express.json({ limit: '32kb' }))
   app.use(requestId)
   app.use(requestLogger)
   app.use(sanitize)
@@ -65,7 +72,7 @@ async function main() {
           objectSrc: ["'none'"],
           baseUri: ["'self'"],
           formAction: ["'self'"],
-          upgradeInsecureRequests: isDev ? [] : [],
+          ...(isDev ? {} : { upgradeInsecureRequests: [] }),
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -97,6 +104,11 @@ async function main() {
   app.use('/api/tables', tableRoutes)
   app.use('/api/reports', reportRoutes)
   app.use('/api/audit', auditRoutes)
+
+  // Rutas /api no encontradas devuelven JSON (antes del fallback SPA)
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ success: false, error: 'API route not found' })
+  })
 
   const httpServer = http.createServer(app)
 

@@ -60,7 +60,7 @@ class Metrics {
   trackRequest(method: string, route: string): void {
     this.totalRequests += 1
     this.requestsByMethod[method] = (this.requestsByMethod[method] || 0) + 1
-    const normalized = route.replace(/\/[a-f0-9]{24,}/g, '/:id')
+    const normalized = route.replace(/\/[a-f0-9]{24,}/g, '/:id').replace(/\/[a-z0-9]{25,}/g, '/:id')
     this.requestsByRoute[normalized] = (this.requestsByRoute[normalized] || 0) + 1
   }
 

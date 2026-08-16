@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
 
 export function requestId(req: Request, res: Response, next: NextFunction) {
-  const id = (req.headers['x-request-id'] as string) || crypto.randomUUID()
+  // Siempre generamos un nuevo ID: ignoramos el proporcionado por el cliente
+  // para evitar reflejos/spoofing y garantizar unicidad.
+  const id = crypto.randomUUID()
   req.headers['x-request-id'] = id
   res.setHeader('X-Request-Id', id)
   next()

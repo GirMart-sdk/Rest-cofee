@@ -1,6 +1,8 @@
 import 'dotenv/config'
 
 const JWT_MIN_LENGTH = 32
+const JWT_PLACEHOLDER_PATTERN =
+  /change[-_\s]?me|your[-_\s]?(secret|password|key)|reemplaza|cambia[-_\s]?esta|placeholder|example[-_\s]?(secret|key)|tu[-_\s]?clave|test[-_\s]?secret/i
 
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET || ''
@@ -12,6 +14,15 @@ function getJwtSecret(): string {
       )
     }
     console.warn('[SECURITY] Using default JWT_SECRET — NOT secure for production!')
+  }
+
+  if (JWT_PLACEHOLDER_PATTERN.test(secret)) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        "[FATAL] JWT_SECRET looks like a template/placeholder value. Generate a real one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
+      )
+    }
+    console.warn('[SECURITY] JWT_SECRET looks like a placeholder — NOT secure for production!')
   }
 
   if (secret.length < JWT_MIN_LENGTH) {
@@ -61,5 +72,6 @@ export const config = {
     maxAttempts: parseInt(process.env.LOCKOUT_MAX_ATTEMPTS || '5'),
     windowMs: parseInt(process.env.LOCKOUT_WINDOW_MS || '900000'), // 15 min
     lockoutMs: parseInt(process.env.LOCKOUT_DURATION_MS || '900000'), // 15 min
+    ipMaxAttempts: parseInt(process.env.LOCKOUT_IP_MAX_ATTEMPTS || '10'),
   },
 }
