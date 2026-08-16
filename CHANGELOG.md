@@ -50,6 +50,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Documentación: consolidados todos los pendientes por corregir en el único backlog
+  `04-PENDIENTES.md` (deduplicado: 65 ítems); `03-DIAGNOSTICO.md` pasa a ser información
+  general (contexto, resueltos y fortalezas) y `SECURITY-REPORT.md` queda marcado como
+  histórico con enlaces a ambos
 - Cliente: subidos los umbrales de cobertura (statements/lines ≥ 95%, branches ≥ 90%,
   functions ≥ 90%)
 - Dependencias: react-router-dom 6 → 7, Vite 5 → 6, Vitest 2 → 3, Express 4.19 → 4.22,

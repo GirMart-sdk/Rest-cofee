@@ -14,6 +14,11 @@
 
 ## Fecha: 2026-08-08
 
+> **Documento histórico.** Informe de la iteración de blindaje de seguridad (08-08-2026).
+> El estado real de cada mitigación y **todo lo que falta por corregir** se consolida en
+> [`04-PENDIENTES.md`](04-PENDIENTES.md). El diagnóstico de contexto general está en
+> [`03-DIAGNOSTICO.md`](03-DIAGNOSTICO.md).
+
 > **Nota de rutas**: todas las rutas de archivo de este informe son relativas a
 > `hostal-cofre/server/` (el monorepo ahora usa la carpeta `hostal-cofre/`).
 
