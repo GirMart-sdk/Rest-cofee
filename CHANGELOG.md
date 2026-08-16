@@ -74,6 +74,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   seguimiento: bugs, roadmap, RICE, métricas). La estructura y funciones quedan en
   `02-TRD.md` y `README.md`; eliminada también la sección de deuda técnica del TRD y
   el bloque de estado real de CONTRIBUTING
+- Documentación: añadido `03-DIAGNOSTICO.md` (diagnóstico integral de ciberseguridad,
+  funcionalidad e inconsistencias, y lógica/estructura — 88 hallazgos — con madurez MVP)
 - Cliente: hooks muertos `useApi`, `useMenu`, `useOrders`, `useReservations` y su archivo
   de test (`src/hooks/useApi.*`), solo usados entre sí
 - Servidor: modelo `DailyReport` del schema Prisma (nunca escrito) — migración

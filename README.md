@@ -137,19 +137,20 @@ npm run test:e2e:docs   # genera capturas en docs/screenshots
 
 ## Documentación del Proyecto
 
-| Documento                                | Descripción                                         |
-| ---------------------------------------- | --------------------------------------------------- |
-| [LICENSE](LICENSE)                       | Licencia Propietaria DEVCO - GirMart-SDK            |
-| [02-TRD.md](02-TRD.md)                   | Requisitos técnicos, arquitectura y stack           |
-| [CONTRIBUTING.md](CONTRIBUTING.md)       | Guía de contribución (normativa obligatoria)        |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Código de conducta                                  |
-| [CHANGELOG.md](CHANGELOG.md)             | Historial de cambios                                |
-| [SECURITY.md](SECURITY.md)               | Política de seguridad y reporte de vulnerabilidades |
-| [SECURITY-REPORT.md](SECURITY-REPORT.md) | Informe de blindaje de seguridad (6 capas)          |
-| [PRIVACY.md](PRIVACY.md)                 | Política de privacidad                              |
-| [TERMS.md](TERMS.md)                     | Términos de uso                                     |
-| [deploy/README.md](deploy/README.md)     | Guía de despliegue en producción (Windows)          |
-| [e2e/README.md](e2e/README.md)           | Cómo ejecutar los tests E2E                         |
+| Documento                                | Descripción                                                       |
+| ---------------------------------------- | ----------------------------------------------------------------- |
+| [LICENSE](LICENSE)                       | Licencia Propietaria DEVCO - GirMart-SDK                          |
+| [02-TRD.md](02-TRD.md)                   | Requisitos técnicos, arquitectura y stack                         |
+| [03-DIAGNOSTICO.md](03-DIAGNOSTICO.md)   | Diagnóstico integral: seguridad, funcionalidad y estructura (MVP) |
+| [CONTRIBUTING.md](CONTRIBUTING.md)       | Guía de contribución (normativa obligatoria)                      |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Código de conducta                                                |
+| [CHANGELOG.md](CHANGELOG.md)             | Historial de cambios                                              |
+| [SECURITY.md](SECURITY.md)               | Política de seguridad y reporte de vulnerabilidades               |
+| [SECURITY-REPORT.md](SECURITY-REPORT.md) | Informe de blindaje de seguridad (6 capas)                        |
+| [PRIVACY.md](PRIVACY.md)                 | Política de privacidad                                            |
+| [TERMS.md](TERMS.md)                     | Términos de uso                                                   |
+| [deploy/README.md](deploy/README.md)     | Guía de despliegue en producción (Windows)                        |
+| [e2e/README.md](e2e/README.md)           | Cómo ejecutar los tests E2E                                       |
 
 ---
 
