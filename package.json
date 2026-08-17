@@ -13,6 +13,8 @@
     "test:security": "npm run test:security --prefix hostal-cofre/server",
     "test:e2e": "playwright test",
     "test:e2e:docs": "playwright test e2e/docs.spec.ts",
+    "audit": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix",
     "start": "npm run start --prefix hostal-cofre/server",
     "start:all": "powershell -ExecutionPolicy Bypass -File start.ps1",
     "prepare": "husky"
