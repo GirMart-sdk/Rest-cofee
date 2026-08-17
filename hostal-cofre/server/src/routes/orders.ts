@@ -97,8 +97,27 @@ router.get('/zones', (_req, res: Response) => {
   res.json({ success: true, data: zones })
 })
 
-router.get('/events', authenticate, requireAdmin, (req: AuthRequest, res: Response) => {
-  // El límite debe validarse antes de escribir las cabeceras SSE.
+router.get('/events', async (req: AuthRequest, res: Response) => {
+  // EventSource no soporta headers custom; aceptar token via query param.
+  const token = (req.query.token as string) || req.headers.authorization?.replace('Bearer ', '')
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'Authentication required' })
+  }
+
+  let payload: { id: string; email: string; role: string; ver?: number }
+  try {
+    const jwt = await import('jsonwebtoken')
+    payload = jwt.default.verify(token, config.jwtSecret, {
+      algorithms: ['HS256'],
+    }) as typeof payload
+  } catch {
+    return res.status(401).json({ success: false, error: 'Invalid token' })
+  }
+
+  if (payload.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin access required' })
+  }
+
   if (!eventBus.addClient(res)) {
     return res.status(503).json({ success: false, error: 'Too many real-time connections' })
   }

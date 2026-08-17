@@ -23,6 +23,9 @@ const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
 const AdminTables = lazy(() => import('./pages/admin/AdminTables'))
 const AdminAudit = lazy(() => import('./pages/admin/AdminAudit'))
 const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'))
+const AdminMonitor = lazy(() => import('./pages/admin/AdminMonitor'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
+const SecurityQuestionSetup = lazy(() => import('./pages/SecurityQuestionSetup'))
 
 function PageLoader() {
   return (
@@ -43,6 +46,7 @@ export default function App() {
         <Routes>
           <Route path="/mesa" element={<MesaPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
@@ -54,6 +58,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <AccountPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cuenta/seguridad"
+              element={
+                <ProtectedRoute>
+                  <SecurityQuestionSetup />
                 </ProtectedRoute>
               }
             />
@@ -76,6 +88,7 @@ export default function App() {
             <Route path="/admin/mesas" element={<AdminTables />} />
             <Route path="/admin/auditoria" element={<AdminAudit />} />
             <Route path="/admin/pagos" element={<AdminPayments />} />
+            <Route path="/admin/monitoreo" element={<AdminMonitor />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

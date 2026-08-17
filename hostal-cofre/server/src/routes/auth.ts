@@ -583,6 +583,85 @@ router.post(
   },
 )
 
+const setupSecurityQuestionSchema = z.object({
+  body: z.object({
+    question: z.string().trim().min(10, 'Question must be at least 10 characters').max(200),
+    answer: z.string().trim().min(3, 'Answer must be at least 3 characters').max(100),
+  }),
+})
+
+router.post(
+  '/setup-security-question',
+  authenticate,
+  validate(setupSecurityQuestionSchema),
+  async (req: AuthRequest, res: Response) => {
+    const { question, answer } = req.body
+    const hashedAnswer = await bcrypt.hash(answer.toLowerCase().trim(), 12)
+    await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { securityQuestion: question, securityAnswer: hashedAnswer },
+    })
+    res.json({ success: true, message: 'Security question set successfully' })
+  },
+)
+
+const getSecurityQuestionSchema = z.object({
+  body: z.object({ email: z.string().trim().email().max(255) }),
+})
+
+router.post(
+  '/security-question',
+  forgotPasswordLimiter,
+  validate(getSecurityQuestionSchema),
+  async (req: Request, res: Response) => {
+    const { email } = req.body
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user || !user.securityQuestion) {
+      return res.json({
+        success: true,
+        data: { hasQuestion: false },
+        message: 'If the email exists and has a security question, it will be returned.',
+      })
+    }
+    res.json({
+      success: true,
+      data: { hasQuestion: true, question: user.securityQuestion },
+    })
+  },
+)
+
+const verifySecurityAnswerSchema = z.object({
+  body: z.object({
+    email: z.string().trim().email().max(255),
+    answer: z.string().trim().min(1, 'Answer is required').max(100),
+  }),
+})
+
+router.post(
+  '/verify-security-answer',
+  forgotPasswordLimiter,
+  validate(verifySecurityAnswerSchema),
+  async (req: Request, res: Response) => {
+    const { email, answer } = req.body
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user || !user.securityAnswer) {
+      return res.status(401).json({ success: false, error: 'Invalid email or security answer' })
+    }
+
+    const valid = await bcrypt.compare(answer.toLowerCase().trim(), user.securityAnswer)
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Invalid email or security answer' })
+    }
+
+    const resetToken = jwt.sign({ purpose: 'password-reset', id: user.id }, config.jwtSecret, {
+      algorithm: 'HS256',
+      expiresIn: '15m',
+    })
+
+    res.json({ success: true, data: { resetToken } })
+  },
+)
+
 router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.id },

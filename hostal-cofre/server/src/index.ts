@@ -24,6 +24,8 @@ import { authenticate, requireAdmin, AuthRequest } from './middleware/auth.js'
 import { metrics } from './utils/metrics.js'
 import { logger } from './utils/logger.js'
 import { cleanupExpiredTokens } from './middleware/tokenBlacklist.js'
+import { swaggerSpec } from './config/swagger.js'
+import swaggerUi from 'swagger-ui-express'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -89,6 +91,20 @@ async function main() {
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  })
+
+  app.use(
+    '/api/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+      customSiteTitle: 'Hostal Cofee API Docs',
+      customCss: '.swagger-ui .topbar { display: none }',
+    }),
+  )
+
+  app.get('/api/docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json')
+    res.send(swaggerSpec)
   })
 
   app.get('/api/metrics', authenticate, requireAdmin, (req: AuthRequest, res) => {

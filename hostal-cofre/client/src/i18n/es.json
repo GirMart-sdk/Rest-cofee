@@ -1,0 +1,85 @@
+{
+  "menu": "Menú",
+  "cart": "Carrito",
+  "reservations": "Reservas",
+  "login": "Iniciar Sesión",
+  "register": "Crear Cuenta",
+  "logout": "Cerrar Sesión",
+  "account": "Mi Cuenta",
+  "admin": "Administración",
+  "home": {
+    "title": "Hostal Cofre",
+    "subtitle": "Bienvenido a",
+    "description": "Donde cada platillo cuenta una historia",
+    "viewMenu": "Ver Menú",
+    "reserve": "Reservar Mesa"
+  },
+  "menuPage": {
+    "title": "Nuestro Menú",
+    "subtitle": "Descubre",
+    "loading": "Cargando menú...",
+    "empty": "No hay platillos disponibles en esta categoría",
+    "add": "Añadir",
+    "all": "Todos"
+  },
+  "cartPage": {
+    "title": "Tu Carrito",
+    "empty": "Tu carrito está vacío",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Realizar Pedido",
+    "remove": "Eliminar",
+    "quantity": "Cantidad"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Contraseña",
+    "name": "Nombre completo",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "processing": "Procesando...",
+    "wrongCredentials": "Credenciales incorrectas",
+    "accountCreated": "¡Cuenta creada!",
+    "welcome": "¡Bienvenido!"
+  },
+  "admin": {
+    "dashboard": "Panel de Administración",
+    "pos": "Punto de Venta",
+    "orders": "Pedidos",
+    "tables": "Mesas",
+    "menu": "Menú",
+    "shifts": "Turnos",
+    "reports": "Reportes",
+    "reservations": "Reservas",
+    "monitoring": "Monitoreo",
+    "todaySales": "Ventas Hoy",
+    "totalOrders": "Pedidos",
+    "totalReservations": "Reservas",
+    "weekSales": "Ventas Semana"
+  },
+  "reservation": {
+    "title": "Reservar Mesa",
+    "name": "Nombre",
+    "phone": "Teléfono",
+    "email": "Email",
+    "date": "Fecha",
+    "time": "Hora",
+    "guests": "Número de personas",
+    "notes": "Notas especiales",
+    "submit": "Reservar",
+    "success": "¡Reserva confirmada!"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "search": "Buscar",
+    "noResults": "No se encontraron resultados"
+  }
+}

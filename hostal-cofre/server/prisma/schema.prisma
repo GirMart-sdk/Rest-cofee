@@ -16,6 +16,8 @@ model User {
   twoFactorSecret  String?
   twoFactorEnabled Boolean        @default(false)
   tokenVersion     Int            @default(0)
+  securityQuestion String?
+  securityAnswer   String?
   orders           Order[]
   reservations     Reservation[]
   shifts           Shift[]
@@ -23,6 +25,8 @@ model User {
   loginAttempts    LoginAttempt[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  @@index([email])
 }
 
 model RefreshToken {

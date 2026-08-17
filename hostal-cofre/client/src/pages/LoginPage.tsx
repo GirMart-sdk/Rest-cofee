@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Input, Button } from '../components/ui'
 import { motion } from 'framer-motion'
@@ -123,16 +123,30 @@ export default function LoginPage() {
           </form>
 
           {!twoFactorPending && (
-            <div className="text-center mt-6">
-              <button
-                onClick={() => {
-                  setIsRegister(!isRegister)
-                  clearAuthError?.()
-                }}
-                className="text-primary hover:underline font-semibold"
-              >
-                {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
-              </button>
+            <div className="text-center mt-6 space-y-2">
+              <div>
+                <button
+                  onClick={() => {
+                    setIsRegister(!isRegister)
+                    clearAuthError?.()
+                  }}
+                  className="text-primary hover:underline font-semibold"
+                >
+                  {isRegister
+                    ? '¿Ya tienes cuenta? Inicia sesión'
+                    : '¿No tienes cuenta? Regístrate'}
+                </button>
+              </div>
+              {!isRegister && (
+                <div>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-gray-500 hover:text-primary hover:underline"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
+              )}
             </div>
           )}
           {twoFactorPending && (

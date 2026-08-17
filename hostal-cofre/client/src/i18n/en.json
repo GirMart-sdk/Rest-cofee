@@ -1,0 +1,85 @@
+{
+  "menu": "Menu",
+  "cart": "Cart",
+  "reservations": "Reservations",
+  "login": "Login",
+  "register": "Register",
+  "logout": "Logout",
+  "account": "My Account",
+  "admin": "Administration",
+  "home": {
+    "title": "Hostal Cofre",
+    "subtitle": "Welcome to",
+    "description": "Where every dish tells a story",
+    "viewMenu": "View Menu",
+    "reserve": "Reserve Table"
+  },
+  "menuPage": {
+    "title": "Our Menu",
+    "subtitle": "Discover",
+    "loading": "Loading menu...",
+    "empty": "No dishes available in this category",
+    "add": "Add",
+    "all": "All"
+  },
+  "cartPage": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Place Order",
+    "remove": "Remove",
+    "quantity": "Quantity"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "processing": "Processing...",
+    "wrongCredentials": "Incorrect credentials",
+    "accountCreated": "Account created!",
+    "welcome": "Welcome!"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "pos": "Point of Sale",
+    "orders": "Orders",
+    "tables": "Tables",
+    "menu": "Menu",
+    "shifts": "Shifts",
+    "reports": "Reports",
+    "reservations": "Reservations",
+    "monitoring": "Monitoring",
+    "todaySales": "Today's Sales",
+    "totalOrders": "Orders",
+    "totalReservations": "Reservations",
+    "weekSales": "Weekly Sales"
+  },
+  "reservation": {
+    "title": "Reserve Table",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "date": "Date",
+    "time": "Time",
+    "guests": "Number of guests",
+    "notes": "Special notes",
+    "submit": "Reserve",
+    "success": "Reservation confirmed!"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search",
+    "noResults": "No results found"
+  }
+}

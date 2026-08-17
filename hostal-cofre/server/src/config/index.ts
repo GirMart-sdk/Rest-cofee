@@ -54,7 +54,7 @@ export const config = {
         : 'https://sandbox.wompi.co/v1'),
   },
   whatsapp: {
-    phone: process.env.WHATSAPP_PHONE || '573001234567',
+    phone: process.env.WHATSAPP_PHONE || '',
     apiToken: process.env.WHATSAPP_API_TOKEN || '',
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
   },
