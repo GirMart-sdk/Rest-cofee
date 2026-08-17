@@ -81,5 +81,73 @@
     "back": "Volver",
     "search": "Buscar",
     "noResults": "No se encontraron resultados"
+  },
+  "pos": {
+    "loadError": "Error al cargar el menú",
+    "title": "Punto de Venta",
+    "currentSale": "Venta Actual",
+    "clear": "Limpiar",
+    "addToMenu": "Agrega items del menú",
+    "charge": "Cobrar",
+    "categories": {
+      "all": "Todos",
+      "ensalada": "Ensaladas",
+      "pasta": "Pastas",
+      "pizza": "Pizzas",
+      "postre": "Postres",
+      "bebida": "Bebidas"
+    }
+  },
+  "payment": {
+    "title": "Cobrar",
+    "customerNameOptional": "Nombre del cliente (opcional)",
+    "cash": "Efectivo",
+    "nequi": "Nequi",
+    "daviplata": "DaviPlata",
+    "wompi": "Tarjeta/PSE",
+    "confirmTransfer": "Confirmo que recibí la transferencia del cliente",
+    "transferConfirmError": "Confirma que recibiste la transferencia para continuar",
+    "cashReceived": "Efectivo recibido",
+    "change": "Cambio",
+    "total": "Total",
+    "cancel": "Cancelar",
+    "confirmPayment": "Confirmar Cobro",
+    "processing": "Procesando...",
+    "thankYou": "¡Gracias por su compra!",
+    "pendingPayment": "Pago pendiente — completa el pago en el enlace de Wompi",
+    "loadingPOS": "Cargando POS...",
+    "registerSale": "Venta registrada",
+    "response500": "Error al registrar venta"
+  },
+  "receipt": {
+    "receipt": "Recibo",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "print": "Imprimir",
+    "close": "Cerrar",
+    "payment": "Pago",
+    "cash": "Efectivo",
+    "nequi": "Nequi",
+    "daviplata": "DaviPlata",
+    "wompi": "Tarjeta/PSE"
+  },
+  "forgotPassword": {
+    "title": "Recuperar contraseña",
+    "emailStep": "Ingresa tu email para verificar tu pregunta de seguridad",
+    "questionStep": "Responde tu pregunta de seguridad",
+    "resetStep": "Ingresa tu nueva contraseña",
+    "securityQuestion": "Tu pregunta:",
+    "answerPlaceholder": "Tu respuesta",
+    "newPasswordPlaceholder": "Nueva contraseña (mínimo 8 caracteres)",
+    "searchQuestion": "Buscar pregunta de seguridad",
+    "verifyAnswer": "Verificar respuesta",
+    "resetPassword": "Restablecer contraseña",
+    "verifying": "Verificando...",
+    "resetting": "Restableciendo...",
+    "wrongAnswer": "Respuesta incorrecta",
+    "resetSuccess": "Contraseña restablecida. Inicia sesión con tu nueva contraseña.",
+    "resetError": "Error al restablecer la contraseña",
+    "noQuestionFound": "No se encontró una pregunta de seguridad para este email",
+    "backToLogin": "Volver al inicio de sesión"
   }
 }

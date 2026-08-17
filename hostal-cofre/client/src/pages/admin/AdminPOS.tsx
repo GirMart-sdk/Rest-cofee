@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { MenuItem } from '../../types'
 import { api } from '../../services/api'
@@ -13,16 +14,34 @@ interface POSCartItem {
   quantity: number
 }
 
+interface RestaurantInfo {
+  name: string
+  nit: string
+}
+
+interface ReceiptData {
+  id: string
+  receiptNumber: string
+  createdAt: string
+  total: number
+  paymentMethod: string
+  paymentPending?: boolean
+  cashReceived?: number
+  change?: number
+  cart: POSCartItem[]
+}
+
 const CATEGORIES = [
-  { key: 'all', label: 'Todos' },
-  { key: 'ensalada', label: 'Ensaladas' },
-  { key: 'pasta', label: 'Pastas' },
-  { key: 'pizza', label: 'Pizzas' },
-  { key: 'postre', label: 'Postres' },
-  { key: 'bebida', label: 'Bebidas' },
+  { key: 'all', labelKey: 'pos.categories.all' },
+  { key: 'ensalada', labelKey: 'pos.categories.ensalada' },
+  { key: 'pasta', labelKey: 'pos.categories.pasta' },
+  { key: 'pizza', labelKey: 'pos.categories.pizza' },
+  { key: 'postre', labelKey: 'pos.categories.postre' },
+  { key: 'bebida', labelKey: 'pos.categories.bebida' },
 ]
 
 export default function AdminPOS() {
+  const { t } = useTranslation()
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [activeCategory, setActiveCategory] = useState('all')
   const [cart, setCart] = useState<POSCartItem[]>([])
@@ -35,15 +54,18 @@ export default function AdminPOS() {
   const [cashReceived, setCashReceived] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [transferConfirmed, setTransferConfirmed] = useState(false)
-  const [showReceipt, setShowReceipt] = useState<any>(null)
+  const [showReceipt, setShowReceipt] = useState<ReceiptData | null>(null)
+  const [restaurant, setRestaurant] = useState<RestaurantInfo>({ name: 'Hostal Cofre', nit: '' })
 
   useEffect(() => {
-    api
-      .get('/menu')
-      .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
-      .catch(() => toast.error('Error al cargar el menú'))
+    Promise.all([api.get('/menu'), api.get('/config/restaurant')])
+      .then(([menuRes, configRes]) => {
+        setMenuItems(menuRes.data.data.filter((i: MenuItem) => i.available))
+        if (configRes.data?.data) setRestaurant(configRes.data.data)
+      })
+      .catch(() => toast.error(t('pos.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   const filtered =
     activeCategory === 'all' ? menuItems : menuItems.filter((m) => m.category === activeCategory)
@@ -175,7 +197,7 @@ export default function AdminPOS() {
                       : 'bg-white text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  {c.label}
+                  {t(c.labelKey)}
                 </button>
               ))}
             </div>
@@ -301,16 +323,18 @@ export default function AdminPOS() {
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-6">
-              {[
-                { key: 'cash', label: 'Efectivo', icon: '💵' },
-                { key: 'nequi', label: 'Nequi', icon: '📱' },
-                { key: 'daviplata', label: 'DaviPlata', icon: '📲' },
-                { key: 'wompi', label: 'Tarjeta/PSE', icon: '💳' },
-              ].map((m) => (
+              {(
+                [
+                  { key: 'cash', label: 'Efectivo', icon: '💵' },
+                  { key: 'nequi', label: 'Nequi', icon: '📱' },
+                  { key: 'daviplata', label: 'DaviPlata', icon: '📲' },
+                  { key: 'wompi', label: 'Tarjeta/PSE', icon: '💳' },
+                ] as const
+              ).map((m) => (
                 <button
                   key={m.key}
                   onClick={() => {
-                    setPaymentMethod(m.key as any)
+                    setPaymentMethod(m.key)
                     setTransferConfirmed(false)
                   }}
                   className={`p-3 rounded-xl border-2 text-center transition-all ${
@@ -399,8 +423,10 @@ export default function AdminPOS() {
             id="receipt"
           >
             <div className="receipt p-6 text-center">
-              <h2 className="font-display text-xl font-bold mb-1">Hostal Cofre</h2>
-              <p className="text-xs text-gray-500 mb-4">NIT: XXX-XXXX-X</p>
+              <h2 className="font-display text-xl font-bold mb-1">{restaurant.name}</h2>
+              {restaurant.nit && (
+                <p className="text-xs text-gray-500 mb-4">NIT: {restaurant.nit}</p>
+              )}
               <div className="border-t border-b border-dashed border-gray-300 py-2 mb-4">
                 <p className="text-xs text-gray-500">Recibo #{showReceipt.receiptNumber}</p>
                 <p className="text-xs text-gray-500">
@@ -408,7 +434,7 @@ export default function AdminPOS() {
                 </p>
               </div>
               <div className="text-left space-y-1 mb-4">
-                {showReceipt.cart?.map((ci: POSCartItem, i: number) => (
+                {showReceipt.cart.map((ci, i) => (
                   <div key={i} className="flex justify-between text-sm">
                     <span>
                       {ci.quantity}x {ci.menuItem.name}
@@ -433,9 +459,11 @@ export default function AdminPOS() {
                 {showReceipt.cashReceived !== undefined && (
                   <>
                     <p className="text-xs text-gray-500">
-                      Recibido: {formatCOP(showReceipt.cashReceived)}
+                      Recibido: {formatCOP(showReceipt.cashReceived ?? 0)}
                     </p>
-                    <p className="text-xs text-gray-500">Cambio: {formatCOP(showReceipt.change)}</p>
+                    <p className="text-xs text-gray-500">
+                      Cambio: {formatCOP(showReceipt.change ?? 0)}
+                    </p>
                   </>
                 )}
               </div>

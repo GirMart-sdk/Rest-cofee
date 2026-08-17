@@ -1,3 +1,4 @@
+import { ReservationStatus } from '@prisma/client'
 import prisma from '../db.js'
 
 // Ventana de ocupación estimada por reserva (en horas).
@@ -102,6 +103,9 @@ export class ReservationService {
 
   static async updateStatus(id: string, status: string) {
     await this.getById(id)
-    return prisma.reservation.update({ where: { id }, data: { status: status as any } })
+    return prisma.reservation.update({
+      where: { id },
+      data: { status: status as ReservationStatus },
+    })
   }
 }

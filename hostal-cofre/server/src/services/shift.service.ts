@@ -1,3 +1,4 @@
+import { ShiftPeriod } from '@prisma/client'
 import prisma from '../db.js'
 
 export class ShiftService {
@@ -76,7 +77,7 @@ export class ShiftService {
       data: {
         userId: data.userId,
         cashierName: data.cashierName,
-        shiftPeriod: data.shiftPeriod as any,
+        shiftPeriod: data.shiftPeriod as ShiftPeriod,
         openingCash: data.openingCash,
         notes: data.notes,
         status: 'open',

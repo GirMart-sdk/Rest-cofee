@@ -1,3 +1,4 @@
+import { Zone } from '@prisma/client'
 import prisma from '../db.js'
 import { toPublicOrder } from '../utils/public-order.js'
 
@@ -57,7 +58,7 @@ export class TableService {
       data: {
         number: data.number,
         capacity: data.capacity,
-        zone: data.zone as any,
+        zone: data.zone as Zone,
       },
     })
   }
@@ -80,7 +81,7 @@ export class TableService {
       data: {
         ...(data.number !== undefined && { number: data.number }),
         ...(data.capacity !== undefined && { capacity: data.capacity }),
-        ...(data.zone !== undefined && { zone: data.zone as any }),
+        ...(data.zone !== undefined && { zone: data.zone as Zone }),
       },
     })
   }

@@ -1,3 +1,4 @@
+import { Category } from '@prisma/client'
 import prisma from '../db.js'
 
 export class MenuService {
@@ -15,10 +16,10 @@ export class MenuService {
     name: string
     description: string
     price: number
-    category: string
+    category: Category
     image?: string
   }) {
-    return prisma.menuItem.create({ data: { ...data, category: data.category as any } })
+    return prisma.menuItem.create({ data })
   }
 
   static async update(
@@ -27,16 +28,13 @@ export class MenuService {
       name: string
       description: string
       price: number
-      category: string
+      category: Category
       image: string
       available: boolean
     }>,
   ) {
     await this.getById(id)
-    return prisma.menuItem.update({
-      where: { id },
-      data: { ...data, category: data.category as any },
-    })
+    return prisma.menuItem.update({ where: { id }, data })
   }
 
   static async delete(id: string) {

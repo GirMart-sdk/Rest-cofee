@@ -26,35 +26,14 @@ class Metrics {
   private requestsByMethod: Record<string, number> = {}
   private requestsByRoute: Record<string, number> = {}
   private statusCodes: Record<string, number> = {}
-  private totalErrors = 0
-  private authLogins = 0
-  private authFailedLogins = 0
-  private ordersCreated = 0
-  private ordersCancelled = 0
-  private paymentsInitiated = 0
-  private paymentsFailed = 0
-  private paymentsWebhookRejected = 0
-  private paymentsWebhookProcessed = 0
-  private paymentsAmountMismatch = 0
-  private whatsappSent = 0
-  private whatsappFailed = 0
-  private whatsappSkipped = 0
+  private counters = new Map<string, number>()
 
-  inc(key: keyof Omit<MetricsSnapshot, 'startedAt' | 'uptimeSeconds'>): void {
-    if (key === 'totalRequests') this.totalRequests += 1
-    else if (key === 'totalErrors') this.totalErrors += 1
-    else if (key === 'authLogins') this.authLogins += 1
-    else if (key === 'authFailedLogins') this.authFailedLogins += 1
-    else if (key === 'ordersCreated') this.ordersCreated += 1
-    else if (key === 'ordersCancelled') this.ordersCancelled += 1
-    else if (key === 'paymentsInitiated') this.paymentsInitiated += 1
-    else if (key === 'paymentsFailed') this.paymentsFailed += 1
-    else if (key === 'paymentsWebhookRejected') this.paymentsWebhookRejected += 1
-    else if (key === 'paymentsWebhookProcessed') this.paymentsWebhookProcessed += 1
-    else if (key === 'paymentsAmountMismatch') this.paymentsAmountMismatch += 1
-    else if (key === 'whatsappSent') this.whatsappSent += 1
-    else if (key === 'whatsappFailed') this.whatsappFailed += 1
-    else if (key === 'whatsappSkipped') this.whatsappSkipped += 1
+  inc(key: string): void {
+    this.counters.set(key, (this.counters.get(key) ?? 0) + 1)
+  }
+
+  private getCounter(key: string): number {
+    return this.counters.get(key) ?? 0
   }
 
   trackRequest(method: string, route: string): void {
@@ -67,7 +46,7 @@ class Metrics {
   trackResponse(statusCode: number): void {
     const key = String(statusCode)
     this.statusCodes[key] = (this.statusCodes[key] || 0) + 1
-    if (statusCode >= 500) this.totalErrors += 1
+    if (statusCode >= 500) this.inc('totalErrors')
   }
 
   snapshot(): MetricsSnapshot {
@@ -78,19 +57,19 @@ class Metrics {
       requestsByMethod: this.requestsByMethod,
       requestsByRoute: this.requestsByRoute,
       statusCodes: this.statusCodes,
-      totalErrors: this.totalErrors,
-      authLogins: this.authLogins,
-      authFailedLogins: this.authFailedLogins,
-      ordersCreated: this.ordersCreated,
-      ordersCancelled: this.ordersCancelled,
-      paymentsInitiated: this.paymentsInitiated,
-      paymentsFailed: this.paymentsFailed,
-      paymentsWebhookRejected: this.paymentsWebhookRejected,
-      paymentsWebhookProcessed: this.paymentsWebhookProcessed,
-      paymentsAmountMismatch: this.paymentsAmountMismatch,
-      whatsappSent: this.whatsappSent,
-      whatsappFailed: this.whatsappFailed,
-      whatsappSkipped: this.whatsappSkipped,
+      totalErrors: this.getCounter('totalErrors'),
+      authLogins: this.getCounter('authLogins'),
+      authFailedLogins: this.getCounter('authFailedLogins'),
+      ordersCreated: this.getCounter('ordersCreated'),
+      ordersCancelled: this.getCounter('ordersCancelled'),
+      paymentsInitiated: this.getCounter('paymentsInitiated'),
+      paymentsFailed: this.getCounter('paymentsFailed'),
+      paymentsWebhookRejected: this.getCounter('paymentsWebhookRejected'),
+      paymentsWebhookProcessed: this.getCounter('paymentsWebhookProcessed'),
+      paymentsAmountMismatch: this.getCounter('paymentsAmountMismatch'),
+      whatsappSent: this.getCounter('whatsappSent'),
+      whatsappFailed: this.getCounter('whatsappFailed'),
+      whatsappSkipped: this.getCounter('whatsappSkipped'),
     }
   }
 }

@@ -7,7 +7,13 @@ class EventBus {
   private clients = new Set<Response>()
 
   addClient(res: Response): boolean {
-    if (this.clients.size >= MAX_CLIENTS) return false
+    if (this.clients.size >= MAX_CLIENTS) {
+      logger.warn('SSE client rejected: max connections reached', {
+        current: this.clients.size,
+        max: MAX_CLIENTS,
+      })
+      return false
+    }
     this.clients.add(res)
     return true
   }

@@ -404,15 +404,17 @@ export default function CartDrawer() {
           <h2 className="text-3xl font-display mb-8">Método de Pago</h2>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
-            {[
-              { key: 'cash', label: 'Efectivo', icon: '💵', desc: 'Paga al recoger' },
-              { key: 'wompi', label: 'Wompi', icon: '💳', desc: 'Tarjeta / PSE' },
-              { key: 'nequi', label: 'Nequi', icon: '📱', desc: 'Transferencia' },
-              { key: 'daviplata', label: 'DaviPlata', icon: '📲', desc: 'Transferencia' },
-            ].map((m) => (
+            {(
+              [
+                { key: 'cash', label: 'Efectivo', icon: '💵', desc: 'Paga al recoger' },
+                { key: 'wompi', label: 'Wompi', icon: '💳', desc: 'Tarjeta / PSE' },
+                { key: 'nequi', label: 'Nequi', icon: '📱', desc: 'Transferencia' },
+                { key: 'daviplata', label: 'DaviPlata', icon: '📲', desc: 'Transferencia' },
+              ] as const
+            ).map((m) => (
               <button
                 key={m.key}
-                onClick={() => setPaymentMethod(m.key as any)}
+                onClick={() => setPaymentMethod(m.key)}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   paymentMethod === m.key
                     ? 'border-primary bg-primary/5 shadow-lg'

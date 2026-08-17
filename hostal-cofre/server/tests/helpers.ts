@@ -3,6 +3,15 @@ import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { errorHandler } from '../src/middleware/errors.js'
+import {
+  PaymentMethod,
+  OrderStatus,
+  OrderType,
+  ReservationStatus,
+  ShiftStatus,
+  ShiftPeriod,
+  Zone,
+} from '@prisma/client'
 import prisma from '../src/db.js'
 
 export function createTestApp() {
@@ -63,7 +72,7 @@ export async function createTable() {
     data: {
       number: Math.floor(Math.random() * 999) + 1,
       capacity: 4,
-      zone: 'interior',
+      zone: 'interior' as Zone,
     },
   })
 }
@@ -86,9 +95,9 @@ export async function createOrder(
       customerName: overrides.customerName || 'Test Customer',
       customerPhone: overrides.customerPhone || '3001234567',
       total,
-      paymentMethod: (overrides.paymentMethod || 'cash') as any,
-      status: (overrides.status || 'pending') as any,
-      orderType: (overrides.orderType || 'tienda') as any,
+      paymentMethod: (overrides.paymentMethod || 'cash') as PaymentMethod,
+      status: (overrides.status || 'pending') as OrderStatus,
+      orderType: (overrides.orderType || 'tienda') as OrderType,
       receiptNumber: `HC-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
       shiftId: overrides.shiftId || null,
       items: {
@@ -121,7 +130,7 @@ export async function createReservation(
       time: '20:00',
       guests: overrides.guests || 4,
       tableId: overrides.tableId || table!.id,
-      status: (overrides.status || 'pending') as any,
+      status: (overrides.status || 'pending') as ReservationStatus,
     },
     include: { table: true },
   })
@@ -141,9 +150,9 @@ export async function createShift(
     data: {
       userId: user!.id,
       cashierName: 'Test Cashier',
-      shiftPeriod: 'manana',
+      shiftPeriod: 'manana' as ShiftPeriod,
       openingCash: overrides.openingCash || 200000,
-      status: (overrides.status || 'open') as any,
+      status: (overrides.status || 'open') as ShiftStatus,
     },
     include: { user: { select: { id: true, name: true } } },
   })

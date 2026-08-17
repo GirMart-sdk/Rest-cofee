@@ -10,7 +10,7 @@ const options: swaggerJsdoc.Options = {
     openapi: '3.0.0',
     info: {
       title: 'Hostal Cofee API',
-      version: '2.0.0',
+      version: '1.0.0',
       description: 'API REST para el sistema de gestión del restaurante Hostal Cofee',
       contact: { name: 'Hostal Cofee Team' },
     },

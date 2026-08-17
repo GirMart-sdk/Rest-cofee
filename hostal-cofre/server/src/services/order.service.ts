@@ -1,3 +1,4 @@
+import { PaymentMethod, OrderType, OrderStatus, PaymentStatus, DeliveryZone } from '@prisma/client'
 import prisma from '../db.js'
 import { DeliveryService } from './delivery.service.js'
 import { metrics } from '../utils/metrics.js'
@@ -109,12 +110,12 @@ export class OrderService {
           customerPhone: data.customerPhone,
           customerEmail: data.customerEmail,
           total,
-          paymentMethod: data.paymentMethod as any,
+          paymentMethod: data.paymentMethod as PaymentMethod,
           userId: data.userId,
-          orderType: (data.orderType as any) || 'tienda',
+          orderType: (data.orderType as OrderType) || 'tienda',
           tableId: data.tableId || null,
           address: data.address || null,
-          deliveryZone: (data.deliveryZone as any) || null,
+          deliveryZone: (data.deliveryZone as DeliveryZone | undefined) || null,
           deliveryFee,
           deliveryNotes: data.deliveryNotes || null,
           receiptNumber: generateReceiptNumber(),
@@ -184,7 +185,10 @@ export class OrderService {
 
   static async updateStatus(id: string, status: string) {
     await this.getById(id)
-    const updated = await prisma.order.update({ where: { id }, data: { status: status as any } })
+    const updated = await prisma.order.update({
+      where: { id },
+      data: { status: status as OrderStatus },
+    })
     if (status === 'cancelled') metrics.inc('ordersCancelled')
     return updated
   }
@@ -193,7 +197,7 @@ export class OrderService {
     await this.getById(id)
     return prisma.order.update({
       where: { id },
-      data: { paymentStatus: paymentStatus as any, paymentId },
+      data: { paymentStatus: paymentStatus as PaymentStatus, paymentId },
     })
   }
 }

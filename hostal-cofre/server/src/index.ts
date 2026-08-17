@@ -1,6 +1,7 @@
 import 'express-async-errors'
 import express from 'express'
 import http from 'http'
+import crypto from 'crypto'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import cors from 'cors'
@@ -60,12 +61,17 @@ async function main() {
   app.use(sanitize)
 
   const isDev = config.nodeEnv !== 'production'
+  const nonce = crypto.randomBytes(16).toString('base64')
+  app.use((req, _res, next) => {
+    ;(req as express.Request & { nonce?: string }).nonce = nonce
+    next()
+  })
   app.use(
     helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: isDev ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'"],
+          scriptSrc: isDev ? ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"] : ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
           imgSrc: ["'self'", 'data:', 'https:'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
@@ -91,6 +97,10 @@ async function main() {
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  })
+
+  app.get('/api/config/restaurant', (_req, res) => {
+    res.json({ success: true, data: { name: config.restaurant.name, nit: config.restaurant.nit } })
   })
 
   app.use(

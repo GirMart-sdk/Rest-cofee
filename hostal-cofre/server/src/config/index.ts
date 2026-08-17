@@ -62,6 +62,10 @@ export const config = {
   adminPassword: process.env.ADMIN_PASSWORD || '',
   clientEmail: process.env.CLIENT_EMAIL || '',
   clientPassword: process.env.CLIENT_PASSWORD || '',
+  restaurant: {
+    name: process.env.RESTAURANT_NAME || 'Hostal Cofre',
+    nit: process.env.RESTAURANT_NIT || '',
+  },
   lockout: {
     maxAttempts: parseInt(process.env.LOCKOUT_MAX_ATTEMPTS || '5'),
     windowMs: parseInt(process.env.LOCKOUT_WINDOW_MS || '900000'), // 15 min

@@ -23,18 +23,6 @@ export default function AdminReports() {
   const [view, setView] = useLocalStorage<'daily' | 'weekly'>('reports-view', 'daily')
   const [selectedDate, setSelectedDate] = useState(toLocalDateString())
 
-  const fetchReport = async (date?: string) => {
-    try {
-      setLoading(true)
-      const res = await api.get('/reports/daily', { params: { date: date || selectedDate } })
-      setReport(res.data.data)
-    } catch {
-      toast.error('Error al cargar reporte')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const fetchWeekly = async () => {
     try {
       setLoading(true)
@@ -48,11 +36,28 @@ export default function AdminReports() {
   }
 
   useEffect(() => {
-    fetchReport()
+    const controller = new AbortController()
+    const load = async () => {
+      try {
+        setLoading(true)
+        const res = await api.get('/reports/daily', {
+          params: { date: selectedDate },
+          signal: controller.signal,
+        })
+        setReport(res.data.data)
+      } catch {
+        toast.error('Error al cargar reporte')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+    return () => controller.abort()
   }, [selectedDate])
 
   useEffect(() => {
     fetchWeekly()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

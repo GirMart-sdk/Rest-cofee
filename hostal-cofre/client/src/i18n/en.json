@@ -81,5 +81,73 @@
     "back": "Back",
     "search": "Search",
     "noResults": "No results found"
+  },
+  "pos": {
+    "loadError": "Error loading menu",
+    "title": "Point of Sale",
+    "currentSale": "Current Sale",
+    "clear": "Clear",
+    "addToMenu": "Add menu items",
+    "charge": "Charge",
+    "categories": {
+      "all": "All",
+      "ensalada": "Salads",
+      "pasta": "Pasta",
+      "pizza": "Pizza",
+      "postre": "Desserts",
+      "bebida": "Drinks"
+    }
+  },
+  "payment": {
+    "title": "Charge",
+    "customerNameOptional": "Customer name (optional)",
+    "cash": "Cash",
+    "nequi": "Nequi",
+    "daviplata": "DaviPlata",
+    "wompi": "Card/PSE",
+    "confirmTransfer": "I confirm I received the transfer from the customer",
+    "transferConfirmError": "Confirm you received the transfer to continue",
+    "cashReceived": "Cash received",
+    "change": "Change",
+    "total": "Total",
+    "cancel": "Cancel",
+    "confirmPayment": "Confirm Payment",
+    "processing": "Processing...",
+    "thankYou": "Thank you for your purchase!",
+    "pendingPayment": "Pending payment — complete payment at the Wompi link",
+    "loadingPOS": "Loading POS...",
+    "registerSale": "Sale registered",
+    "response500": "Error registering sale"
+  },
+  "receipt": {
+    "receipt": "Receipt",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "print": "Print",
+    "close": "Close",
+    "payment": "Payment",
+    "cash": "Cash",
+    "nequi": "Nequi",
+    "daviplata": "DaviPlata",
+    "wompi": "Card/PSE"
+  },
+  "forgotPassword": {
+    "title": "Recover password",
+    "emailStep": "Enter your email to verify your security question",
+    "questionStep": "Answer your security question",
+    "resetStep": "Enter your new password",
+    "securityQuestion": "Your question:",
+    "answerPlaceholder": "Your answer",
+    "newPasswordPlaceholder": "New password (minimum 8 characters)",
+    "searchQuestion": "Find security question",
+    "verifyAnswer": "Verify answer",
+    "resetPassword": "Reset password",
+    "verifying": "Verifying...",
+    "resetting": "Resetting...",
+    "wrongAnswer": "Incorrect answer",
+    "resetSuccess": "Password reset. Log in with your new password.",
+    "resetError": "Error resetting password",
+    "noQuestionFound": "No security question found for this email",
+    "backToLogin": "Back to login"
   }
 }

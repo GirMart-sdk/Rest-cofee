@@ -264,10 +264,9 @@ Write-Host ""
 Write-Host "Presiona Ctrl+C para detener todo." -ForegroundColor Gray
 Write-Host "----------------------------------------" -ForegroundColor DarkGray
 
-# Iniciar el backend en una nueva ventana de PowerShell
-Start-Process powershell -ArgumentList "-NoExit", "-NoProfile", "-Command", "Push-Location -Path '$ServerPath'; npm run dev"
-
-# Iniciar el frontend en una nueva ventana de PowerShell
-Start-Process powershell -ArgumentList "-NoExit", "-NoProfile", "-Command", "Push-Location -Path '$ClientPath'; npm run dev"
-
-Write-Host "Servicios iniciados en ventanas separadas."
+# Iniciar backend y frontend en la misma ventana con concurrently
+$serverDev = "npm run dev --prefix `"$ServerPath`""
+$clientDev = "npm run dev --prefix `"$ClientPath`""
+Push-Location $ProjectRoot.FullName
+npx --yes concurrently --names "server,client" --prefix-colors "cyan,green" "$serverDev" "$clientDev"
+Pop-Location

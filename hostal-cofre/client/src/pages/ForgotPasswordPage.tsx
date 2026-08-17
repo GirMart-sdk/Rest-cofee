@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import axios from 'axios'
+import { api } from '../services/api'
 import { Input, Button } from '../components/ui'
 import toast from 'react-hot-toast'
 
@@ -9,6 +10,7 @@ type Step = 'email' | 'question' | 'reset'
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [question, setQuestion] = useState('')
@@ -21,15 +23,15 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await axios.post('/api/auth/security-question', { email })
+      const res = await api.post('/auth/security-question', { email })
       if (res.data.data?.hasQuestion) {
         setQuestion(res.data.data.question)
         setStep('question')
       } else {
-        toast.error('No se encontró una pregunta de seguridad para este email')
+        toast.error(t('forgotPassword.noQuestionFound'))
       }
     } catch {
-      toast.error('No se encontró una pregunta de seguridad para este email')
+      toast.error(t('forgotPassword.noQuestionFound'))
     } finally {
       setLoading(false)
     }
@@ -39,11 +41,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await axios.post('/api/auth/verify-security-answer', { email, answer })
+      const res = await api.post('/auth/verify-security-answer', { email, answer })
       setResetToken(res.data.data.resetToken)
       setStep('reset')
     } catch {
-      toast.error('Respuesta incorrecta')
+      toast.error(t('forgotPassword.wrongAnswer'))
     } finally {
       setLoading(false)
     }
@@ -53,11 +55,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await axios.post('/api/auth/reset-password', { token: resetToken, newPassword })
-      toast.success('Contraseña restablecida. Inicia sesión con tu nueva contraseña.')
+      await api.post('/auth/reset-password', { token: resetToken, newPassword })
+      toast.success(t('forgotPassword.resetSuccess'))
       navigate('/login')
     } catch {
-      toast.error('Error al restablecer la contraseña')
+      toast.error(t('forgotPassword.resetError'))
     } finally {
       setLoading(false)
     }
@@ -72,11 +74,11 @@ export default function ForgotPasswordPage() {
       >
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-display mb-2">Recuperar contraseña</h1>
+            <h1 className="text-3xl font-display mb-2">{t('forgotPassword.title')}</h1>
             <p className="text-gray-500">
-              {step === 'email' && 'Ingresa tu email para verificar tu pregunta de seguridad'}
-              {step === 'question' && 'Responde tu pregunta de seguridad'}
-              {step === 'reset' && 'Ingresa tu nueva contraseña'}
+              {step === 'email' && t('forgotPassword.emailStep')}
+              {step === 'question' && t('forgotPassword.questionStep')}
+              {step === 'reset' && t('forgotPassword.resetStep')}
             </p>
           </div>
 
@@ -84,13 +86,13 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleEmailSubmit} className="space-y-4">
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={t('auth.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
               <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading ? 'Verificando...' : 'Buscar pregunta de seguridad'}
+                {loading ? t('forgotPassword.verifying') : t('forgotPassword.searchQuestion')}
               </Button>
             </form>
           )}
@@ -98,19 +100,19 @@ export default function ForgotPasswordPage() {
           {step === 'question' && (
             <form onSubmit={handleAnswerSubmit} className="space-y-4">
               <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-500 mb-1">Tu pregunta:</p>
+                <p className="text-sm text-gray-500 mb-1">{t('forgotPassword.securityQuestion')}</p>
                 <p className="font-medium text-gray-800">{question}</p>
               </div>
               <Input
                 type="text"
-                placeholder="Tu respuesta"
+                placeholder={t('forgotPassword.answerPlaceholder')}
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 required
                 autoFocus
               />
               <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading ? 'Verificando...' : 'Verificar respuesta'}
+                {loading ? t('forgotPassword.verifying') : t('forgotPassword.verifyAnswer')}
               </Button>
             </form>
           )}
@@ -119,14 +121,14 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleResetSubmit} className="space-y-4">
               <Input
                 type="password"
-                placeholder="Nueva contraseña (mínimo 8 caracteres)"
+                placeholder={t('forgotPassword.newPasswordPlaceholder')}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={8}
               />
               <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading ? 'Restableciendo...' : 'Restablecer contraseña'}
+                {loading ? t('forgotPassword.resetting') : t('forgotPassword.resetPassword')}
               </Button>
             </form>
           )}
@@ -136,7 +138,7 @@ export default function ForgotPasswordPage() {
               onClick={() => navigate('/login')}
               className="text-primary hover:underline text-sm font-semibold"
             >
-              Volver al inicio de sesión
+              {t('forgotPassword.backToLogin')}
             </button>
           </div>
         </div>
