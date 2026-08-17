@@ -25,7 +25,7 @@ import { validate } from '../middleware/validation.js'
 const REFRESH_TOKEN_MS = parseDurationToMs(config.jwtRefreshExpiresIn)
 
 const authLimiter = makeLimiter(10)
-const twoFactorVerifyLimiter = makeLimiter(10)
+const twoFactorVerifyLimiter = makeLimiter(5)
 const refreshLimiter = makeLimiter(60)
 const logoutLimiter = makeLimiter(60)
 const changePasswordLimiter = makeLimiter(20)
