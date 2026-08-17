@@ -68,4 +68,6 @@ export const config = {
     lockoutMs: parseInt(process.env.LOCKOUT_DURATION_MS || '900000'), // 15 min
     ipMaxAttempts: parseInt(process.env.LOCKOUT_IP_MAX_ATTEMPTS || '10'),
   },
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY || '',
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || '',
 }

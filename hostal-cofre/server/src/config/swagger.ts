@@ -32,7 +32,11 @@ const options: swaggerJsdoc.Options = {
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: [path.join(__dirname, 'routes', '*.ts'), path.join(__dirname, 'index.ts')],
+  apis: [
+    path.join(__dirname, 'swagger-*.ts'),
+    path.join(__dirname, 'routes', '*.ts'),
+    path.join(__dirname, 'index.ts'),
+  ],
 }
 
 export const swaggerSpec = swaggerJsdoc(options)

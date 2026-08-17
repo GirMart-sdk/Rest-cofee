@@ -16,6 +16,7 @@ import shiftRoutes from './routes/shifts.js'
 import tableRoutes from './routes/tables.js'
 import reportRoutes from './routes/reports.js'
 import auditRoutes from './routes/audit.js'
+import pushRoutes from './routes/push.js'
 import { errorHandler } from './middleware/errors.js'
 import { sanitize } from './middleware/sanitize.js'
 import { requestId } from './middleware/requestId.js'
@@ -120,6 +121,7 @@ async function main() {
   app.use('/api/tables', tableRoutes)
   app.use('/api/reports', reportRoutes)
   app.use('/api/audit', auditRoutes)
+  app.use('/api/push', pushRoutes)
 
   // Rutas /api no encontradas devuelven JSON (antes del fallback SPA)
   app.use('/api', (_req, res) => {
