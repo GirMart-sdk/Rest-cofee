@@ -7,10 +7,13 @@ const mockApi = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
+const mockRefreshTokens = vi.hoisted(() => vi.fn())
+
 vi.mock('../services/api', () => ({
   api: mockApi,
   setAccessToken: vi.fn(),
   clearTokens: vi.fn(),
+  refreshTokens: mockRefreshTokens,
 }))
 
 import { setAccessToken, clearTokens } from '../services/api'
@@ -44,6 +47,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockApi.post.mockRejectedValue(new Error('no cookie'))
   mockApi.get.mockRejectedValue(new Error('no session'))
+  mockRefreshTokens.mockResolvedValue(false)
 })
 
 describe('AuthContext', () => {
@@ -114,20 +118,20 @@ describe('AuthContext', () => {
   })
 
   it('restores the user from /auth/me after a successful refresh', async () => {
-    mockApi.post.mockResolvedValue({ data: { data: { accessToken: 'a2' } } })
+    mockRefreshTokens.mockResolvedValue(true)
     mockApi.get.mockResolvedValue({
       data: { data: { id: 'u1', name: 'Ana', email: 'a@b.com', role: 'client' } },
     })
 
     renderAuth()
     await waitFor(() => expect(screen.getByTestId('user').textContent).toBe('a@b.com'))
-    expect(mockApi.post).toHaveBeenCalledWith('/auth/refresh')
+    expect(mockRefreshTokens).toHaveBeenCalled()
     expect(mockApi.get).toHaveBeenCalledWith('/auth/me')
     expect(screen.getByTestId('loading').textContent).toBe('false')
   })
 
   it('clears the session when /auth/me fails after a successful refresh', async () => {
-    mockApi.post.mockResolvedValue({ data: { data: { accessToken: 'a2' } } })
+    mockRefreshTokens.mockResolvedValue(true)
 
     renderAuth()
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
@@ -136,10 +140,12 @@ describe('AuthContext', () => {
   })
 
   it('clears the token when the refresh fails', async () => {
+    mockRefreshTokens.mockResolvedValue(false)
+
     renderAuth()
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
     expect(screen.getByTestId('user').textContent).toBe('none')
-    expect(mockApi.post).toHaveBeenCalledWith('/auth/refresh')
+    expect(mockRefreshTokens).toHaveBeenCalled()
     expect(clearTokens).toHaveBeenCalled()
   })
 
@@ -182,7 +188,7 @@ describe('AuthContext', () => {
   })
 
   it('logs out, clears the token and resets the user', async () => {
-    mockApi.post.mockResolvedValue({ data: { data: { accessToken: 'a2' } } })
+    mockRefreshTokens.mockResolvedValue(true)
     mockApi.get.mockResolvedValue({
       data: { data: { id: 'u1', name: 'Ana', email: 'a@b.com', role: 'client' } },
     })

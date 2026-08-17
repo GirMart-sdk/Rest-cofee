@@ -321,3 +321,60 @@ describe('GET /api/orders/zones', () => {
     expect(res.body.data.length).toBeGreaterThanOrEqual(3)
   })
 })
+
+describe('POST /api/orders — delivery order', () => {
+  it('should require address and deliveryZone for domicilio orders', async () => {
+    const menuItem = await createMenuItem()
+    const res = await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Delivery Test',
+        customerPhone: '3001234567',
+        paymentMethod: 'cash',
+        orderType: 'domicilio',
+        items: [{ menuItemId: menuItem.id, quantity: 1 }],
+      })
+    expect(res.status).toBe(400)
+  })
+
+  it('should create a delivery order with address and zone', async () => {
+    const menuItem = await createMenuItem()
+    const res = await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Delivery Test',
+        customerPhone: '3001234567',
+        paymentMethod: 'cash',
+        orderType: 'domicilio',
+        address: 'Calle 123 #45-67',
+        deliveryZone: 'centro',
+        items: [{ menuItemId: menuItem.id, quantity: 1 }],
+      })
+    expect(res.status).toBe(201)
+    expect(res.body.data.orderType).toBe('domicilio')
+    expect(res.body.data.address).toBe('Calle 123 #45-67')
+    expect(res.body.data.deliveryZone).toBe('centro')
+    expect(res.body.data.deliveryFee).toBe(3000)
+  })
+})
+
+describe('POST /api/orders — multiple items', () => {
+  it('should calculate correct total with multiple items', async () => {
+    const item1 = await createMenuItem()
+    const item2 = await createMenuItem()
+    const res = await request(app)
+      .post('/api/orders')
+      .send({
+        customerName: 'Multi Item',
+        customerPhone: '3001234567',
+        paymentMethod: 'cash',
+        items: [
+          { menuItemId: item1.id, quantity: 2 },
+          { menuItemId: item2.id, quantity: 3 },
+        ],
+      })
+    expect(res.status).toBe(201)
+    expect(res.body.data.total).toBe(item1.price * 2 + item2.price * 3)
+    expect(res.body.data.items).toHaveLength(2)
+  })
+})

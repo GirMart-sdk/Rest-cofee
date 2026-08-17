@@ -82,9 +82,9 @@ api.interceptors.response.use(
           window.location.href = '/login'
           return Promise.reject(error)
         }
-        const accessToken = getAccessToken()
-        processQueue(null, accessToken)
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`
+        const newToken = getAccessToken()
+        processQueue(null, newToken)
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
         return api(originalRequest)
       } finally {
         isRefreshing = false

@@ -4,10 +4,11 @@ import jwt from 'jsonwebtoken'
 import crypto from 'node:crypto'
 import { generateSecret, generateURI, verifySync } from 'otplib'
 import { config } from '../config/index.js'
-import { authenticate, AuthRequest } from '../middleware/auth.js'
+import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { checkLockout, recordLoginAttempt } from '../middleware/lockout.js'
 import { revokeRefreshToken, revokeAllUserTokens } from '../middleware/tokenBlacklist.js'
 import { metrics } from '../utils/metrics.js'
+import { logger } from '../utils/logger.js'
 import { hashToken, generateRefreshTokenValue } from '../utils/tokens.js'
 import { makeLimiter } from '../utils/rateLimit.js'
 import { getClientIp } from '../utils/ip.js'
@@ -452,6 +453,133 @@ router.post(
     clearRefreshCookie(res)
 
     res.json({ success: true, message: 'Password changed. All sessions invalidated.' })
+  },
+)
+
+const adminResetPasswordSchema = z.object({
+  params: z.object({ userId: z.string().cuid('Invalid user ID') }),
+  body: z.object({
+    newPassword: z
+      .string()
+      .min(8)
+      .max(100)
+      .regex(
+        PASSWORD_REGEX,
+        'Password must contain uppercase, lowercase, number, and special character',
+      ),
+  }),
+})
+
+router.post(
+  '/admin/reset-password/:userId',
+  authenticate,
+  requireAdmin,
+  changePasswordLimiter,
+  validate(adminResetPasswordSchema),
+  async (req: AuthRequest, res: Response) => {
+    const { userId } = req.params
+    const { newPassword } = req.body
+
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' })
+
+    const hashed = await bcrypt.hash(newPassword, 12)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashed, tokenVersion: { increment: 1 } },
+    })
+
+    await revokeAllUserTokens(user.id)
+    res.json({
+      success: true,
+      message: `Password reset for ${user.email}. All sessions invalidated.`,
+    })
+  },
+)
+
+const forgotPasswordLimiter = makeLimiter(5)
+
+const forgotPasswordSchema = z.object({
+  body: z.object({ email: z.string().trim().email().max(255) }),
+})
+
+router.post(
+  '/forgot-password',
+  forgotPasswordLimiter,
+  validate(forgotPasswordSchema),
+  async (req: Request, res: Response) => {
+    const { email } = req.body
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'If the email exists, a reset link has been sent.',
+      })
+    }
+
+    const resetToken = jwt.sign({ purpose: 'password-reset', id: user.id }, config.jwtSecret, {
+      algorithm: 'HS256',
+      expiresIn: '1h',
+    })
+
+    const resetUrl = `${config.corsOrigin}/reset-password?token=${resetToken}`
+
+    logger.info('password reset requested', { email: user.email, resetUrl })
+
+    res.json({
+      success: true,
+      message: 'If the email exists, a reset link has been sent.',
+      ...(process.env.NODE_ENV !== 'production' ? { debug: { resetToken, resetUrl } } : {}),
+    })
+  },
+)
+
+const resetPasswordSchema = z.object({
+  body: z.object({
+    token: z.string().min(1, 'Reset token is required'),
+    newPassword: z
+      .string()
+      .min(8)
+      .max(100)
+      .regex(
+        PASSWORD_REGEX,
+        'Password must contain uppercase, lowercase, number, and special character',
+      ),
+  }),
+})
+
+router.post(
+  '/reset-password',
+  forgotPasswordLimiter,
+  validate(resetPasswordSchema),
+  async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body
+
+    let payload: { purpose?: string; id?: string }
+    try {
+      payload = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as typeof payload
+    } catch {
+      return res.status(400).json({ success: false, error: 'Invalid or expired reset token' })
+    }
+
+    if (payload.purpose !== 'password-reset' || !payload.id) {
+      return res.status(400).json({ success: false, error: 'Invalid reset token' })
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: payload.id } })
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' })
+
+    const hashed = await bcrypt.hash(newPassword, 12)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashed, tokenVersion: { increment: 1 } },
+    })
+
+    await revokeAllUserTokens(user.id)
+    res.json({
+      success: true,
+      message: 'Password reset successfully. Please login with your new password.',
+    })
   },
 )
 

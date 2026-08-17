@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { User } from '../types'
-import { api, setAccessToken, clearTokens } from '../services/api'
+import { api, setAccessToken, clearTokens, refreshTokens } from '../services/api'
 
 interface AuthContextType {
   user: User | null
@@ -29,15 +29,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [twoFactorPending, setTwoFactorPending] = useState<string | null>(null)
   const [authError, setAuthError] = useState<string | null>(null)
 
-  const refreshAccessToken = useCallback(async (): Promise<boolean> => {
-    try {
-      const res = await api.post('/auth/refresh')
-      const { accessToken } = res.data.data
-      if (accessToken) {
-        setAccessToken(accessToken)
-        return true
-      }
+  const restoreSession = useCallback(async (): Promise<boolean> => {
+    const refreshed = await refreshTokens()
+    if (!refreshed) {
+      clearTokens()
       return false
+    }
+    try {
+      const res = await api.get('/auth/me')
+      setUser(res.data.data)
+      return true
     } catch {
       clearTokens()
       return false
@@ -46,23 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true
-    const restoreSession = async () => {
-      const refreshed = await refreshAccessToken()
-      if (refreshed && mounted) {
-        try {
-          const res = await api.get('/auth/me')
-          if (mounted) setUser(res.data.data)
-        } catch {
-          if (mounted) clearTokens()
-        }
-      }
+    void restoreSession().finally(() => {
       if (mounted) setLoading(false)
-    }
-    void restoreSession()
+    })
     return () => {
       mounted = false
     }
-  }, [refreshAccessToken])
+  }, [restoreSession])
 
   const applySession = (res: { data: { data: { accessToken?: string; user?: User } } }) => {
     const { accessToken, user: userData } = res.data.data
@@ -75,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await api.post('/auth/login', { email, password })
-      // Con 2FA habilitado el servidor responde sin token; se guarda el token pendiente.
       if (res.data.requiresTwoFactor) {
         setTwoFactorPending(res.data.data?.pendingToken || null)
         return false

@@ -394,3 +394,148 @@ describe('GET /api/auth/me', () => {
     expect(res.status).toBe(401)
   })
 })
+
+describe('POST /api/auth/admin/reset-password/:userId', () => {
+  it('should allow admin to reset a user password', async () => {
+    const admin = await createUser('admin')
+    const client = await createUser('client')
+    const adminToken = generateToken(admin.user)
+
+    const res = await request(app)
+      .post(`/api/auth/admin/reset-password/${client.user.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ newPassword: 'NewPass!123' })
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: client.user.email, password: 'NewPass!123' })
+    expect(loginRes.status).toBe(200)
+    expect(loginRes.body.data.accessToken).toBeDefined()
+  })
+
+  it('should reject non-admin users', async () => {
+    const client = await createUser('client')
+    const otherClient = await createUser('client')
+    const token = generateToken(client.user)
+
+    const res = await request(app)
+      .post(`/api/auth/admin/reset-password/${otherClient.user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ newPassword: 'NewPass!123' })
+    expect(res.status).toBe(403)
+  })
+
+  it('should reject weak passwords', async () => {
+    const admin = await createUser('admin')
+    const client = await createUser('client')
+    const adminToken = generateToken(admin.user)
+
+    const res = await request(app)
+      .post(`/api/auth/admin/reset-password/${client.user.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ newPassword: 'weak' })
+    expect(res.status).toBe(400)
+  })
+
+  it('should return 404 for non-existent user', async () => {
+    const admin = await createUser('admin')
+    const adminToken = generateToken(admin.user)
+
+    const res = await request(app)
+      .post('/api/auth/admin/reset-password/c00000000000000000000001')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ newPassword: 'NewPass!123' })
+    expect(res.status).toBe(404)
+  })
+
+  it('should invalidate all sessions of the reset user', async () => {
+    const admin = await createUser('admin')
+    const client = await createUser('client')
+    const adminToken = generateToken(admin.user)
+
+    await request(app)
+      .post(`/api/auth/admin/reset-password/${client.user.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ newPassword: 'NewPass!123' })
+
+    const oldToken = generateToken(client.user)
+    const res = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${oldToken}`)
+    expect(res.status).toBe(401)
+  })
+})
+
+describe('POST /api/auth/forgot-password + /reset-password', () => {
+  it('should return success even for non-existent email (no user enumeration)', async () => {
+    const res = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: 'nonexistent@test.com' })
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+  })
+
+  it('should return a reset token in debug mode for existing users', async () => {
+    const { user } = await createUser('client')
+    const res = await request(app).post('/api/auth/forgot-password').send({ email: user.email })
+    expect(res.status).toBe(200)
+    expect(res.body.debug?.resetToken).toBeDefined()
+  })
+
+  it('should allow password reset with valid token', async () => {
+    const { user } = await createUser('client')
+    const forgotRes = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: user.email })
+    const resetToken = forgotRes.body.debug.resetToken
+
+    const resetRes = await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token: resetToken, newPassword: 'ResetPass!123' })
+    expect(resetRes.status).toBe(200)
+    expect(resetRes.body.success).toBe(true)
+
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: user.email, password: 'ResetPass!123' })
+    expect(loginRes.status).toBe(200)
+    expect(loginRes.body.data.accessToken).toBeDefined()
+  })
+
+  it('should reject invalid reset tokens', async () => {
+    const res = await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token: 'invalid-token', newPassword: 'ResetPass!123' })
+    expect(res.status).toBe(400)
+  })
+
+  it('should reject weak passwords on reset', async () => {
+    const { user } = await createUser('client')
+    const forgotRes = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: user.email })
+    const resetToken = forgotRes.body.debug.resetToken
+
+    const res = await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token: resetToken, newPassword: 'weak' })
+    expect(res.status).toBe(400)
+  })
+
+  it('should invalidate old sessions after reset', async () => {
+    const { user } = await createUser('client')
+    const oldToken = generateToken(user)
+
+    const forgotRes = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: user.email })
+    const resetToken = forgotRes.body.debug.resetToken
+
+    await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token: resetToken, newPassword: 'ResetPass!123' })
+
+    const meRes = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${oldToken}`)
+    expect(meRes.status).toBe(401)
+  })
+})
