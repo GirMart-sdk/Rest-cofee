@@ -2,7 +2,6 @@ import { Router, Response, NextFunction } from 'express'
 import { authenticate, requireAdmin, AuthRequest, optionalAuth } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
 import { OrderService } from '../services/order.service.js'
-import { ReportService } from '../services/report.service.js'
 import { DeliveryService } from '../services/delivery.service.js'
 import { whatsappService } from '../services/whatsapp.service.js'
 import { config } from '../config/index.js'
@@ -76,12 +75,6 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       totalPages: result.totalPages,
     },
   })
-})
-
-router.get('/daily-sales', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
-  const { date } = req.query
-  const report = await ReportService.getDailyReport(date as string)
-  res.json({ success: true, data: report })
 })
 
 const tableNumberParamsSchema = z.object({

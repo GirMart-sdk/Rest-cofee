@@ -37,4 +37,3 @@ class EventBus {
 }
 
 export const eventBus = new EventBus()
-export { MAX_CLIENTS }

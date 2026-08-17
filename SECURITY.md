@@ -4,6 +4,7 @@
 ![Clasificación](https://img.shields.io/badge/Clasificación-Confidencial-red.svg)
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
+![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
 
 ---
 

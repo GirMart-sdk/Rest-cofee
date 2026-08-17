@@ -34,15 +34,9 @@ function getJwtSecret(): string {
   return secret
 }
 
-export const wompiBaseUrls = {
-  sandbox: 'https://sandbox.wompi.co/v1',
-  production: 'https://production.wompi.co/v1',
-} as const
-
 export const config = {
   port: parseInt(process.env.PORT || '3001'),
   nodeEnv: process.env.NODE_ENV || 'development',
-  logLevel: process.env.LOG_LEVEL || 'info',
   jwtSecret: getJwtSecret(),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '15m',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
@@ -55,15 +49,15 @@ export const config = {
     eventsSecret: process.env.WOMPI_EVENTS_SECRET || '',
     baseUrl:
       process.env.WOMPI_BASE_URL ||
-      wompiBaseUrls[process.env.WOMPI_MODE === 'production' ? 'production' : 'sandbox'],
+      (process.env.WOMPI_MODE === 'production'
+        ? 'https://production.wompi.co/v1'
+        : 'https://sandbox.wompi.co/v1'),
   },
   whatsapp: {
     phone: process.env.WHATSAPP_PHONE || '573001234567',
     apiToken: process.env.WHATSAPP_API_TOKEN || '',
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
-    businessAccountId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '',
   },
-  whatsappPhone: process.env.WHATSAPP_PHONE || '573001234567',
   adminEmail: process.env.ADMIN_EMAIL || '',
   adminPassword: process.env.ADMIN_PASSWORD || '',
   clientEmail: process.env.CLIENT_EMAIL || '',

@@ -95,19 +95,4 @@ describe('DeliveryService', () => {
   it('should return 0 fee for an unknown zone', () => {
     expect(DeliveryService.getZoneFee('unknown')).toBe(0)
   })
-
-  it('should return config for a known zone and null otherwise', () => {
-    expect(DeliveryService.getZoneConfig('periurbano')).not.toBeNull()
-    expect(DeliveryService.getZoneConfig('unknown')).toBeNull()
-  })
-
-  it('should calculate total with delivery fee', () => {
-    const result = DeliveryService.calculateTotal(100, 'centro')
-    expect(result).toEqual({ fee: 3000, total: 3100 })
-  })
-
-  it('should calculate total without delivery fee', () => {
-    const result = DeliveryService.calculateTotal(100)
-    expect(result).toEqual({ fee: 0, total: 100 })
-  })
 })

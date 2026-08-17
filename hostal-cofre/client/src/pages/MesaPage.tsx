@@ -63,7 +63,7 @@ function MesaMenuGrid() {
   useEffect(() => {
     api
       .get('/menu')
-      .then((res) => setMenuItems(res.data.data.filter((i: MenuItem) => i.available)))
+      .then((res) => setMenuItems((res.data?.data ?? []).filter((i: MenuItem) => i.available)))
       .catch(() => toast.error('Error al cargar el menú'))
       .finally(() => setLoading(false))
   }, [])

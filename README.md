@@ -9,11 +9,12 @@
 [![Node.js](https://img.shields.io/badge/Node.js-22-green?logo=nodedotjs)](https://nodejs.org)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
 ![Prisma](https://img.shields.io/badge/Prisma-5-darkblue?logo=prisma)
+
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 [![Security](https://img.shields.io/badge/Security-6%20Layers-red.svg)](SECURITY.md)
-
 [![E2E](https://img.shields.io/badge/E2E-Playwright-blue.svg)](e2e/README.md)
 [![Deploy](https://img.shields.io/badge/Deploy-Windows%20Bare--Metal-blue.svg)](deploy/README.md)
+![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
 
 ---
 

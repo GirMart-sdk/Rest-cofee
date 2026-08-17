@@ -195,12 +195,6 @@ export interface SystemMetrics {
   whatsappSkipped: number
 }
 
-export interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
-
 export interface PaginationMeta {
   page: number
   limit: number

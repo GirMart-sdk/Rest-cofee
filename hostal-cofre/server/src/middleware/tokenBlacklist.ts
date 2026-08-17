@@ -15,11 +15,6 @@ export async function revokeAllUserTokens(userId: string) {
   })
 }
 
-export async function isRefreshTokenRevoked(token: string): Promise<boolean> {
-  const record = await prisma.refreshToken.findUnique({ where: { tokenHash: hashToken(token) } })
-  return !record || record.revoked
-}
-
 export async function cleanupExpiredTokens() {
   await prisma.refreshToken.deleteMany({
     where: {

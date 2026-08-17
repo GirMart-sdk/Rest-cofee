@@ -34,16 +34,4 @@ export class DeliveryService {
   static getZoneFee(zone: string): number {
     return DELIVERY_ZONES[zone]?.fee ?? 0
   }
-
-  static getZoneConfig(zone: string): DeliveryZoneConfig | null {
-    return DELIVERY_ZONES[zone] ?? null
-  }
-
-  static calculateTotal(subtotal: number, zone?: string): { fee: number; total: number } {
-    const fee = zone ? this.getZoneFee(zone) : 0
-    return {
-      fee,
-      total: parseFloat((subtotal + fee).toFixed(2)),
-    }
-  }
 }

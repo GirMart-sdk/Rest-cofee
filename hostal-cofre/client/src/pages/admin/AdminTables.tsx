@@ -354,7 +354,7 @@ export default function AdminTables() {
                   <div key={order.id} className="bg-orange-50 rounded-lg p-3 mb-2">
                     <div className="flex justify-between text-sm">
                       <span className="font-semibold">#{order.id.slice(0, 8)}</span>
-                      <span className="font-bold text-primary">${order.total}</span>
+                      <span className="font-bold text-primary">{formatCOP(order.total)}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {order.items

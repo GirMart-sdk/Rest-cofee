@@ -16,9 +16,6 @@
   .btn-primary {
     @apply bg-primary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-primary-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0;
   }
-  .btn-accent {
-    @apply bg-accent text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-accent-dark hover:shadow-lg;
-  }
   .btn-outline {
     @apply border-2 border-accent text-accent px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-accent hover:text-white;
   }
@@ -53,13 +50,6 @@
 .pos-item:active {
   transform: scale(0.95);
   transition: transform 0.1s ease;
-}
-
-/* Grid responsive para POS en tabletas */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .pos-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 /* ========================================
@@ -116,34 +106,6 @@
 }
 
 /* ========================================
-   Mesa - Vista del cliente
-   ======================================== */
-
-.mesa-page {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ========================================
-   Animaciones globales
-   ======================================== */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.3s ease-out;
-}
-
-/* ========================================
    Scrollbar personalizado
    ======================================== */
 
@@ -166,30 +128,6 @@
 }
 
 /* ========================================
-   Admin Dashboard - Tarjetas de stats
-   ======================================== */
-
-.stat-card {
-  @apply bg-white rounded-2xl p-5 shadow-md transition-all duration-300;
-}
-
-.stat-card:hover {
-  @apply shadow-lg -translate-y-0.5;
-}
-
-/* ========================================
-   Botones de estado de pedido
-   ======================================== */
-
-.status-btn {
-  @apply px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200;
-}
-
-.status-btn:active {
-  transform: scale(0.97);
-}
-
-/* ========================================
    Modales
    ======================================== */
 
@@ -201,12 +139,4 @@
   @apply bg-white rounded-2xl p-6 max-w-md w-full;
 }
 
-/* ========================================
-   Admin Layout
-   ======================================== */
 
-@media (min-width: 1024px) {
-  .admin-content {
-    margin-left: 16rem;
-  }
-}

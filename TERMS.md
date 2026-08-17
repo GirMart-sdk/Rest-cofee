@@ -5,6 +5,8 @@
 [![Licencia: DEVCO Propietaria](https://img.shields.io/badge/Licencia-DEVCO%20Propietaria-red.svg)](LICENSE)
 ![Actualizado](https://img.shields.io/badge/Actualizado-Agosto%202026-orange.svg)
 ![Responsabilidad](https://img.shields.io/badge/Responsabilidad-Usuario-blue.svg)
+![Datos Cifrados](https://img.shields.io/badge/Datos-Cifrados-green.svg)
+
 ![Actividad Prohibida](https://img.shields.io/badge/Actividad-Prohibida-red.svg)
 ![Garantía](<https://img.shields.io/badge/Garantía-Sin%20Garantía%20(AS%20IS)-yellow.svg>)
 ![Terminación](https://img.shields.io/badge/Terminación-Por%20Violación-red.svg)

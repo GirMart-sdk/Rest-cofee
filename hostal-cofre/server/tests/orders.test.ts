@@ -313,29 +313,6 @@ describe('PATCH /api/orders/:id/payment', () => {
   })
 })
 
-describe('GET /api/orders/daily-sales', () => {
-  it('should return daily sales report for admin', async () => {
-    const { user } = await createUser('admin')
-    const token = generateToken(user)
-    const res = await request(app)
-      .get('/api/orders/daily-sales')
-      .set('Authorization', `Bearer ${token}`)
-    expect(res.status).toBe(200)
-    expect(res.body.data.summary).toHaveProperty('totalSales')
-    expect(res.body.data.summary).toHaveProperty('totalOrders')
-    expect(res.body.data).toHaveProperty('topItems')
-  })
-
-  it('should reject non-admin users', async () => {
-    const { user } = await createUser('client')
-    const token = generateToken(user)
-    const res = await request(app)
-      .get('/api/orders/daily-sales')
-      .set('Authorization', `Bearer ${token}`)
-    expect(res.status).toBe(403)
-  })
-})
-
 describe('GET /api/orders/zones', () => {
   it('should return delivery zones', async () => {
     const res = await request(app).get('/api/orders/zones')
