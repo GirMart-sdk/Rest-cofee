@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "test:security": "tsx tests/security.test.ts"
+    "test:security": "tsx tests/security.test.ts",
+    "test:cyberattacks": "tsx tests/cyberattacks.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

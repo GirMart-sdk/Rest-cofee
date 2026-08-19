@@ -44,7 +44,7 @@ async function wompiFetch(path: string, init?: RequestInit): Promise<FetchRespon
       status: response.status,
       mode: config.wompi.mode,
     })
-    throw Object.assign(new Error(`Wompi error ${response.status}`), {
+    throw Object.assign(new Error('Payment provider request failed'), {
       statusCode: response.status >= 500 ? 502 : 400,
     })
   }

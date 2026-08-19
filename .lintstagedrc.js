@@ -3,7 +3,7 @@ module.exports = {
   // Lint y formatea archivos TypeScript/JavaScript en el sub-proyecto 'server'
   'hostal-cofre/server/**/*.{ts,js}': [
     'npx prettier --write', // Primero formatea
-    'npm run lint:fix --prefix hostal-cofre/server', // Luego ejecuta el linter
+    'npx eslint --fix --config hostal-cofre/server/.eslintrc.json --resolve-plugins-relative-to hostal-cofre/server', // Luego lint solo archivos staged
   ],
   // Lint y formatea archivos TypeScript/React en el sub-proyecto 'client'
   'hostal-cofre/client/**/*.{ts,tsx,js,jsx}': [

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
 import { logger } from '../utils/logger.js'
+import { config } from '../config/index.js'
 
 export function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof ZodError) {
@@ -41,7 +42,13 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
       message: err.message,
       details: err.details,
     })
-    return res.status(err.statusCode).json({ success: false, error: err.message })
+    // En producción, mensajes de 5xx nunca se exponen al cliente.
+    const isServerError = err.statusCode >= 500
+    const safeMessage =
+      isServerError && config.nodeEnv === 'production'
+        ? 'An unexpected error occurred on the server.'
+        : err.message
+    return res.status(err.statusCode).json({ success: false, error: safeMessage })
   }
 
   logger.error('unhandled error', {
